@@ -1,0 +1,318 @@
+﻿@model ShopDienTu.Models.Product
+@{
+    ViewData["Title"] = Model.ProductName;
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@Model.SubCategory?.CategoryID">
+                    @Model.SubCategory?.Category?.CategoryName
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index" asp-route-subcategoryId="@Model.SubCategoryID">
+                    @Model.SubCategory?.SubCategoryName
+                </a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.ProductName</li>
+        </ol>
+    </nav>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <!-- Product Images -->
+                <div class="col-md-5 mb-4">
+                    @{
+                        var mainImage = Model.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath;
+                        if (string.IsNullOrEmpty(mainImage))
+                        {
+                            mainImage = Model.ProductImages?.FirstOrDefault()?.ImagePath ?? "/images/no-image.jpg";
+                        }
+                    }
+                    <div class="product-main-image mb-3">
+                        <img src="@mainImage" alt="@Model.ProductName" class="img-fluid rounded">
+                    </div>
+                    @if (Model.ProductImages?.Count > 1)
+                    {
+                        <div class="product-thumbnails d-flex">
+                            @foreach (var image in Model.ProductImages)
+                            {
+                                <div class="thumbnail-item me-2">
+                                    <img src="@image.ImagePath" alt="@Model.ProductName" class="img-thumbnail" 
+                                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                                         onclick="document.querySelector('.product-main-image img').src = this.src">
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+
+                <!-- Product Info -->
+                <div class="col-md-7">
+                    <h1 class="h2 mb-3">@Model.ProductName</h1>
+                    
+                    <div class="mb-3">
+                        <span class="badge bg-primary">@Model.SubCategory?.Category?.CategoryName</span>
+                        <span class="badge bg-secondary">@Model.SubCategory?.SubCategoryName</span>
+                    </div>
+                    
+                    <div class="product-price fs-3 fw-bold text-danger mb-4">
+                        @string.Format("{0:N0}", Model.Price) ₫
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="mb-2"><i class="fas fa-check-circle text-success me-2"></i> Bảo hành chính hãng 12 tháng</p>
+                        <p class="mb-2"><i class="fas fa-truck text-primary me-2"></i> Giao hàng miễn phí toàn quốc</p>
+                        <p class="mb-2"><i class="fas fa-exchange-alt text-warning me-2"></i> Đổi trả trong 7 ngày</p>
+                    </div>
+                    
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mb-4">
+                        <input type="hidden" name="productId" value="@Model.ProductID" />
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto">
+                                <label for="quantity" class="col-form-label">Số lượng:</label>
+                            </div>
+                            <div class="col-auto">
+                                <input type="number" id="quantity" name="quantity" class="form-control" value="1" min="1" max="@Model.StockQuantity">
+                            </div>
+                            <div class="col-auto">
+                                <span class="form-text">
+                                    @(Model.StockQuantity > 0 ? $"Còn {Model.StockQuantity} sản phẩm" : "Hết hàng")
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary btn-lg me-2" @(Model.StockQuantity <= 0 ? "disabled" : "")>
+                                <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                            </button>
+                            <a href="#" class="btn btn-outline-danger btn-lg">
+                                <i class="fas fa-heart me-2"></i>Yêu thích
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Description -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="productTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description" 
+                            type="button" role="tab" aria-controls="description" aria-selected="true">
+                        Mô tả sản phẩm
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews" 
+                            type="button" role="tab" aria-controls="reviews" aria-selected="false">
+                        Đánh giá (@Model.Reviews?.Count ?? 0)
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content" id="productTabsContent">
+                <div class="tab-pane fade show active" id="description" role="tabpanel" aria-labelledby="description-tab">
+                    @if (!string.IsNullOrEmpty(Model.Description))
+                    {
+                        <div class="product-description">
+                            @Html.Raw(Model.Description)
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Chưa có mô tả cho sản phẩm này.</p>
+                    }
+                </div>
+                <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    @if (Model.Reviews != null && Model.Reviews.Any())
+                    {
+                        <div class="reviews-list">
+                            @foreach (var review in Model.Reviews.OrderByDescending(r => r.CreatedAt))
+                            {
+                                <div class="review-item border-bottom pb-3 mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <strong>@review.User?.FullName</strong>
+                                            <div class="text-muted small">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+                                        </div>
+                                        <div class="rating">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-muted")</i>
+                                            }
+                                        </div>
+                                    </div>
+                                    <p>@review.Comment</p>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Chưa có đánh giá nào cho sản phẩm này.</p>
+                    }
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="add-review mt-4">
+                            <h5>Thêm đánh giá của bạn</h5>
+                            <form asp-controller="Product" asp-action="AddReview" method="post">
+                                <input type="hidden" name="productId" value="@Model.ProductID" />
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Đánh giá:</label>
+                                    <div class="rating-input">
+                                        @for (int i = 5; i >= 1; i--)
+                                        {
+                                            <input type="radio" id="star@i" name="rating" value="@i" />
+                                            <label for="star@i" title="@i sao"><i class="far fa-star"></i></label>
+                                        }
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="comment" class="form-label">Bình luận:</label>
+                                    <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Product", new { id = Model.ProductID })">
+                                Đăng nhập
+                            </a> để thêm đánh giá của bạn.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Related Products -->
+    @if (ViewBag.RelatedProducts != null && ((IEnumerable<ShopDienTu.Models.Product>)ViewBag.RelatedProducts).Any())
+    {
+        <div class="card">
+            <div class="card-header bg-white">
+                <h3 class="mb-0 fs-5">Sản phẩm liên quan</h3>
+            </div>
+            <div class="card-body">
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+                    @foreach (var relatedProduct in ViewBag.RelatedProducts)
+                    {
+                        <div class="col">
+                            <div class="card product-card h-100">
+                                <div class="product-image">
+                                    @{
+                                        var relatedImage = relatedProduct.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath;
+                                        if (string.IsNullOrEmpty(relatedImage))
+                                        {
+                                            relatedImage = relatedProduct.ProductImages?.FirstOrDefault()?.ImagePath ?? "/images/no-image.jpg";
+                                        }
+                                    }
+                                    <img src="@relatedImage" alt="@relatedProduct.ProductName" class="card-img-top">
+                                </div>
+                                <div class="card-body">
+                                    <h3 class="product-name">
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@relatedProduct.ProductID" 
+                                           class="text-decoration-none text-dark">
+                                            @relatedProduct.ProductName
+                                        </a>
+                                    </h3>
+                                    <div class="product-price">@string.Format("{0:N0}", relatedProduct.Price) ₫</div>
+                                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                        <input type="hidden" name="productId" value="@relatedProduct.ProductID" />
+                                        <input type="hidden" name="quantity" value="1" />
+                                        <button type="submit" class="btn btn-primary w-100 add-to-cart">
+                                            <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Rating stars functionality
+        const ratingInputs = document.querySelectorAll('.rating-input input');
+        const ratingLabels = document.querySelectorAll('.rating-input label');
+        
+        ratingInputs.forEach(function(input) {
+            input.addEventListener('change', function() {
+                // Update stars appearance when rating is selected
+                const rating = this.value;
+                ratingLabels.forEach(function(label, i) {
+                    const star = label.querySelector('i');
+                    if (i >= (5 - rating)) {
+                        star.classList.remove('far');
+                        star.classList.add('fas', 'text-warning');
+                    } else {
+                        star.classList.remove('fas', 'text-warning');
+                        star.classList.add('far');
+                    }
+                });
+            });
+        });
+        
+        // Hover effect for rating stars
+        ratingLabels.forEach(function(label) {
+            label.addEventListener('mouseenter', function() {
+                const position = 5 - parseInt(this.getAttribute('for').replace('star', ''));
+                
+                ratingLabels.forEach(function(l, i) {
+                    const star = l.querySelector('i');
+                    if (i >= position) {
+                        star.classList.remove('far');
+                        star.classList.add('fas', 'text-warning');
+                    }
+                });
+            });
+            
+            label.addEventListener('mouseleave', function() {
+                const checkedInput = document.querySelector('.rating-input input:checked');
+                if (checkedInput) {
+                    // If a rating is already selected, restore to that state
+                    const rating = checkedInput.value;
+                    ratingLabels.forEach(function(l, i) {
+                        const star = l.querySelector('i');
+                        if (i >= (5 - rating)) {
+                            star.classList.remove('far');
+                            star.classList.add('fas', 'text-warning');
+                        } else {
+                            star.classList.remove('fas', 'text-warning');
+                            star.classList.add('far');
+                        }
+                    });
+                } else {
+                    // If no rating is selected, reset all stars
+                    ratingLabels.forEach(function(l) {
+                        const star = l.querySelector('i');
+                        star.classList.remove('fas', 'text-warning');
+                        star.classList.add('far');
+                    });
+                }
+            });
+        });
+    });
+</script>
+}

@@ -1,0 +1,9 @@
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.csproj.AssemblyReference.cache
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.AssemblyInfoInputs.cache
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.AssemblyInfo.cs
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.csproj.CoreCompileInputs.cache
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.RazorAssemblyInfo.cache
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.RazorAssemblyInfo.cs
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\ShopDienTu\obj\Debug\net8.0\ShopDienTu.sourcelink.json

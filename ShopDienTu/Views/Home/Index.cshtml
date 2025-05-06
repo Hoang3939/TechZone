@@ -1,0 +1,156 @@
+﻿@model IEnumerable<ShopDienTu.Models.Product>
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<div class="container">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="sidebar card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="sidebar-title mb-0 fs-5">Danh mục sản phẩm</h3>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="category-list list-group list-group-flush">
+                        @foreach (var category in ViewBag.Categories)
+                        {
+                            <li class="list-group-item p-0">
+                                <div class="category-item @(ViewBag.SelectedCategoryId == category.CategoryID ? "active" : "")"
+                                     data-category-id="@category.CategoryID">
+                                    <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.CategoryID"
+                                       class="d-flex justify-content-between align-items-center w-100 text-decoration-none @(ViewBag.SelectedCategoryId == category.CategoryID ? "text-white" : "text-dark")">
+                                        <span>@category.CategoryName</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </a>
+                                </div>
+                                <ul class="subcategory-list list-unstyled mb-0 @(ViewBag.SelectedCategoryId == category.CategoryID ? "active" : "")"
+                                    id="subcategory-@category.CategoryID">
+                                    @foreach (var subcategory in category.SubCategories)
+                                    {
+                                        <li class="subcategory-item @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "active" : "")">
+                                            <a asp-controller="Home" asp-action="Index"
+                                               asp-route-subcategoryId="@subcategory.SubCategoryID"
+                                               class="d-block w-100 text-decoration-none @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "text-primary" : "text-dark")">
+                                                @subcategory.SubCategoryName
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="section-title mb-0 fs-4">Sản phẩm nổi bật</h2>
+                        <div class="filter-options">
+                            <select id="sort-filter" class="form-select" onchange="location = this.value;">
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId })">Sắp xếp theo</option>
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_asc" })">Giá: Thấp đến cao</option>
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_desc" })">Giá: Cao đến thấp</option>
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "newest" })">Mới nhất</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                            @foreach (var product in Model)
+                            {
+                                <div class="col">
+                                    <div class="card product-card h-100">
+                                        <div class="product-image">
+                                            @{
+                                                var mainImage = product.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath;
+                                                if (string.IsNullOrEmpty(mainImage))
+                                                {
+                                                    mainImage = product.ProductImages?.FirstOrDefault()?.ImagePath ?? "/images/no-image.jpg";
+                                                }
+                                            }
+                                            <img src="@mainImage" alt="@product.ProductName" class="card-img-top">
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="product-category">
+                                                @product.SubCategory?.Category?.CategoryName > @product.SubCategory?.SubCategoryName
+                                            </div>
+                                            <h3 class="product-name">
+                                                <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID"
+                                                   class="text-decoration-none text-dark">
+                                                    @product.ProductName
+                                                </a>
+                                            </h3>
+                                            <div class="product-price">@string.Format("{0:N0}", product.Price) ₫</div>
+                                            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                                <input type="hidden" name="productId" value="@product.ProductID" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <button type="submit" class="btn btn-primary w-100 add-to-cart">
+                                                    <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            Không tìm thấy sản phẩm nào.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add event listeners to category items
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName.toLowerCase() === 'i') {
+                        e.preventDefault();
+                        const categoryId = this.getAttribute('data-category-id');
+                        const subcategoryList = document.getElementById(`subcategory-${categoryId}`);
+
+                        // Toggle active class
+                        subcategoryList.classList.toggle('active');
+
+                        // Toggle icon rotation
+                        const icon = this.querySelector('i');
+                        icon.style.transform = subcategoryList.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0)';
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        // Set the selected option based on current sort
+        document.addEventListener('DOMContentLoaded', function() {
+            const sortFilter = document.getElementById('sort-filter');
+            const currentSort = '@ViewBag.CurrentSort';
+
+            if (sortFilter) {
+                for (let i = 0; i < sortFilter.options.length; i++) {
+                    if (sortFilter.options[i].value.includes('sortOrder=' + currentSort)) {
+                        sortFilter.options[i].selected = true;
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
+}
