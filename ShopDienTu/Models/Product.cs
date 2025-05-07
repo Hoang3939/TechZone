@@ -47,5 +47,6 @@ namespace ShopDienTu.Models
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
         public virtual ICollection<Review> Reviews { get; set; }
         public virtual ICollection<Promotion> Promotions { get; set; }
+
     }
 }

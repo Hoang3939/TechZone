@@ -1,0 +1,26 @@
+﻿@model ShopDienTu.Models.Product
+@{
+    ViewData["Title"] = "Xoá sản phẩm";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-danger">Xác nhận xoá sản phẩm</h2>
+
+    <div class="alert alert-warning">
+        Bạn có chắc chắn muốn xoá sản phẩm <strong>@Model.ProductName</strong> không?
+    </div>
+
+    <div class="mb-3">
+        <p><strong>Giá:</strong> @string.Format("{0:N0}", Model.Price) ₫</p>
+        <p><strong>Số lượng trong kho:</strong> @Model.StockQuantity</p>
+        <p><strong>Mô tả:</strong> @Model.Description</p>
+    </div>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ProductID" />
+        <button type="submit" class="btn btn-danger">
+            <i class="fas fa-trash me-2"></i>Xoá
+        </button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Huỷ</a>
+    </form>
+</div>

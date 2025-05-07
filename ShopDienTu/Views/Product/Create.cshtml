@@ -1,0 +1,61 @@
+﻿@model ShopDienTu.Models.Product
+@{
+    ViewData["Title"] = "Thêm sản phẩm";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary">Thêm sản phẩm</h2>
+
+    <form asp-action="Create" method="post" class="needs-validation" novalidate>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="ProductName" class="form-label">Tên sản phẩm</label>
+                <input asp-for="ProductName" class="form-control" required />
+                <span asp-validation-for="ProductName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Price" class="form-label">Giá</label>
+                <input asp-for="Price" class="form-control" type="number" step="1000" required />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Description" class="form-label">Mô tả</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="StockQuantity" class="form-label">Số lượng trong kho</label>
+                <input asp-for="StockQuantity" class="form-control" type="number" min="0" />
+                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="SubCategoryID" class="form-label">Danh mục phụ</label>
+                @Html.DropDownListFor(model => model.SubCategoryID,
+                         ViewBag.SubCategoryList as List<SelectListItem>,
+                         "-- Chọn danh mục phụ --",
+                         new { @class = "form-select" })
+                <span asp-validation-for="SubCategoryID" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label class="form-label">Đường dẫn ảnh chính</label>
+                <input type="text" name="MainImagePath" class="form-control" placeholder="/images/example.jpg" />
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Thêm
+            </button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Quay lại</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

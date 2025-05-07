@@ -6,6 +6,7 @@ namespace ShopDienTu.Models
 {
     public class ProductImage
     {
+        [Key]
         public int ImageID { get; set; }
 
         public int? ProductID { get; set; }

@@ -70,13 +70,12 @@
                                     <div class="card product-card h-100">
                                         <div class="product-image">
                                             @{
-                                                var mainImage = product.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath;
-                                                if (string.IsNullOrEmpty(mainImage))
-                                                {
-                                                    mainImage = product.ProductImages?.FirstOrDefault()?.ImagePath ?? "/images/no-image.jpg";
-                                                }
+                                                var rawImage = product.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath
+                                                ?? product.ProductImages?.FirstOrDefault()?.ImagePath
+                                                ?? "no-image.jpg";
+                                                var imagePath = Url.Content("~/images/" + rawImage);
                                             }
-                                            <img src="@mainImage" alt="@product.ProductName" class="card-img-top">
+                                            <img src="@imagePath" alt="@product.ProductName" class="card-img-top">
                                         </div>
                                         <div class="card-body">
                                             <div class="product-category">

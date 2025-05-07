@@ -1,0 +1,68 @@
+﻿@model ShopDienTu.Models.Product
+@{
+    ViewData["Title"] = "Chỉnh sửa sản phẩm";
+}
+
+<h2 class="text-primary mb-4">Chỉnh sửa sản phẩm</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="ProductID" />
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="ProductName" class="form-label">Tên sản phẩm</label>
+            <input asp-for="ProductName" class="form-control" />
+            <span asp-validation-for="ProductName" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="Price" class="form-label">Giá</label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-12">
+            <label asp-for="Description" class="form-label">Mô tả</label>
+            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="StockQuantity" class="form-label">Số lượng trong kho</label>
+            <input asp-for="StockQuantity" class="form-control" />
+            <span asp-validation-for="StockQuantity" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label asp-for="SubCategoryID" class="form-label">Danh mục phụ</label>
+            @Html.DropDownListFor(model => model.SubCategoryID, ViewBag.SubCategoryList as SelectList, "-- Chọn danh mục phụ --", new { @class = "form-select" })
+            <span asp-validation-for="SubCategoryID" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Đường dẫn ảnh chính</label>
+            <input type="text" name="MainImagePath" value="@Model.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath" class="form-control" placeholder="/images/example.jpg" />
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label d-block">Ảnh hiện tại</label>
+            @{
+                var currentImage = Model.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath
+                ?? Model.ProductImages?.FirstOrDefault()?.ImagePath
+                ?? "/images/no-image.jpg";
+            }
+            <img src="@currentImage" class="img-thumbnail" style="max-height: 120px;" alt="Ảnh hiện tại" />
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-success me-2">
+            <i class="fas fa-save me-2"></i>Lưu
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
