@@ -1,0 +1,472 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using ShopDienTu.Data;
+using ShopDienTu;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.Extensions.Logging;
+using ShopDienTu.Models;
+using System.ComponentModel.DataAnnotations;
+
+namespace ShopDienTu.Controllers
+{
+    public class AccountController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(ApplicationDbContext context, ILogger<AccountController> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        // GET: Account/Login
+        public IActionResult Login(string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+        // POST: Account/Login
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var user = await _context.Users
+                        .FirstOrDefaultAsync(u => u.UserName == model.UserName || u.Email == model.UserName);
+
+                    if (user != null && VerifyPassword(model.Password, user.Password))
+                    {
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, user.UserName),
+                            new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                            new Claim(ClaimTypes.Email, user.Email),
+                            new Claim(ClaimTypes.Role, user.Role ?? "User")
+                        };
+
+                        var claimsIdentity = new ClaimsIdentity(
+                            claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                        var authProperties = new AuthenticationProperties
+                        {
+                            IsPersistent = model.RememberMe,
+                            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                        };
+
+                        await HttpContext.SignInAsync(
+                            CookieAuthenticationDefaults.AuthenticationScheme,
+                            new ClaimsPrincipal(claimsIdentity),
+                            authProperties);
+
+                        _logger.LogInformation("User {UserName} logged in at {Time}.", user.UserName, DateTime.UtcNow);
+
+                        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        {
+                            return Redirect(returnUrl);
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không đúng.");
+                        return View(model);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error during login for user {UserName}", model.UserName);
+                    ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại sau.");
+                }
+            }
+
+            return View(model);
+        }
+
+        // GET: Account/Register
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        // POST: Account/Register
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    if (!model.AgreeTerms)
+                    {
+                        ModelState.AddModelError("AgreeTerms", "Bạn phải đồng ý với điều khoản dịch vụ để đăng ký.");
+                        return View(model);
+                    }
+
+                    var userExists = await _context.Users.AnyAsync(u => u.UserName == model.UserName || u.Email == model.Email);
+                    if (userExists)
+                    {
+                        ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc email đã tồn tại.");
+                        return View(model);
+                    }
+
+                    var user = new User
+                    {
+                        UserName = model.UserName,
+                        Email = model.Email,
+                        FullName = model.FullName,
+                        Password = HashPassword(model.Password),
+                        Phone = model.Phone,
+                        Role = "User",
+                        CreatedAt = DateTime.Now,
+                        Orders = new List<Order>(),
+                        Reviews = new List<Review>()
+                    };
+
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+
+                    _logger.LogInformation("User {UserName} created a new account at {Time}.", user.UserName, DateTime.UtcNow);
+
+                    // Đăng nhập người dùng sau khi đăng ký
+                    var claims = new List<Claim>
+                    {
+                        new Claim(ClaimTypes.Name, user.UserName),
+                        new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim(ClaimTypes.Role, user.Role)
+                    };
+
+                    var claimsIdentity = new ClaimsIdentity(
+                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                    };
+
+                    await HttpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    TempData["SuccessMessage"] = "Đăng ký tài khoản thành công!";
+                    return RedirectToAction("Index", "Home");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error during registration for user {UserName}", model.UserName);
+                    ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại sau.");
+                }
+            }
+
+            return View(model);
+        }
+
+        // GET: Account/Logout
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home");
+        }
+
+        // GET: Account/ForgotPassword
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        // POST: Account/ForgotPassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+                    if (user == null)
+                    {
+                        // Không tiết lộ thông tin về việc email có tồn tại hay không
+                        TempData["SuccessMessage"] = "Nếu email của bạn tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.";
+                        return RedirectToAction("Login");
+                    }
+
+                    // TODO: Gửi email đặt lại mật khẩu
+                    // Trong môi trường thực tế, bạn sẽ tạo token đặt lại mật khẩu và gửi email
+
+                    TempData["SuccessMessage"] = "Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu đến email của bạn.";
+                    return RedirectToAction("Login");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error during forgot password for email {Email}", model.Email);
+                    ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi. Vui lòng thử lại sau.");
+                }
+            }
+
+            return View(model);
+        }
+
+        // GET: Account/Profile
+        public async Task<IActionResult> Profile()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login");
+            }
+
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var user = await _context.Users.FindAsync(userId);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                return View(user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading profile");
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi tải thông tin tài khoản. Vui lòng thử lại sau.";
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        // POST: Account/UpdateProfile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateProfile(User model)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login");
+            }
+
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                if (model.UserID != userId)
+                {
+                    return Forbid();
+                }
+
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    return NotFound();
+                }
+
+                // Kiểm tra xem email đã tồn tại chưa (nếu thay đổi)
+                if (user.Email != model.Email)
+                {
+                    var emailExists = await _context.Users.AnyAsync(u => u.Email == model.Email && u.UserID != userId);
+                    if (emailExists)
+                    {
+                        ModelState.AddModelError("Email", "Email này đã được sử dụng bởi tài khoản khác.");
+                        return View("Profile", model);
+                    }
+                }
+
+                // Cập nhật thông tin người dùng
+                user.FullName = model.FullName;
+                user.Email = model.Email;
+                user.Phone = model.Phone;
+                user.Address = model.Address;
+
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Cập nhật thông tin tài khoản thành công!";
+                return RedirectToAction("Profile");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile for user {UserId}", model.UserID);
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi cập nhật thông tin tài khoản. Vui lòng thử lại sau.";
+                return View("Profile", model);
+            }
+        }
+
+        // GET: Account/ChangePassword
+        public IActionResult ChangePassword()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View();
+        }
+
+        // POST: Account/ChangePassword
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                    var user = await _context.Users.FindAsync(userId);
+
+                    if (user == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Kiểm tra mật khẩu hiện tại
+                    if (!VerifyPassword(model.CurrentPassword, user.Password))
+                    {
+                        ModelState.AddModelError("CurrentPassword", "Mật khẩu hiện tại không đúng.");
+                        return View(model);
+                    }
+
+                    // Cập nhật mật khẩu mới
+                    user.Password = HashPassword(model.NewPassword);
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = "Đổi mật khẩu thành công!";
+                    return RedirectToAction("Profile");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error changing password");
+                    ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi đổi mật khẩu. Vui lòng thử lại sau.");
+                }
+            }
+
+            return View(model);
+        }
+
+        // Phương thức mã hóa mật khẩu
+        private string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+                return Convert.ToBase64String(hashedBytes);
+            }
+        }
+
+        // Phương thức xác minh mật khẩu
+        private bool VerifyPassword(string password, string hashedPassword)
+        {
+            var hashedInput = HashPassword(password);
+            return hashedInput == hashedPassword;
+        }
+    }
+
+    // View Models
+    public class LoginViewModel
+    {
+        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
+        [Display(Name = "Tên đăng nhập")]
+        public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu")]
+        public string Password { get; set; }
+
+        [Display(Name = "Ghi nhớ đăng nhập")]
+        public bool RememberMe { get; set; }
+    }
+
+    public class RegisterViewModel
+    {
+        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
+        [Display(Name = "Tên đăng nhập")]
+        [StringLength(50, ErrorMessage = "Tên đăng nhập phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 3)]
+        public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập họ tên")]
+        [Display(Name = "Họ và tên")]
+        [StringLength(100, ErrorMessage = "Họ tên phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 2)]
+        public string FullName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập email")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
+        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
+        [Display(Name = "Số điện thoại")]
+        public string Phone { get; set; }
+
+        [Display(Name = "Đại chỉ")]
+        public string Address { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        [StringLength(100, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu")]
+        public string Password { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Xác nhận mật khẩu")]
+        [Compare("Password", ErrorMessage = "Mật khẩu và xác nhận mật khẩu không khớp.")]
+        public string ConfirmPassword { get; set; }
+
+        [Display(Name = "Tôi đồng ý với điều khoản dịch vụ")]
+        [Range(typeof(bool), "true", "true", ErrorMessage = "Bạn phải đồng ý với điều khoản dịch vụ để đăng ký.")]
+        public bool AgreeTerms { get; set; }
+    }
+
+    public class ForgotPasswordViewModel
+    {
+        [Required(ErrorMessage = "Vui lòng nhập email")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [Display(Name = "Email")]
+        public string Email { get; set; }
+    }
+
+    public class ChangePasswordViewModel
+    {
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu hiện tại")]
+        [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu hiện tại")]
+        public string CurrentPassword { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu mới")]
+        [StringLength(100, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu mới")]
+        public string NewPassword { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Xác nhận mật khẩu mới")]
+        [Compare("NewPassword", ErrorMessage = "Mật khẩu mới và xác nhận mật khẩu không khớp.")]
+        public string ConfirmPassword { get; set; }
+    }
+}
