@@ -43,9 +43,9 @@ namespace ShopDienTu.Models
         [ForeignKey("SubCategoryID")]
         public virtual SubCategory SubCategory { get; set; }
 
-        public virtual ICollection<ProductImage> ProductImages { get; set; }
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
-        public virtual ICollection<Review> Reviews { get; set; }
-        public virtual ICollection<Promotion> Promotions { get; set; }
+        public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+        public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+        public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public virtual ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();
     }
 }
