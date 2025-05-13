@@ -108,3 +108,4 @@ C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\refint\ShopDien
 C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\ShopDienTu.pdb
 C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\ShopDienTu.genruntimeconfig.cache
 C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\ref\ShopDienTu.dll
+C:\Users\tranv\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\scopedcss\Areas\Admin\Views\Shared\_AdminLayout.cshtml.rz.scp.css

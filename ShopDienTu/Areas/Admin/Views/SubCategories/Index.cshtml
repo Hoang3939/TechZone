@@ -1,0 +1,169 @@
+﻿@model IEnumerable<ShopDienTu.Models.SubCategory>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Tùy chỉnh toàn cục */
+    body {
+        background: #f9f7ff;
+        font-family: 'Poppins', 'Arial', sans-serif;
+    }
+
+    /* Container */
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 25px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Tiêu đề */
+    h1 {
+        text-align: center;
+        color: #553c9a;
+        font-size: 1.9rem;
+        margin-bottom: 30px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+
+    /* Tùy chỉnh bảng */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            vertical-align: middle;
+            font-size: 0.95rem;
+            color: #2d3748;
+        }
+
+        .table thead {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        .table th {
+            font-weight: 500;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #e9d8fd;
+            transition: background 0.2s ease;
+        }
+
+            .table tbody tr:hover {
+                background: #f7fafc;
+            }
+
+    /* Tùy chỉnh nút và liên kết */
+    .btn {
+        display: inline-block;
+        padding: 7px 15px;
+        margin-right: 8px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-create {
+        background: #9f7aea;
+        color: #ffffff;
+    }
+
+        .btn-create:hover {
+            background: #805ad5;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-edit {
+        color: #3182ce;
+    }
+
+        .btn-edit:hover {
+            color: #2b6cb0;
+            background: #e6f3ff;
+        }
+
+    .btn-details {
+        color: #d69e2e;
+    }
+
+        .btn-details:hover {
+            color: #b7791f;
+            background: #fefcbf;
+        }
+
+    .btn-delete {
+        color: #f687b3;
+    }
+
+        .btn-delete:hover {
+            color: #ed64a6;
+            background: #fff5f7;
+        }
+
+    /* Tùy chỉnh cột SubCategoryName */
+    .subcategory-name {
+        font-weight: 500;
+        color: #553c9a;
+    }
+
+    /* Tùy chỉnh cột Category */
+    .category-name {
+        font-weight: 400;
+        color: #718096;
+    }
+</style>
+
+<div class="container">
+    <h1>SubCategory Management</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.SubCategoryName)</th>
+                <th>@Html.DisplayNameFor(model => model.Category)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="subcategory-name">
+                        @Html.DisplayFor(modelItem => item.SubCategoryName)
+                    </td>
+                    <td class="category-name">
+                        @Html.DisplayFor(modelItem => item.Category.CategoryName)
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.SubCategoryID" class="btn btn-edit">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.SubCategoryID" class="btn btn-details">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.SubCategoryID" class="btn btn-delete">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

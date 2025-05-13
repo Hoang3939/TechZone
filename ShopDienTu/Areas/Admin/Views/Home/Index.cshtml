@@ -1,0 +1,136 @@
+﻿
+@{
+    ViewData["Title"] = "Admin Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>@ViewBag.TotalRevenue</h3>
+                    <p>Tổng doanh thu</p>
+                </div>
+                <div class="icon">
+                    <i class=""></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>@ViewBag.TotalOrders</h3>
+                    <p>Tổng đơn hàng</p>
+                </div>
+                <div class="icon">
+                    <i class=""></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>@ViewBag.TotalCustomers</h3>
+                    <p>Tổng số khách hàng</p>
+                </div>
+                <div class="icon">
+                    <i class=""></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-6">
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>@ViewBag.BestSellingProduct</h3>
+                    <p>Sản phẩm bán chạy nhất</p>
+                </div>
+                <div class="icon">
+                    <i class=""></i>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mt-4">Biểu đồ doanh thu theo tháng</h2>
+
+            <!-- Dropdown chọn năm -->
+            <label for="yearSelect">Chọn năm:</label>
+            <select id="yearSelect" class="form-control w-25 mb-4" onchange="updateChart()">
+                @for (int year = DateTime.Now.Year; year >= 2000; year--)
+                {
+                    var isSelected = year == DateTime.Now.Year ? "selected" : "";
+                    <option value="@year">@year</option>
+                }
+            </select>
+
+            <!-- Canvas cho biểu đồ -->
+            <canvas id="revenueChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chart;
+
+    // Khởi tạo hoặc cập nhật biểu đồ
+    function renderChart(labels, data) {
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        if (chart) chart.destroy(); // Xóa biểu đồ cũ nếu tồn tại
+
+        chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh thu (VND)',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Hàm lấy dữ liệu từ server
+    function updateChart() {
+        const year = document.getElementById('yearSelect').value;
+
+        fetch(`/Admin/Home/GetRevenueByMonth?year=${year}`)
+            .then(response => response.json())
+            .then(data => {
+                renderChart(data.labels, data.revenues);
+            });
+    }
+
+    // Tải biểu đồ mặc định khi trang load
+    document.addEventListener('DOMContentLoaded', updateChart);
+</script>
+

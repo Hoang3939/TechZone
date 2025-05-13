@@ -1,0 +1,183 @@
+﻿@model IEnumerable<ShopDienTu.Models.PaymentMethod>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Tùy chỉnh toàn cục */
+    body {
+        background: #f4f9fc;
+        font-family: 'Poppins', 'Arial', sans-serif;
+    }
+
+    /* Container */
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 25px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Tiêu đề */
+    h1 {
+        text-align: center;
+        color: #2c5282;
+        font-size: 1.9rem;
+        margin-bottom: 30px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+    }
+
+    /* Tùy chỉnh bảng */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            vertical-align: middle;
+            font-size: 0.95rem;
+            color: #2d3748;
+        }
+
+        .table thead {
+            background: #e6fffa;
+            color: #319795;
+        }
+
+        .table th {
+            font-weight: 500;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #e6fffa;
+            transition: background 0.2s ease;
+        }
+
+            .table tbody tr:hover {
+                background: #f1f9f8;
+            }
+
+    /* Tùy chỉnh nút và liên kết */
+    .btn {
+        display: inline-block;
+        padding: 7px 15px;
+        margin-right: 8px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-create {
+        background: #4fd1c5;
+        color: #ffffff;
+    }
+
+        .btn-create:hover {
+            background: #38b2ac;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-edit {
+        color: #3182ce;
+    }
+
+        .btn-edit:hover {
+            color: #2b6cb0;
+            background: #e6f3ff;
+        }
+
+    .btn-details {
+        color: #d69e2e;
+    }
+
+        .btn-details:hover {
+            color: #b7791f;
+            background: #fefcbf;
+        }
+
+    .btn-delete {
+        color: #f687b3;
+    }
+
+        .btn-delete:hover {
+            color: #ed64a6;
+            background: #fff5f7;
+        }
+
+    /* Tùy chỉnh cột MethodName */
+    .method-name {
+        font-weight: 500;
+        color: #2c7a7b;
+    }
+
+    /* Tùy chỉnh cột IsActive */
+    .status-cell {
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 6px;
+        display: inline-block;
+    }
+
+    .status-active {
+        background: #c6f6d5;
+        color: #2f855a;
+    }
+
+    .status-inactive {
+        background: #fed7e2;
+        color: #9b2c2c;
+    }
+</style>
+
+<div class="container">
+    <h1>Payment Method Management</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.MethodName)</th>
+                <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="method-name">
+                        @Html.DisplayFor(modelItem => item.MethodName)
+                    </td>
+                    <td>
+                        <span class="status-cell @(item.IsActive ? "status-active" : "status-inactive")">
+                            @(item.IsActive ? "Active" : "Inactive")
+                        </span>
+                    </td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.PaymentMethodID" class="btn btn-edit">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.PaymentMethodID" class="btn btn-details">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.PaymentMethodID" class="btn btn-delete">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

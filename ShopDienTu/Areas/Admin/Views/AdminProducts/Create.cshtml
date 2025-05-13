@@ -1,0 +1,193 @@
+﻿@model ShopDienTu.Models.Product
+
+@{
+    ViewData["Title"] = "Create Product";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Tùy chỉnh toàn cục */
+    body {
+        background: #f7fafc;
+        font-family: 'Open Sans', 'Arial', sans-serif;
+    }
+
+    /* Container */
+    .container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Tiêu đề */
+    h1 {
+        text-align: center;
+        color: #2f855a;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+
+    h4 {
+        color: #2d3748;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+
+    /* Form */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 10px;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #68d391;
+            box-shadow: 0 0 5px rgba(104, 211, 145, 0.3);
+            outline: none;
+        }
+
+    /* Checkbox */
+    .form-check {
+        margin-bottom: 20px;
+    }
+
+    .form-check-label {
+        color: #2d3748;
+        font-size: 0.95rem;
+    }
+
+    /* Nút */
+    .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background: #68d391;
+        border: none;
+        color: #ffffff;
+    }
+
+        .btn-primary:hover {
+            background: #48bb78;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-back {
+        color: #718096;
+        text-decoration: none;
+    }
+
+        .btn-back:hover {
+            color: #2d3748;
+            text-decoration: underline;
+        }
+
+    /* Thông báo lỗi */
+    .text-danger {
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+
+    .alert {
+        border-radius: 6px;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        padding: 12px;
+    }
+
+    .alert-danger {
+        background: #fed7e2;
+        color: #9b2c2c;
+        border: 1px solid #f687b3;
+    }
+
+    .alert-success {
+        background: #c6f6d5;
+        color: #2f855a;
+        border: 1px solid #68d391;
+    }
+</style>
+
+<div class="container">
+    <h1>Create Product</h1>
+    <h4>New Product</h4>
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <div>@error.ErrorMessage</div>
+            }
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-12">
+            <form asp-action="Create">
+                <div class="form-group">
+                    <label asp-for="ProductName" class="control-label"></label>
+                    <input asp-for="ProductName" class="form-control" />
+                    <span asp-validation-for="ProductName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description" class="control-label"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Price" class="control-label"></label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SubCategoryID" class="control-label"></label>
+                    <select asp-for="SubCategoryID" class="form-control form-select" asp-items="ViewBag.SubCategoryID">
+                        <option value="">Chọn danh mục phụ</option>
+                    </select>
+                    <span asp-validation-for="SubCategoryID" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="StockQuantity" class="control-label"></label>
+                    <input asp-for="StockQuantity" class="form-control" type="number" />
+                    <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                </div>
+                <div class="form-group form-check">
+                    <label class="form-check-label">
+                        <input class="form-check-input" asp-for="IsActive" /> @Html.DisplayNameFor(model => model.IsActive)
+                    </label>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-back">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

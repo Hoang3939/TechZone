@@ -4,17 +4,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ShopDienTu
+namespace ShopDienTu.Models
 {
     public class Order
     {
-        public Order()
-        {
-            // Khởi tạo các collection để tránh lỗi null reference
-            OrderDetails = new HashSet<OrderDetail>();
-            OrderStatuses = new HashSet<OrderStatus>();
-        }
-
+        [Key]
         public int OrderID { get; set; }
 
         [StringLength(20)]

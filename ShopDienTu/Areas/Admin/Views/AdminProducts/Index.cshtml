@@ -1,0 +1,179 @@
+﻿@model IEnumerable<ShopDienTu.Models.Product>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Tùy chỉnh toàn cục */
+    body {
+        background: #f4f6f9;
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Container */
+    .container {
+        max-width: 1200px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Tiêu đề */
+    h1 {
+        text-align: center;
+        color: #2d3748;
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        font-weight: bold;
+    }
+
+    /* Tùy chỉnh bảng */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+
+        .table thead {
+            background: #4a5568;
+            color: #ffffff;
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #e2e8f0;
+            transition: background 0.2s ease;
+        }
+
+            .table tbody tr:hover {
+                background: #f1f5f9;
+            }
+
+    /* Tùy chỉnh nút và liên kết */
+    .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-right: 5px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-create {
+        background: #38a169;
+        color: #ffffff;
+    }
+
+        .btn-create:hover {
+            background: #2f855a;
+        }
+
+    .btn-edit {
+        color: #3182ce;
+    }
+
+        .btn-edit:hover {
+            color: #2b6cb0;
+            background: #ebf8ff;
+        }
+
+    .btn-details {
+        color: #319795;
+    }
+
+        .btn-details:hover {
+            color: #2c7a7b;
+            background: #e6fffa;
+        }
+
+    .btn-delete {
+        color: #e53e3e;
+    }
+
+        .btn-delete:hover {
+            color: #c53030;
+            background: #fff5f5;
+        }
+
+
+
+    {
+        padding: 10px;
+    }
+
+    .table th, .table td {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    }
+</style>
+
+<div class="container">
+    <h1>Product Management</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.ProductName)</th>
+                <th>@Html.DisplayNameFor(model => model.Description)</th>
+                <th>@Html.DisplayNameFor(model => model.Price)</th>
+                <th>@Html.DisplayNameFor(model => model.StockQuantity)</th>
+                <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                <th>@Html.DisplayNameFor(model => model.UpdatedAt)</th>
+                <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+                <th>@Html.DisplayNameFor(model => model.SubCategory)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                    <td>@Html.DisplayFor(modelItem => item.StockQuantity)</td>
+                    <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                    <td>@Html.DisplayFor(modelItem => item.UpdatedAt)</td>
+                    <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
+                    <td>@Html.DisplayFor(modelItem => item.SubCategory.SubCategoryName)</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.ProductID" class="btn btn-edit">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.ProductID" class="btn btn-details">Details</a> |
+                        <a asp-action="Delete" asp-route-id="@item.ProductID" class="btn btn-delete">Delete</a>
+                    </td>
+                </tr>
+            }
+            </tbodyლ
+
+</div>

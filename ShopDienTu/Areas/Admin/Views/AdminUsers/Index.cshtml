@@ -1,0 +1,185 @@
+﻿@model IEnumerable<ShopDienTu.Models.User>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<style>
+    /* Tùy chỉnh toàn cục */
+    body {
+        background: #f0f4f8;
+        font-family: 'Inter', 'Arial', sans-serif;
+    }
+
+    /* Container */
+    .container {
+        max-width: 1300px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Tiêu đề */
+    h1 {
+        text-align: center;
+        color: #34495e;
+        font-size: 1.8rem;
+        margin-bottom: 30px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+
+    /* Tùy chỉnh bảng */
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+        .table th, .table td {
+            padding: 16px;
+            text-align: left;
+            vertical-align: middle;
+            font-size: 0.95rem;
+            color: #2d3748;
+        }
+
+        .table thead {
+            background: #e6f0fa;
+            color: #4a5568;
+        }
+
+        .table th {
+            font-weight: 500;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            border-bottom: 1px solid #edf2f7;
+            transition: background 0.2s ease;
+        }
+
+            .table tbody tr:hover {
+                background: #f8fafc;
+            }
+
+    /* Tùy chỉnh nút và liên kết */
+    .btn {
+        display: inline-block;
+        padding: 8px 16px;
+        margin-right: 10px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-create {
+        background: #81e6d9;
+        color: #1c4532;
+    }
+
+        .btn-create:hover {
+            background: #4fd1c5;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        }
+
+    .btn-edit {
+        color: #4299e1;
+    }
+
+        .btn-edit:hover {
+            color: #2b6cb0;
+            background: #ebf8ff;
+        }
+
+    .btn-details {
+        color: #ecc94b;
+    }
+
+        .btn-details:hover {
+            color: #d69e2e;
+            background: #fefcbf;
+        }
+
+    .btn-delete {
+        color: #f687b3;
+    }
+
+        .btn-delete:hover {
+            color: #ed64a6;
+            background: #fff5f7;
+        }
+
+    /* Tùy chỉnh cột Password */
+    .password-cell {
+        font-family: 'Courier New', monospace;
+        color: #718096;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Tùy chỉnh cột Role */
+    .role-cell {
+        font-weight: 500;
+        color: #319795;
+    }
+</style>
+
+<div class="container">
+    <h1>User Management</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-create">Create New</a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.UserName)</th>
+                <th>@Html.DisplayNameFor(model => model.FullName)</th>
+                <th>@Html.DisplayNameFor(model => model.Email)</th>
+                <th>@Html.DisplayNameFor(model => model.Password)</th>
+                <th>@Html.DisplayNameFor(model => model.Phone)</th>
+                <th>@Html.DisplayNameFor(model => model.Address)</th>
+                <th>@Html.DisplayNameFor(model => model.Role)</th>
+                <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.UserName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                    <td class="password-cell" title="@item.Password">
+                        @Html.DisplayFor(modelItem => item.Password)
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.Phone)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Address)</td>
+                    <td class="role-cell">
+                        @Html.DisplayFor(modelItem => item.Role)
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.UserID" class="btn btn-edit">Edit</a> |
+                        <a asp-action="Details" asp-route-id="@item.UserID" class="btn btn-details">Edit</a> |
+                        <a asp-action="Delete" asp-route-id="@item.UserID" class="btn btn-delete">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
