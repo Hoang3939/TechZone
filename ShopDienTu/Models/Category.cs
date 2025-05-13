@@ -12,7 +12,7 @@ namespace ShopDienTu.Models
         [StringLength(100)]
         [Display(Name = "Tên danh mục")]
         public string CategoryName { get; set; }
-
+        //
         // Navigation properties
         public virtual ICollection<SubCategory> SubCategories { get; set; }
     }

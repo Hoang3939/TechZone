@@ -1,15 +1,15 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {}
+    "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {
+    "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+        "projectUniqueName": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
         "projectName": "ShopDienTu",
-        "projectPath": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+        "projectPath": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
         "packagesPath": "C:\\Users\\tranv\\.nuget\\packages\\",
         "outputPath": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\obj\\",
         "projectStyle": "PackageReference",
