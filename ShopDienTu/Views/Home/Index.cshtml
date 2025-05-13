@@ -1,14 +1,18 @@
 ﻿@model IEnumerable<ShopDienTu.Models.Product>
+@using ShopDienTu.Models
 @{
     ViewData["Title"] = "Trang chủ";
+    // Lấy danh sách active promotions từ ViewBag (được truyền từ Controller)
+    var activePromotions = ViewBag.ActivePromotions as List<Promotion> ?? new List<Promotion>();
 }
 
 <div class="container">
     <div class="row">
         <!-- Sidebar -->
         <div class="col-lg-3 mb-4">
+            @* --- Phần Sidebar giữ nguyên --- *@
             <div class="sidebar card">
-                <div class="card-header bg-primary text-white">
+                 <div class="card-header bg-primary text-white">
                     <h3 class="sidebar-title mb-0 fs-5">Danh mục sản phẩm</h3>
                 </div>
                 <div class="card-body p-0">
@@ -19,19 +23,19 @@
                                 <div class="category-item @(ViewBag.SelectedCategoryId == category.CategoryID ? "active" : "")"
                                      data-category-id="@category.CategoryID">
                                     <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.CategoryID"
-                                       class="d-flex justify-content-between align-items-center w-100 text-decoration-none @(ViewBag.SelectedCategoryId == category.CategoryID ? "text-white" : "text-dark")">
+                                       class="d-flex justify-content-between align-items-center w-100 text-decoration-none p-3 @(ViewBag.SelectedCategoryId == category.CategoryID ? "text-white bg-primary" : "text-dark")">
                                         <span>@category.CategoryName</span>
-                                        <i class="fas fa-chevron-down"></i>
+                                        <i class="fas fa-chevron-down @(ViewBag.SelectedCategoryId == category.CategoryID ? "" : "text-primary")"></i>
                                     </a>
                                 </div>
-                                <ul class="subcategory-list list-unstyled mb-0 @(ViewBag.SelectedCategoryId == category.CategoryID ? "active" : "")"
+                                <ul class="subcategory-list list-unstyled mb-0 ps-3 @(ViewBag.SelectedCategoryId == category.CategoryID ? "d-block" : "d-none")"
                                     id="subcategory-@category.CategoryID">
                                     @foreach (var subcategory in category.SubCategories)
                                     {
-                                        <li class="subcategory-item @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "active" : "")">
+                                        <li class="subcategory-item py-1 @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "active" : "")">
                                             <a asp-controller="Home" asp-action="Index"
                                                asp-route-subcategoryId="@subcategory.SubCategoryID"
-                                               class="d-block w-100 text-decoration-none @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "text-primary" : "text-dark")">
+                                               class="d-block w-100 text-decoration-none @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "text-primary fw-bold" : "text-dark")">
                                                 @subcategory.SubCategoryName
                                             </a>
                                         </li>
@@ -39,6 +43,12 @@
                                 </ul>
                             </li>
                         }
+                        @* Thêm link xem tất cả sản phẩm *@
+                         <li class="list-group-item p-0">
+                            <a asp-controller="Home" asp-action="Index" class="d-block w-100 text-decoration-none p-3 text-primary fw-bold">
+                                Xem tất cả sản phẩm
+                            </a>
+                         </li>
                     </ul>
                 </div>
             </div>
@@ -48,14 +58,15 @@
         <div class="col-lg-9">
             <div class="card">
                 <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h2 class="section-title mb-0 fs-4">Sản phẩm nổi bật</h2>
+                    @* --- Phần Filter giữ nguyên --- *@
+                     <div class="d-flex justify-content-between align-items-center">
+                        <h2 class="section-title mb-0 fs-4">Sản phẩm</h2>
                         <div class="filter-options">
-                            <select id="sort-filter" class="form-select" onchange="location = this.value;">
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId })">Sắp xếp theo</option>
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_asc" })">Giá: Thấp đến cao</option>
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_desc" })">Giá: Cao đến thấp</option>
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "newest" })">Mới nhất</option>
+                            <select id="sort-filter" class="form-select form-select-sm" onchange="location = this.value;">
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId })")>Mặc định</option>
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_asc" })")>Giá: Thấp đến cao</option>
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_desc" })")>Giá: Cao đến thấp</option>
+                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "newest" })")>Mới nhất</option>
                             </select>
                         </div>
                     </div>
@@ -63,11 +74,24 @@
                 <div class="card-body">
                     @if (Model.Any())
                     {
-                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"> @* Điều chỉnh số cột nếu cần *@
                             @foreach (var product in Model)
                             {
+                                // Tìm khuyến mãi tốt nhất cho sản phẩm này
+                                var bestPromotion = activePromotions
+                                    .Where(p => p.ProductID == product.ProductID || p.ProductID == null) // KM cho SP này hoặc KM chung
+                                    .OrderByDescending(p => p.ProductID.HasValue) // Ưu tiên KM riêng cho SP
+                                    .ThenByDescending(p => p.DiscountPercentage) // Rồi đến % giảm cao nhất
+                                    .FirstOrDefault();
+
+                                decimal? discountedPrice = null;
+                                if (bestPromotion != null)
+                                {
+                                    discountedPrice = product.Price * (1 - bestPromotion.DiscountPercentage / 100);
+                                }
+
                                 <div class="col">
-                                    <div class="card product-card h-100">
+                                    <div class="card product-card h-100 position-relative"> @* Thêm position-relative *@
                                         <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID">
                                             <div class="product-image">
                                                 @{
@@ -77,39 +101,50 @@
                                                         imagePathFromDb = product.ProductImages?.FirstOrDefault()?.ImagePath;
                                                     }
 
-                                                    var imageUrl = "/images/no-image.jpg"; // Default
+                                                    var imageUrl = "/images/placeholder.png"; // Default placeholder
                                                     if (!string.IsNullOrEmpty(imagePathFromDb))
                                                     {
-                                                        // Kiểm tra xem đường dẫn từ DB đã có /images/ chưa
-                                                        if (imagePathFromDb.StartsWith("/images/"))
-                                                        {
-                                                            imageUrl = imagePathFromDb; // Dùng luôn nếu đã có
-                                                        }
-                                                        else
-                                                        {
-                                                            imageUrl = "/images/" + imagePathFromDb; // Ghép vào nếu chỉ có tên file
-                                                        }
+                                                        imageUrl = "/images/" + imagePathFromDb.TrimStart('/'); // Đảm bảo đường dẫn đúng
                                                     }
                                                 }
-                                                <img src="@imageUrl" alt="@product.ProductName" class="card-img-top">
+                                                <img src="@imageUrl" alt="@product.ProductName" class="card-img-top img-fluid product-img-custom"> @* Thêm class để css nếu cần *@
+
+                                                @* ** Hiển thị Badge giảm giá ** *@
+                                                @if (bestPromotion != null)
+                                                {
+                                                    <span class="badge bg-danger position-absolute top-0 end-0 m-2 fs-6">
+                                                        -@bestPromotion.DiscountPercentage.ToString("0")% @* Bỏ phần thập phân nếu không cần *@
+                                                    </span>
+                                                }
                                             </div>
                                         </a>
-                                        <div class="card-body">
-                                            <div class="product-category">
-                                                @product.SubCategory?.Category?.CategoryName > @product.SubCategory?.SubCategoryName
+                                        <div class="card-body d-flex flex-column"> @* Flex column để đẩy nút xuống dưới *@
+                                            <div class="product-category mb-1 text-muted small">
+                                                @* Kiểm tra null an toàn hơn *@
+                                                @(product.SubCategory?.Category?.CategoryName) @(product.SubCategory != null ? ">" : "") @product.SubCategory?.SubCategoryName
                                             </div>
-                                            <h3 class="product-name">
+                                            <h3 class="product-name fs-6 mb-2"> @* Giảm kích thước font *@
                                                 <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID"
-                                                   class="text-decoration-none text-dark">
+                                                   class="text-decoration-none text-dark stretched-link product-link-hover"> @* Thêm class hover *@
                                                     @product.ProductName
                                                 </a>
                                             </h3>
-                                            <div class="product-price">@string.Format("{0:N0}", product.Price) ₫</div>
-                                            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                            <div class="product-price mt-auto"> @* Đẩy giá và nút xuống *@
+                                                @if (discountedPrice.HasValue)
+                                                {
+                                                    <span class="current-price text-danger fw-bold me-2">@string.Format("{0:N0}", discountedPrice.Value) ₫</span>
+                                                    <del class="original-price text-muted small">@string.Format("{0:N0}", product.Price) ₫</del>
+                                                }
+                                                else
+                                                {
+                                                    <span class="current-price fw-bold">@string.Format("{0:N0}", product.Price) ₫</span>
+                                                }
+                                            </div>
+                                            <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-2">
                                                 <input type="hidden" name="productId" value="@product.ProductID" />
                                                 <input type="hidden" name="quantity" value="1" />
-                                                <button type="submit" class="btn btn-primary w-100 add-to-cart">
-                                                    <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                                                <button type="submit" class="btn btn-sm btn-outline-primary w-100 add-to-cart"> @* Đổi style nút *@
+                                                    <i class="fas fa-cart-plus me-1"></i>Thêm vào giỏ
                                                 </button>
                                             </form>
                                         </div>
@@ -120,53 +155,166 @@
                     }
                     else
                     {
-                        <div class="alert alert-info">
-                            Không tìm thấy sản phẩm nào.
+                        <div class="alert alert-info text-center"> @* Canh giữa text *@
+                            Không tìm thấy sản phẩm nào phù hợp.
                         </div>
                     }
                 </div>
+                 @* === PHÂN TRANG (NẾU CÓ) SẼ ĐẶT Ở ĐÂY === *@
+                @* Ví dụ nếu dùng PagedList.Core
+                <div class="card-footer bg-white">
+                    @await Html.PartialAsync("_Pager", Model)
+                </div>
+                *@
             </div>
         </div>
     </div>
 </div>
 
+@section Styles {
+    <style>
+        .product-card {
+            transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+            border: 1px solid #eee;
+        }
+        .product-card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            transform: translateY(-5px);
+        }
+        .product-img-custom {
+            max-height: 200px; /* Giới hạn chiều cao ảnh */
+            object-fit: contain; /* Hiển thị ảnh vừa khung, không bị méo */
+            padding: 10px;
+        }
+        .product-name {
+            /* Giới hạn tên sản phẩm 2 dòng */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 2.4em; /* Chiều cao khoảng 2 dòng text */
+            line-height: 1.2em;
+             font-weight: 500; /* Độ đậm vừa phải */
+        }
+         .product-link-hover:hover {
+            color: var(--bs-primary) !important; /* Đổi màu khi hover */
+        }
+         .sidebar .list-group-item {
+            border-left: 0;
+            border-right: 0;
+         }
+         .sidebar .list-group-item:first-child {
+             border-top: 0;
+         }
+          .sidebar .list-group-item:last-child {
+             border-bottom: 0;
+         }
+        .category-item i {
+             transition: transform 0.3s ease;
+         }
+        .subcategory-list {
+             background-color: #f8f9fa; /* Màu nền nhẹ cho subcategory */
+         }
+         .subcategory-list.d-block { /* Chỉ hiển thị khi active */
+             display: block !important;
+         }
+          .subcategory-list.d-none { /* Ẩn đi */
+             display: none !important;
+         }
+    </style>
+}
+
+
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Add event listeners to category items
-            document.querySelectorAll('.category-item').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    if (e.target.tagName.toLowerCase() === 'i') {
-                        e.preventDefault();
-                        const categoryId = this.getAttribute('data-category-id');
-                        const subcategoryList = document.getElementById(`subcategory-${categoryId}`);
+            // Xử lý đóng/mở Subcategory
+            document.querySelectorAll('.category-item a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                     // Chỉ xử lý khi click vào icon hoặc khoảng trống xung quanh nó trong thẻ a
+                     if (e.target.tagName.toLowerCase() === 'i' || e.target === this) {
+                         // Ngăn không cho chuyển trang khi bấm vào category cha
+                         if(this.closest('.category-item').hasAttribute('data-category-id')) {
+                              e.preventDefault();
+                         }
 
-                        // Toggle active class
-                        subcategoryList.classList.toggle('active');
+                        const categoryItem = this.closest('.category-item');
+                        const categoryId = categoryItem.getAttribute('data-category-id');
+                        if(categoryId) {
+                             const subcategoryList = document.getElementById(`subcategory-${categoryId}`);
+                             const icon = categoryItem.querySelector('i');
 
-                        // Toggle icon rotation
-                        const icon = this.querySelector('i');
-                        icon.style.transform = subcategoryList.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0)';
-                    }
+                             // Toggle active class trên UL con
+                             const isActive = subcategoryList.classList.toggle('d-block');
+                              subcategoryList.classList.toggle('d-none', !isActive);
+
+
+                             // Toggle icon rotation
+                             icon.style.transform = isActive ? 'rotate(180deg)' : 'rotate(0)';
+
+                              // Bỏ active của category cha nếu nó đang active (để không bị màu nền xanh)
+                              // categoryItem.classList.toggle('active', isActive);
+                              // link.classList.toggle('text-white', isActive);
+                              // link.classList.toggle('bg-primary', isActive);
+                              // link.classList.toggle('text-dark', !isActive);
+
+                               // Đóng các subcategory khác nếu đang mở
+                              document.querySelectorAll('.subcategory-list.d-block').forEach(otherList => {
+                                  if (otherList !== subcategoryList) {
+                                       otherList.classList.remove('d-block');
+                                       otherList.classList.add('d-none');
+                                       const otherIcon = otherList.closest('.list-group-item').querySelector('.category-item i');
+                                       if(otherIcon) otherIcon.style.transform = 'rotate(0)';
+                                  }
+                              });
+                         }
+                     }
+                     // Nếu click vào tên category (span) thì cho phép link hoạt động bình thường
+                     // Nếu click vào subcategory thì link hoạt động bình thường
                 });
             });
-        });
-    </script>
 
-    <script>
-        // Set the selected option based on current sort
-        document.addEventListener('DOMContentLoaded', function() {
+            // Xử lý giữ trạng thái selected cho Sort Filter
             const sortFilter = document.getElementById('sort-filter');
-            const currentSort = '@ViewBag.CurrentSort';
-
             if (sortFilter) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const currentSort = urlParams.get('sortOrder'); // Lấy sortOrder từ URL
+                    let found = false;
                 for (let i = 0; i < sortFilter.options.length; i++) {
-                    if (sortFilter.options[i].value.includes('sortOrder=' + currentSort)) {
-                        sortFilter.options[i].selected = true;
+                        const optionValue = sortFilter.options[i].value;
+                        // Kiểm tra xem giá trị option có chứa đúng sortOrder không
+                        if (currentSort && optionValue.includes('sortOrder=' + currentSort)) {
+                            sortFilter.options[i].selected = true; // Đặt là selected
+                            found = true;
                         break;
+                    } else if (!currentSort && !optionValue.includes('sortOrder=')) {
+                            // Nếu không có sortOrder trên URL, chọn option mặc định (không có sortOrder=...)
+                            sortFilter.options[i].selected = true;
+                            found = true;
+                            break;
                     }
                 }
+                    // Fallback nếu không tìm thấy khớp nào (ít khi xảy ra)
+                    if(!found) {
+                    sortFilter.options[0].selected = true;
+                    }
             }
+
+
+             // Giữ trạng thái mở của subcategory nếu category cha đang được chọn
+             const selectedCategoryId = '@ViewBag.SelectedCategoryId';
+             if (selectedCategoryId) {
+                 const subList = document.getElementById(`subcategory-${selectedCategoryId}`);
+                 const icon = document.querySelector(`.category-item[data-category-id='${selectedCategoryId}'] i`);
+                 if (subList && icon) {
+                     subList.classList.add('d-block');
+                     subList.classList.remove('d-none');
+                     icon.style.transform = 'rotate(180deg)';
+                 }
+             }
+
+
         });
     </script>
 }

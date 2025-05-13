@@ -23,6 +23,12 @@ namespace ShopDienTu.Controllers
 
         public async Task<IActionResult> Index(int? categoryId = null, int? subcategoryId = null, string sortOrder = null)
         {
+            var now = DateTime.Now;
+            var activePromotions = await _context.Promotions
+                .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
+                .ToListAsync(); // L?y t?t c? active promotions (có th? t?i ?u h?n)
+            ViewBag.ActivePromotions = activePromotions;
+
             // Get all categories with subcategories for the sidebar
             var categories = await _context.Categories
                 .Include(c => c.SubCategories)

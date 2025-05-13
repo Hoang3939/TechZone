@@ -1,39 +1,92 @@
 ﻿@model ShopDienTu.Models.Order
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Chỉnh sửa Đơn hàng"; // Tiêu đề tiếng Việt
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Edit</h1>
+<h1>@ViewData["Title"]</h1>
 
-<h4>Order</h4>
+<h4>Đơn hàng #@Model.OrderNumber</h4> @* Hiển thị mã đơn hàng *@
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-8">
+        @* Tăng độ rộng cột *@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="OrderID" />
-            <div class="form-group">
-                <label asp-for="UserID" class="control-label"></label>
-                <select asp-for="UserID" class="form-control" asp-items="ViewBag.UserID"></select>
-                <span asp-validation-for="UserID" class="text-danger"></span>
+            @* Giữ lại CreatedAt ẩn để giá trị không bị mất khi POST lại form nếu có lỗi validation *@
+            <input type="hidden" asp-for="CreatedAt" />
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="UserID" class="control-label">Khách hàng</label>
+                        <select asp-for="UserID" class="form-control" asp-items="ViewBag.UserID" readonly></select>
+                        <span asp-validation-for="UserID" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="OrderNumber" class="control-label">Mã đơn hàng</label>
+                        <input asp-for="OrderNumber" class="form-control" readonly/>
+                        <span asp-validation-for="OrderNumber" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="TotalAmount" class="control-label"></label>
-                <input asp-for="TotalAmount" class="form-control" />
-                <span asp-validation-for="TotalAmount" class="text-danger"></span>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="TotalAmount" class="control-label">Tổng tiền</label>
+                        @* Cân nhắc thêm readonly nếu không muốn sửa trực tiếp: readonly="readonly" *@
+                        <input asp-for="TotalAmount" class="form-control" readonly/>
+                        <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="PaymentMethodID" class="control-label">Phương thức thanh toán</label>
+                        <select asp-for="PaymentMethodID" class="form-control" asp-items="ViewBag.PaymentMethodID" readonly></select>
+                        <span asp-validation-for="PaymentMethodID" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="PaymentMethodID" class="control-label"></label>
-                <select asp-for="PaymentMethodID" class="form-control" asp-items="ViewBag.PaymentMethodID"></select>
-                <span asp-validation-for="PaymentMethodID" class="text-danger"></span>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="OrderStatus" class="control-label">Trạng thái đơn hàng</label>
+                        @* Sử dụng dropdown thay vì input text *@
+                        <select asp-for="OrderStatus" class="form-control" asp-items="ViewBag.OrderStatusList"></select>
+                        <span asp-validation-for="OrderStatus" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    @* Trường UpdatedAt không cần hiển thị/sửa *@
+                    @* Trường CreatedAt không cần hiển thị/sửa *@
+                    <div class="form-group">
+                        <label class="control-label">Ngày tạo</label>
+                        <input class="form-control" value="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")" readonly />
+                    </div>
+                </div>
             </div>
+
+
             <div class="form-group">
-                <label asp-for="OrderStatus" class="control-label"></label>
-                <input asp-for="OrderStatus" class="form-control" />
-                <span asp-validation-for="OrderStatus" class="text-danger"></span>
+                <label asp-for="ShippingAddress" class="control-label">Địa chỉ giao hàng</label>
+                <textarea asp-for="ShippingAddress" class="form-control" rows="3" readonly></textarea> @* Dùng textarea cho địa chỉ *@
+                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <label asp-for="Notes" class="control-label">Ghi chú</label>
+                <textarea asp-for="Notes" class="form-control" rows="3" readonly></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            @* Loại bỏ input cho CreatedAt và UpdatedAt *@
+            @*
             <div class="form-group">
                 <label asp-for="CreatedAt" class="control-label"></label>
                 <input asp-for="CreatedAt" class="form-control" />
@@ -44,19 +97,20 @@
                 <input asp-for="UpdatedAt" class="form-control" />
                 <span asp-validation-for="UpdatedAt" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ShippingAddress" class="control-label"></label>
-                <input asp-for="ShippingAddress" class="form-control" />
-                <span asp-validation-for="ShippingAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+            *@
+
+
+            <div class="form-group mt-3">
+                @* Thêm margin top *@
+                <input type="submit" value="Lưu thay đổi" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Quay lại Danh sách</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

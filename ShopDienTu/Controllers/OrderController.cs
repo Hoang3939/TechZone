@@ -265,6 +265,9 @@ namespace ShopDienTu.Controllers
                 // Lưu ID đơn hàng vào TempData để cho phép xem chi tiết đơn hàng mà không cần đăng nhập
                 TempData["TrackOrderId"] = order.OrderID;
 
+                _logger.LogInformation("Đang redirect đến OrderConfirmation với OrderID = {OrderID}", order.OrderID);
+                TempData["CheckRedirect"] = $"Redirecting to OrderConfirmation: {order.OrderID}";
+
                 return RedirectToAction("OrderConfirmation", new { id = order.OrderID });
             }
             catch (Exception ex)

@@ -1,60 +1,77 @@
 ﻿@model IEnumerable<ShopDienTu.Models.Promotion>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh sách Khuyến mãi";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h1>Index</h1>
+<h1>@ViewData["Title"]</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-success">Tạo Khuyến mãi mới</a> @* Nút tạo mới *@
 </p>
-<table class="table">
+
+@* Hiển thị thông báo thành công nếu có *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+
+<table class="table table-bordered table-hover">
+    @* Thêm class cho table *@
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.DiscountPercentage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Product)
-            </th>
-            <th></th>
+            <th>@Html.DisplayNameFor(model => model.PromotionName)</th>
+            <th>@Html.DisplayNameFor(model => model.Product)</th>
+            <th>@Html.DisplayNameFor(model => model.PromoCode)</th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.DiscountPercentage)</th>
+            <th class="text-center">@Html.DisplayNameFor(model => model.IsActive)</th>
+            <th>@Html.DisplayNameFor(model => model.StartDate)</th>
+            <th>@Html.DisplayNameFor(model => model.EndDate)</th>
+            <th></th> @* Cột Actions *@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.DiscountPercentage)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Product.ProductName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.PromotionID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.PromotionID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.PromotionID">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.PromotionName)</td>
+                <td>
+                    @if (item.ProductID.HasValue && item.Product != null)
+                    {
+                        @Html.DisplayFor(modelItem => item.Product.ProductName)
+                    }
+                    else
+                    {
+                        <span class="text-muted fst-italic">Chung</span> @* Hiển thị "Chung" nếu là KM global *@
+                    }
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.PromoCode)</td>
+                <td class="text-center">@item.DiscountPercentage.ToString("0.##")%</td>
+                <td class="text-center">
+                    @if (item.IsActive)
+                    {
+                        <span class="badge bg-success">Kích hoạt</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Vô hiệu</span>
+                    }
+                </td>
+                <td>@item.StartDate.ToString("dd/MM/yy")</td> @* Định dạng ngắn gọn *@
+                <td>@item.EndDate.ToString("dd/MM/yy")</td> @* Định dạng ngắn gọn *@
+                <td class="text-nowrap">
+                    @* Ngăn không xuống dòng các nút action *@
+                    <a asp-action="Edit" asp-route-id="@item.PromotionID" class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-pencil-alt"></i></a>
+                    <a asp-action="Details" asp-route-id="@item.PromotionID" class="btn btn-sm btn-outline-info" title="Chi tiết"><i class="fas fa-info-circle"></i></a>
+                    <a asp-action="Delete" asp-route-id="@item.PromotionID" class="btn btn-sm btn-outline-danger" title="Xóa"><i class="fas fa-trash"></i></a>
+                    @* Thêm các icon FontAwesome nếu bạn đã tích hợp *@
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

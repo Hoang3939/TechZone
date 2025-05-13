@@ -11,6 +11,14 @@
         email = ViewBag.GuestInfo.Email;
     }
 }
+@if (Model == null)
+{
+    <div class="alert alert-danger">Model rỗng - đơn hàng không được truyền sang View.</div>
+}
+else
+{
+    <div class="alert alert-success">Model hợp lệ - đơn hàng: @Model.OrderNumber</div>
+}
 
 <div class="container py-5">
     <div class="row justify-content-center">

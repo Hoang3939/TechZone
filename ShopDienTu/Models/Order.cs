@@ -8,6 +8,13 @@ namespace ShopDienTu.Models
 {
     public class Order
     {
+        public Order()
+        {
+            // Khởi tạo các collection để tránh lỗi null reference
+            OrderDetails = new HashSet<OrderDetail>();
+            OrderStatuses = new HashSet<OrderStatus>();
+        }
+
         [Key]
         public int OrderID { get; set; }
 

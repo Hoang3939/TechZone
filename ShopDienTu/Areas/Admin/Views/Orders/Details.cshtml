@@ -1,61 +1,96 @@
 ﻿@model ShopDienTu.Models.Order
+@* Thêm using để định dạng số *@
+@using System.Globalization
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Chi tiết Đơn hàng"; // Đổi tiêu đề
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    // Định dạng tiền tệ Việt Nam
+    var cultureInfo = new CultureInfo("vi-VN");
 }
 
-<h1>Details</h1>
+<h1>@ViewData["Title"] #@Model.OrderNumber</h1> @* Hiển thị mã đơn hàng ở tiêu đề *@
 
 <div>
-    <h4>Order</h4>
+    <h4>Thông tin Đơn hàng</h4>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TotalAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TotalAmount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrderStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrderStatus)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ShippingAddress)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ShippingAddress)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.User)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.User.Email)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PaymentMethod)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PaymentMethod.MethodName)
-        </dd>
-    </dl>
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4">Mã đơn hàng</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.OrderNumber)</dd>
+
+                <dt class="col-sm-4">Khách hàng</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.User.UserName)</dd> @* Hiển thị UserName thay vì Email *@
+
+                <dt class="col-sm-4">Địa chỉ giao hàng</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.ShippingAddress)</dd>
+
+                <dt class="col-sm-4">Ghi chú</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Notes)</dd>
+
+            </dl>
+        </div>
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-5">Phương thức Thanh toán</dt>
+                <dd class="col-sm-7">@Html.DisplayFor(model => model.PaymentMethod.MethodName)</dd>
+
+                <dt class="col-sm-5">Tổng tiền</dt>
+                <dd class="col-sm-7">@Model.TotalAmount?.ToString("C0", cultureInfo)</dd> @* Định dạng tiền tệ *@
+
+                <dt class="col-sm-5">Trạng thái</dt>
+                <dd class="col-sm-7">@Html.DisplayFor(model => model.OrderStatus)</dd>
+
+                <dt class="col-sm-5">Ngày tạo</dt>
+                <dd class="col-sm-7">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd> @* Định dạng ngày giờ *@
+
+                <dt class="col-sm-5">Ngày cập nhật</dt>
+                <dd class="col-sm-7">@Model.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</dd> @* Định dạng và kiểm tra null *@
+            </dl>
+        </div>
+    </div>
+
+    <hr />
+    <h4>Chi tiết Sản phẩm</h4>
+    @if (Model.OrderDetails != null && Model.OrderDetails.Any())
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Sản phẩm</th>
+                    <th class="text-center">Số lượng</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderDetails)
+                {
+                    <tr>
+                        <td>@(item.Product?.ProductName ?? "Sản phẩm không tồn tại")</td> @* Hiển thị tên sản phẩm, kiểm tra null *@
+                        <td class="text-center">@item.Quantity</td>
+                        <td class="text-end">@item.UnitPrice.ToString("C0", cultureInfo)</td>
+                        <td class="text-end">@item.TotalPrice.ToString("C0", cultureInfo)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end fw-bold">Tổng cộng</td>
+                    <td class="text-end fw-bold">@Model.TotalAmount?.ToString("C0", cultureInfo)</td>
+                </tr>
+            </tfoot>
+        </table>
+    }
+    else
+    {
+        <p>Đơn hàng này không có chi tiết sản phẩm.</p>
+    }
+
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.OrderID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="mt-3">
+    @* Thêm khoảng cách *@
+    <a asp-action="Edit" asp-route-id="@Model?.OrderID" class="btn btn-primary">Chỉnh sửa Trạng thái</a> |
+    <a asp-action="Index" class="btn btn-secondary">Quay lại Danh sách</a>
 </div>

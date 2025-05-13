@@ -72,6 +72,7 @@ wwwroot\dist\js\pages\dashboard.js
 wwwroot\dist\js\pages\dashboard2.js
 wwwroot\dist\js\pages\dashboard3.js
 wwwroot\favicon.ico
+wwwroot\images\AcerNito5i7.jpg
 wwwroot\images\asus_rog.jpg
 wwwroot\images\g102_logitech.jpg
 wwwroot\images\galaxy_a55.jpg
