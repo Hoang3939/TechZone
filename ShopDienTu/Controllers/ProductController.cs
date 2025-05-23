@@ -27,6 +27,7 @@ namespace ShopDienTu.Controllers
             var product = await _context.Products
                 .Include(p => p.SubCategory)
                 .ThenInclude(s => s.Category)
+                .Include(p => p.Promotions)
                 .Include(p => p.ProductImages)
                 .Include(p => p.Reviews)
                 .ThenInclude(r => r.User)

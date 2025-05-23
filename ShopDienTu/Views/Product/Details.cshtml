@@ -1,6 +1,14 @@
 ﻿@model ShopDienTu.Models.Product
 @{
     ViewData["Title"] = Model.ProductName;
+    var now = DateTime.Now;
+    var promo = Model.Promotions?.FirstOrDefault(p => p.IsActive && p.StartDate <= now && p.EndDate >= now);
+    decimal displayedPrice = Model.Price;
+    decimal? discountedPrice = null;
+    if(promo != null)
+    {
+        discountedPrice = Math.Round(Model.Price * (1 - promo.DiscountPercentage / 100m), 2);
+    }
 }
 
 <div class="container">
@@ -44,8 +52,8 @@
                             {
                                 <div class="thumbnail-item me-2">
                                     <img src="@image.ImagePath" alt="@Model.ProductName" class="img-thumbnail"
-                                         style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
-                                         onclick="document.querySelector('.product-main-image img').src = this.src">
+                                    style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
+                                    onclick="document.querySelector('.product-main-image img').src = this.src">
                                 </div>
                             }
                         </div>
@@ -61,8 +69,16 @@
                         <span class="badge bg-secondary">@Model.SubCategory?.SubCategoryName</span>
                     </div>
 
-                    <div class="product-price fs-3 fw-bold text-danger mb-4">
-                        @string.Format("{0:N0}", Model.Price) ₫
+                    <div class="product-price fs-3 fw-bold mb-4">
+                        @if(discountedPrice.HasValue)
+                        {
+                            <span class="text-muted"><del>@string.Format("{0:N0}", displayedPrice) VNĐ</del></span>
+                            <span class="text-danger ms-2">@string.Format("{0:N0}", discountedPrice) VNĐ</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">@string.Format("{0:N0}", displayedPrice) VNĐ</span>
+                        }
                     </div>
 
                     <div class="mb-4">

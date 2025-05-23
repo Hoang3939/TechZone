@@ -69,7 +69,7 @@
                             <p class="mb-1"><strong>Mã đơn hàng:</strong> @Model.OrderNumber</p>
                             <p class="mb-1"><strong>Ngày đặt hàng:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
                             <p class="mb-1"><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod?.MethodName</p>
-                            <p class="mb-1"><strong>Tổng tiền:</strong> @string.Format("{0:N0}", Model.TotalAmount) ₫</p>
+                            <p class="mb-1"><strong>Tổng tiền:</strong> @string.Format("{0:N0}", Model.TotalAmount) VNĐ</p>
                         </div>
                         <div class="col-md-6">
                             <h5>Thông tin người nhận</h5>
@@ -131,16 +131,16 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="text-center">@string.Format("{0:N0}", item.UnitPrice) ₫</td>
+                                        <td class="text-center">@string.Format("{0:N0}", item.UnitPrice) VNĐ</td>
                                         <td class="text-center">@item.Quantity</td>
-                                        <td class="text-end">@string.Format("{0:N0}", item.TotalPrice) ₫</td>
+                                        <td class="text-end">@string.Format("{0:N0}", item.TotalPrice) VNĐ</td>
                                     </tr>
                                 }
                             </tbody>
                             <tfoot>
                                 <tr>
                                     <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
-                                    <td class="text-end"><strong class="text-danger">@string.Format("{0:N0}", Model.TotalAmount) ₫</strong></td>
+                                    <td class="text-end"><strong class="text-danger">@string.Format("{0:N0}", Model.TotalAmount) VNĐ</strong></td>
                                 </tr>
                             </tfoot>
                         </table>

@@ -61,7 +61,7 @@
                                         </a>
                                     </td>
                                     <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                                    <td>@string.Format("{0:N0}", order.TotalAmount) ₫</td>
+                                    <td>@string.Format("{0:N0}", order.TotalAmount) VNĐ</td>
                                     <td><span class="badge bg-@statusColor">@order.OrderStatus</span></td>
                                     <td>@order.PaymentMethod?.MethodName</td>
                                     <td class="text-end">

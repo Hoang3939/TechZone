@@ -39,6 +39,15 @@ namespace ElectronicsShop.Controllers
                 return NotFound();
             }
 
+            var now = DateTime.Now;
+            var promo = await _context.Promotions
+                .Where(p => p.ProductID == productId && p.IsActive && p.StartDate <= now && p.EndDate >= now)
+                .FirstOrDefaultAsync();
+
+            var unitPrice = promo != null ? product.Price * (1 - promo.DiscountPercentage / 100m) : product.Price;
+
+            product.Price = unitPrice;
+
             var cart = GetCartFromSession();
             cart.AddItem(product, quantity);
             SaveCartToSession(cart);

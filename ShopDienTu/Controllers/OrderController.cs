@@ -184,94 +184,93 @@ namespace ShopDienTu.Controllers
         public async Task<IActionResult> PlaceOrder(string fullName, string email, string phone, string address,
             string province, string district, string ward, int paymentMethodId, string notes)
         {
+            var cart = GetCartFromSession();
+            if (cart.Items.Count == 0)
+            {
+                return RedirectToAction("Index", "Cart");
+            }
+
+            var now = DateTime.Now;
+            var activePromos = await _context.Promotions
+                .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
+                .ToListAsync();
+
+            // Tạo đơn hàng mới
+            var order = new Order
+            {
+                OrderNumber = GenerateOrderNumber(),
+                ShippingAddress = $"{address}, {ward}, {district}, {province}",
+                PaymentMethodID = paymentMethodId,
+                Notes = notes,
+                CreatedAt = now,
+                OrderStatus = "Chờ xác nhận",
+                UserID = User.Identity.IsAuthenticated
+                            ? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
+                            : (int?)null
+            };
+
+            using var tx = await _context.Database.BeginTransactionAsync();
             try
             {
-                var cart = GetCartFromSession();
-                if (cart.Items.Count == 0)
-                {
-                    return RedirectToAction("Index", "Cart");
-                }
-
-                // Tạo đơn hàng mới
-                var order = new Order
-                {
-                    OrderNumber = GenerateOrderNumber(),
-                    ShippingAddress = $"{address}, {ward}, {district}, {province}",
-                    PaymentMethodID = paymentMethodId,
-                    Notes = notes,
-                    TotalAmount = cart.GetTotal(),
-                    CreatedAt = DateTime.Now,
-                    OrderStatus = "Chờ xác nhận"
-                };
-
-                // Nếu người dùng đã đăng nhập, liên kết đơn hàng với tài khoản
-                if (User.Identity.IsAuthenticated)
-                {
-                    order.UserID = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                }
-                else
-                {
-                    // Lưu thông tin khách vãng lai vào session
-                    var guestInfo = new GuestOrderInfo
-                    {
-                        FullName = fullName,
-                        Email = email,
-                        Phone = phone
-                    };
-
-                    // Lưu thông tin vào session sau khi có OrderID
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
-
-                    var guestInfoJson = JsonConvert.SerializeObject(guestInfo);
-                    HttpContext.Session.SetString($"{GuestInfoSessionKey}_{order.OrderID}", guestInfoJson);
-                }
-
-                if (order.OrderID == 0) // Nếu chưa được lưu (trường hợp người dùng đăng nhập)
-                {
-                    _context.Orders.Add(order);
-                    await _context.SaveChangesAsync();
-                }
-
-                // Thêm chi tiết đơn hàng
-                foreach (var item in cart.Items)
-                {
-                    var orderDetail = new OrderDetail
-                    {
-                        OrderID = order.OrderID,
-                        ProductID = item.ProductID,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.Price
-                    };
-                    _context.OrderDetails.Add(orderDetail);
-                }
-
-                // Thêm trạng thái đơn hàng
-                var orderStatus = new OrderStatus
-                {
-                    OrderID = order.OrderID,
-                    Status = "Chờ xác nhận",
-                    Description = "Đơn hàng của bạn đã được tạo và đang chờ xác nhận.",
-                    CreatedAt = DateTime.Now
-                };
-                _context.OrderStatuses.Add(orderStatus);
-
+                _context.Orders.Add(order);
                 await _context.SaveChangesAsync();
 
-                // Xóa giỏ hàng
-                cart.Clear();
-                SaveCartToSession(cart);
+                if (order.UserID == null)
+                {
+                    var guest = new GuestOrderInfo { FullName = fullName, Email = email, Phone = phone };
+                    HttpContext.Session.SetString($"{GuestInfoSessionKey}_{order.OrderID}", JsonConvert.SerializeObject(guest));
+                }
 
-                // Lưu ID đơn hàng vào TempData để cho phép xem chi tiết đơn hàng mà không cần đăng nhập
-                TempData["TrackOrderId"] = order.OrderID;
+                decimal total = 0;
+                foreach (var item in cart.Items)
+                {
+                    var product = await _context.Products.FindAsync(item.ProductID);
+                    if (item.Quantity > product.StockQuantity) throw new ArgumentException($"Chỉ còn lại {product.StockQuantity} sản phẩm trong kho");
+                    var promo = activePromos.FirstOrDefault(p => p.ProductID == item.ProductID);
+                    var unitPrice = promo != null ? product.Price * (1 - promo.DiscountPercentage / 100m) : product.Price;
+                    product.StockQuantity -= item.Quantity;
+                    total += unitPrice * item.Quantity;
 
-                return RedirectToAction("OrderConfirmation", "Order", new { id = order.OrderID });
+                    _context.OrderDetails.Add(new OrderDetail
+                    {
+                        OrderID = order.OrderID,
+                        ProductID = product.ProductID,
+                        Quantity = item.Quantity,
+                        UnitPrice = unitPrice
+                    });
+                }
+
+                _context.OrderStatuses.Add(new OrderStatus
+                {
+                    OrderID = order.OrderID,
+                    Status = "Đang xử lý",
+                    Description = "Đơn hàng đã được tạo, đang chờ xác nhân!",
+                    CreatedAt = now
+                });
+
+                order.TotalAmount = total;
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+            }
+            catch (DbUpdateException dbEx)
+            {
+                await tx.RollbackAsync();
+                _logger.LogError(dbEx, "Lỗi Database khi đặt hàng.");
+                TempData["ErrorMessage"] = "Lỗi khi lưu đơn hàng. Vui lòng thử lại!";
+                return RedirectToAction("Checkout", "Cart");
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.";
+                await tx.RollbackAsync();
+                _logger.LogError(ex, "Lỗi khi đặt hàng!");
+                ModelState.AddModelError("", ex.Message);
                 return RedirectToAction("Checkout", "Cart");
             }
+
+            cart.Clear();
+            SaveCartToSession(cart);
+            TempData["TrackOrderId"] = order.OrderID;
+            return RedirectToAction("OrderConfirmation", new { id = order.OrderID });
         }
 
         // GET: Order/OrderConfirmation/5

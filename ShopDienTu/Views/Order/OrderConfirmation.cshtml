@@ -35,7 +35,7 @@ else
                         <h5>Thông tin đơn hàng</h5>
                         <p class="mb-1"><strong>Mã đơn hàng:</strong> #@Model.OrderNumber</p>
                         <p class="mb-1"><strong>Ngày đặt hàng:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
-                        <p class="mb-1"><strong>Tổng tiền:</strong> @string.Format("{0:N0}", Model.TotalAmount) ₫</p>
+                        <p class="mb-1"><strong>Tổng tiền:</strong> @string.Format("{0:N0}", Model.TotalAmount) VNĐ</p>
                         <p class="mb-1"><strong>Phương thức thanh toán:</strong> @Model.PaymentMethod?.MethodName</p>
                     </div>
 
