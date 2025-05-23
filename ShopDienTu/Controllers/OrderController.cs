@@ -265,61 +265,70 @@ namespace ShopDienTu.Controllers
                 // Lưu ID đơn hàng vào TempData để cho phép xem chi tiết đơn hàng mà không cần đăng nhập
                 TempData["TrackOrderId"] = order.OrderID;
 
-                _logger.LogInformation("Đang redirect đến OrderConfirmation với OrderID = {OrderID}", order.OrderID);
-                TempData["CheckRedirect"] = $"Redirecting to OrderConfirmation: {order.OrderID}";
-
-                return RedirectToAction("OrderConfirmation", new { id = order.OrderID });
+                return RedirectToAction("OrderConfirmation", "Order", new { id = order.OrderID });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Lỗi khi đặt hàng: {Message}", ex.Message);
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi đặt hàng. Vui lòng thử lại sau.";
                 return RedirectToAction("Checkout", "Cart");
             }
         }
 
         // GET: Order/OrderConfirmation/5
+        [HttpGet]
         public async Task<IActionResult> OrderConfirmation(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            //if (id == null)
+            //{
+            //    return NotFound();
+            //}
 
-            try
-            {
-                var order = await _context.Orders
-                    .Include(o => o.User)
-                    .Include(o => o.PaymentMethod)
-                    .FirstOrDefaultAsync(m => m.OrderID == id);
+            //try
+            //{
+            //    var order = await _context.Orders
+            //        .Include(o => o.User)
+            //        .Include(o => o.PaymentMethod)
+            //        .FirstOrDefaultAsync(m => m.OrderID == id);
 
-                if (order == null)
-                {
-                    return NotFound();
-                }
+            //    if (order == null)
+            //    {
+            //        return NotFound();
+            //    }
 
-                // Nếu đơn hàng không có UserID, lấy thông tin khách vãng lai từ session
-                if (order.UserID == null)
-                {
-                    var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{order.OrderID}");
-                    if (!string.IsNullOrEmpty(guestInfoJson))
-                    {
-                        var guestInfo = JsonConvert.DeserializeObject<GuestOrderInfo>(guestInfoJson);
-                        ViewBag.GuestInfo = guestInfo;
-                    }
-                }
+            //    // Nếu đơn hàng không có UserID, lấy thông tin khách vãng lai từ session
+            //    if (order.UserID == null)
+            //    {
+            //        var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{order.OrderID}");
+            //        if (!string.IsNullOrEmpty(guestInfoJson))
+            //        {
+            //            var guestInfo = JsonConvert.DeserializeObject<GuestOrderInfo>(guestInfoJson);
+            //            ViewBag.GuestInfo = guestInfo;
+            //        }
+            //    }
 
-                // Lưu ID đơn hàng vào TempData để cho phép xem chi tiết đơn hàng mà không cần đăng nhập
-                TempData["TrackOrderId"] = order.OrderID;
+            //    // Lưu ID đơn hàng vào TempData để cho phép xem chi tiết đơn hàng mà không cần đăng nhập
+            //    TempData["TrackOrderId"] = order.OrderID;
 
-                return View(order);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi khi xem xác nhận đơn hàng {OrderId}: {Message}", id, ex.Message);
-                TempData["ErrorMessage"] = "Đã xảy ra lỗi khi tải thông tin xác nhận đơn hàng. Vui lòng thử lại sau.";
-                return RedirectToAction("Index", "Home");
-            }
+            //    return View(order);
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, "Lỗi khi xem xác nhận đơn hàng {OrderId}: {Message}", id, ex.Message);
+            //    TempData["ErrorMessage"] = "Đã xảy ra lỗi khi tải thông tin xác nhận đơn hàng. Vui lòng thử lại sau.";
+            //    return RedirectToAction("Index", "Home");
+            //}
+            var order = await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.PaymentMethod)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(d => d.Product)
+                        .ThenInclude(p => p.ProductImages)
+                .Include(o => o.OrderStatuses)
+                .FirstOrDefaultAsync(o => o.OrderID == id);
+
+            if (order == null) return NotFound();
+            return View(order);
+                
         }
 
         // GET: Order/CancelOrder/5

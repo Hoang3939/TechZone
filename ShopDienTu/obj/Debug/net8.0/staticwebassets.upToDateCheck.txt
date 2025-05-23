@@ -76,6 +76,7 @@ wwwroot\images\AcerNito5i7.jpg
 wwwroot\images\asus_rog.jpg
 wwwroot\images\g102_logitech.jpg
 wwwroot\images\galaxy_a55.jpg
+wwwroot\images\narutohiennhanjpg.jpg
 wwwroot\js\site.js
 wwwroot\lib\bootstrap\dist\css\bootstrap.css
 wwwroot\lib\bootstrap\dist\css\bootstrap.css.map

@@ -317,6 +317,10 @@
       "PackagePath": "staticwebassets\\images\\galaxy_a55.jpg"
     },
     {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\narutohiennhanjpg.jpg",
+      "PackagePath": "staticwebassets\\images\\narutohiennhanjpg.jpg"
+    },
+    {
       "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },
