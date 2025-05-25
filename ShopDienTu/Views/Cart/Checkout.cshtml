@@ -1,6 +1,8 @@
 ﻿@model ShopDienTu.Models.ShoppingCart
 @{
     ViewData["Title"] = "Thanh toán";
+    var rankName = ViewBag.RankName as string ?? "Đồng";
+    var rankDiscount = ViewBag.RankDiscount ?? 0;
 }
 
 <div class="container">
@@ -12,6 +14,13 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0">Thông tin giao hàng</h5>
                 </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div class="alert alert-info small mb-3">
+                        <i class="fas fa-certificate me-2"></i>
+                        Bạn đang ở hạng <strong>@rankName</strong>, được giảm <strong>@rankDiscount%</strong> trên toàn đơn hàng!
+                    </div>
+                }
                 <div class="card-body">
                     <form id="checkoutForm" asp-controller="Order" asp-action="PlaceOrder" method="post">
                         <div class="row g-3">
@@ -22,7 +31,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="phone" class="form-label">Số điện thoại</label>
-                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                                <input type="tel" class="form-control" id="phone" name="phone" required
+                                       value="@(User.Identity.IsAuthenticated ? User.FindFirst("Phone")?.Value : "")">
                             </div>
                             <div class="col-12">
                                 <label for="email" class="form-label">Email</label>
@@ -31,30 +41,24 @@
                             </div>
                             <div class="col-12">
                                 <label for="address" class="form-label">Địa chỉ</label>
-                                <input type="text" class="form-control" id="address" name="address" required>
+                                @if (User.Identity.IsAuthenticated && ViewBag.SavedAddresses is List<ShopDienTu.Models.UserAddress> savedAddresses && savedAddresses.Any())
+                                {
+                                    <select class="form-select" id="address" name="address" required>
+                                        <option value="">-- Chọn địa chỉ --</option>
+                                        @foreach (var addr in savedAddresses)
+                                        {
+                                            var fullAddress = addr.Address;
+                                            <!-- Giả sử bạn đã cập nhật lại chỉ còn cột Address -->
+                                            <option value="@fullAddress">@fullAddress</option>
+                                        }
+                                    </select>
+                                }
+                                else
+                                {
+                                    <input type="text" class="form-control" id="address" name="address" required placeholder="Nhập địa chỉ giao hàng">
+                                }
                             </div>
-                            <div class="col-md-4">
-                                <label for="province" class="form-label">Tỉnh/Thành phố</label>
-                                <select class="form-select" id="province" name="province" required>
-                                    <option value="">Chọn tỉnh/thành phố</option>
-                                    <option value="Hà Nội">Hà Nội</option>
-                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                                    <option value="Đà Nẵng">Đà Nẵng</option>
-                                    <!-- Add more provinces here -->
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="district" class="form-label">Quận/Huyện</label>
-                                <select class="form-select" id="district" name="district" required>
-                                    <option value="">Chọn quận/huyện</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="ward" class="form-label">Phường/Xã</label>
-                                <select class="form-select" id="ward" name="ward" required>
-                                    <option value="">Chọn phường/xã</option>
-                                </select>
-                            </div>
+                          
                         </div>
 
                         <div class="mt-4">

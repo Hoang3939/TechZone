@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace ElectronicsShop.Controllers
 {
@@ -103,15 +104,31 @@ namespace ElectronicsShop.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Get payment methods for checkout
             var paymentMethods = await _context.PaymentMethods
                 .Where(p => p.IsActive)
                 .ToListAsync();
 
             ViewBag.PaymentMethods = paymentMethods;
 
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var user = await _context.Users
+                    .Include(u => u.Rank)
+                    .FirstOrDefaultAsync(u => u.UserID == userId);
+                var addresses = await _context.UserAddresses
+                    .Where(a => a.UserID == userId)
+                    .OrderByDescending(a => a.AddedAt)
+                    .ToListAsync();
+
+                ViewBag.SavedAddresses = addresses;
+                ViewBag.RankName = user?.Rank?.RankName ?? "Đồng";
+                ViewBag.RankDiscount = user?.Rank?.DiscountPercentage ?? 0;
+            }
+
             return View(cart);
         }
+
 
         private ShoppingCart GetCartFromSession()
         {

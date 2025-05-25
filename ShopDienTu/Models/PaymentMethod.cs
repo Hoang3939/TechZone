@@ -17,6 +17,6 @@ namespace ShopDienTu.Models
         public bool IsActive { get; set; } = true;
 
         // Navigation properties
-        public virtual ICollection<Order> Orders { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }=new List<Order>();
     }
 }

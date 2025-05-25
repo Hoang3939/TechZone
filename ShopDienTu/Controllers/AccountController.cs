@@ -28,6 +28,23 @@ namespace ShopDienTu.Controllers
             _logger = logger;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Addresses()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login");
+            }
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var addresses = await _context.UserAddresses
+                .Where(a => a.UserID == userId)
+                .OrderByDescending(a => a.AddedAt)
+                .ToListAsync();
+
+            return View(addresses);
+        }
+
         // GET: Account/Login
         public IActionResult Login(string returnUrl = null)
         {
@@ -55,7 +72,8 @@ namespace ShopDienTu.Controllers
                             new Claim(ClaimTypes.Name, user.UserName),
                             new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
                             new Claim(ClaimTypes.Email, user.Email),
-                            new Claim(ClaimTypes.Role, user.Role ?? "User")
+                            new Claim(ClaimTypes.Role, user.Role ?? "User"),
+                            new Claim("Phone", user.Phone ?? "")
                         };
 
                         var claimsIdentity = new ClaimsIdentity(
@@ -238,12 +256,30 @@ namespace ShopDienTu.Controllers
             try
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var user = await _context.Users.FindAsync(userId);
+                var user = await _context.Users
+                    .Include(u => u.Rank)
+                    .FirstOrDefaultAsync(u => u.UserID == userId);
 
-                if (user == null)
+                if (user == null) return NotFound();
+
+                if (user.RankID == null || user.Rank == null)
                 {
-                    return NotFound();
+                    var newRank = await _context.Ranks
+                        .Where(r => r.MinimumPoints <= (user.Points ?? 0))
+                        .OrderByDescending(r => r.MinimumPoints)
+                        .FirstOrDefaultAsync();
+
+                    if (newRank != null)
+                    {
+                        user.RankID = newRank.RankID;
+                        _context.Update(user);
+                        await _context.SaveChangesAsync();
+                        user.Rank = newRank; // Gán lại để truyền qua ViewBag luôn
+                    }
                 }
+
+                ViewBag.Points = user.Points ?? 0;
+                ViewBag.RankName = user.Rank?.RankName ?? "Chưa có hạng";
 
                 return View(user);
             }
@@ -295,7 +331,18 @@ namespace ShopDienTu.Controllers
                 user.Email = model.Email;
                 user.Phone = model.Phone;
                 user.Address = model.Address;
+                bool alreadyExists = await _context.UserAddresses
+                   .AnyAsync(a => a.UserID == userId && a.Address == user.Address);
 
+                if (!alreadyExists && !string.IsNullOrWhiteSpace(user.Address))
+                {
+                    _context.UserAddresses.Add(new UserAddress
+                    {
+                        UserID = userId,
+                        Address = user.Address,
+                        AddedAt = DateTime.Now
+                    });
+                }
                 _context.Update(user);
                 await _context.SaveChangesAsync();
 
@@ -385,6 +432,8 @@ namespace ShopDienTu.Controllers
             return hashedInput == hashedPassword;
         }
     }
+
+
 
     // View Models
     public class LoginViewModel

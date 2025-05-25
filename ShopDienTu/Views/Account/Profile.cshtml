@@ -1,6 +1,8 @@
 ﻿@model ShopDienTu.Models.User
 @{
     ViewData["Title"] = "Thông tin tài khoản";
+    var rankName = ViewBag.RankName ?? "Chưa có hạng";
+    var points = ViewBag.Points ?? 0;
 }
 
 <div class="container py-5">
@@ -20,6 +22,14 @@
                             <p class="text-muted mb-0 small">@Model.Email</p>
                         </div>
                     </div>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="alert alert-info mt-3">
+                            <strong>Hạng:</strong> @rankName <br />
+                            <strong>Điểm thưởng:</strong> @points điểm
+                        </div>
+                    }
+
 
                     <div class="list-group list-group-flush">
                         <a asp-controller="Account" asp-action="Profile" class="list-group-item list-group-item-action active">

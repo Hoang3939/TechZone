@@ -182,7 +182,7 @@ namespace ShopDienTu.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(string fullName, string email, string phone, string address,
-            string province, string district, string ward, int paymentMethodId, string notes)
+    string province, string district, string ward, int paymentMethodId, string notes)
         {
             var cart = GetCartFromSession();
             if (cart.Items.Count == 0)
@@ -195,7 +195,6 @@ namespace ShopDienTu.Controllers
                 .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
                 .ToListAsync();
 
-            // Tạo đơn hàng mới
             var order = new Order
             {
                 OrderNumber = GenerateOrderNumber(),
@@ -222,21 +221,41 @@ namespace ShopDienTu.Controllers
                 }
 
                 decimal total = 0;
+                decimal rankDiscount = 0;
+
+                // Nếu có user → lấy giảm giá theo rank
+                if (order.UserID != null)
+                {
+                    rankDiscount = await _context.Users
+                        .Where(u => u.UserID == order.UserID)
+                        .Select(u => u.Rank.DiscountPercentage)
+                        .FirstOrDefaultAsync();
+                }
+
                 foreach (var item in cart.Items)
                 {
                     var product = await _context.Products.FindAsync(item.ProductID);
-                    if (item.Quantity > product.StockQuantity) throw new ArgumentException($"Chỉ còn lại {product.StockQuantity} sản phẩm trong kho");
+                    if (item.Quantity > product.StockQuantity)
+                        throw new ArgumentException($"Chỉ còn lại {product.StockQuantity} sản phẩm trong kho");
+
                     var promo = activePromos.FirstOrDefault(p => p.ProductID == item.ProductID);
-                    var unitPrice = promo != null ? product.Price * (1 - promo.DiscountPercentage / 100m) : product.Price;
+                    var basePrice = product.Price;
+
+                    decimal priceAfterPromo = promo != null
+                        ? basePrice * (1 - promo.DiscountPercentage / 100m)
+                        : basePrice;
+
+                    decimal finalPrice = priceAfterPromo * (1 - rankDiscount / 100m);
+
                     product.StockQuantity -= item.Quantity;
-                    total += unitPrice * item.Quantity;
+                    total += finalPrice * item.Quantity;
 
                     _context.OrderDetails.Add(new OrderDetail
                     {
                         OrderID = order.OrderID,
                         ProductID = product.ProductID,
                         Quantity = item.Quantity,
-                        UnitPrice = unitPrice
+                        UnitPrice = finalPrice
                     });
                 }
 
@@ -244,13 +263,39 @@ namespace ShopDienTu.Controllers
                 {
                     OrderID = order.OrderID,
                     Status = "Đang xử lý",
-                    Description = "Đơn hàng đã được tạo, đang chờ xác nhân!",
+                    Description = "Đơn hàng đã được tạo, đang chờ xác nhận!",
                     CreatedAt = now
                 });
 
                 order.TotalAmount = total;
                 await _context.SaveChangesAsync();
                 await tx.CommitAsync();
+
+                // TÍNH ĐIỂM + CẬP NHẬT RANK
+                if (order.UserID != null)
+                {
+                    var user = await _context.Users
+                        .Include(u => u.Rank)
+                        .FirstOrDefaultAsync(u => u.UserID == order.UserID);
+
+                    if (user != null)
+                    {
+                        int earnedPoints = (int)(order.TotalAmount / 1000m);
+                        user.Points = (user.Points ?? 0) + earnedPoints;
+
+                        var newRank = await _context.Ranks
+                            .Where(r => r.MinimumPoints <= user.Points)
+                            .OrderByDescending(r => r.MinimumPoints)
+                            .FirstOrDefaultAsync();
+
+                        if (newRank != null && user.RankID != newRank.RankID)
+                        {
+                            user.RankID = newRank.RankID;
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+                }
             }
             catch (DbUpdateException dbEx)
             {
@@ -272,6 +317,7 @@ namespace ShopDienTu.Controllers
             TempData["TrackOrderId"] = order.OrderID;
             return RedirectToAction("OrderConfirmation", new { id = order.OrderID });
         }
+
 
         // GET: Order/OrderConfirmation/5
         [HttpGet]
