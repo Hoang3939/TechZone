@@ -59,7 +59,7 @@ namespace ShopDienTu.Models
         public int? Points { get; set; } = 0;
 
         public int? RankID { get; set; }
-        public Rank Rank { get; set; }
 
+        public Rank Rank { get; set; }
     }
 }

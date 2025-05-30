@@ -29,6 +29,8 @@ namespace ShopDienTu.Models
         [Display(Name = "Tổng tiền")]
         public decimal? TotalAmount { get; set; }
 
+        [Display(Name = "Giảm giá")]
+        public decimal? Discount { get; set; }
         public int? PaymentMethodID { get; set; }
 
         [StringLength(50)]

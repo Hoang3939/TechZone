@@ -25,6 +25,5 @@ namespace ShopDienTu.Data
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<Rank> Ranks { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
-
     }
 }

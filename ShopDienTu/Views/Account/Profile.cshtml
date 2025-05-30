@@ -22,6 +22,7 @@
                             <p class="text-muted mb-0 small">@Model.Email</p>
                         </div>
                     </div>
+
                     @if (User.Identity.IsAuthenticated)
                     {
                         <div class="alert alert-info mt-3">
@@ -29,7 +30,6 @@
                             <strong>Điểm thưởng:</strong> @points điểm
                         </div>
                     }
-
 
                     <div class="list-group list-group-flush">
                         <a asp-controller="Account" asp-action="Profile" class="list-group-item list-group-item-action active">

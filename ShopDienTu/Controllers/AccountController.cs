@@ -260,7 +260,10 @@ namespace ShopDienTu.Controllers
                     .Include(u => u.Rank)
                     .FirstOrDefaultAsync(u => u.UserID == userId);
 
-                if (user == null) return NotFound();
+                if (user == null)
+                {
+                    return NotFound();
+                }
 
                 if (user.RankID == null || user.Rank == null)
                 {
@@ -332,7 +335,7 @@ namespace ShopDienTu.Controllers
                 user.Phone = model.Phone;
                 user.Address = model.Address;
                 bool alreadyExists = await _context.UserAddresses
-                   .AnyAsync(a => a.UserID == userId && a.Address == user.Address);
+                    .AnyAsync(a => a.UserID == userId && a.Address == user.Address);
 
                 if (!alreadyExists && !string.IsNullOrWhiteSpace(user.Address))
                 {
@@ -343,6 +346,7 @@ namespace ShopDienTu.Controllers
                         AddedAt = DateTime.Now
                     });
                 }
+
                 _context.Update(user);
                 await _context.SaveChangesAsync();
 
@@ -432,8 +436,6 @@ namespace ShopDienTu.Controllers
             return hashedInput == hashedPassword;
         }
     }
-
-
 
     // View Models
     public class LoginViewModel

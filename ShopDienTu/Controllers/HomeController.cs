@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace ShopDienTu.Controllers
 {
@@ -25,9 +26,24 @@ namespace ShopDienTu.Controllers
         {
             var now = DateTime.Now;
             var activePromotions = await _context.Promotions
-                .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
+                .Where(p => p.IsActive && p.ProductID != null && p.StartDate <= now && p.EndDate >= now)
                 .ToListAsync(); // L?y t?t c? active promotions (có th? t?i ?u h?n)
             ViewBag.ActivePromotions = activePromotions;
+
+            decimal rankDiscountPercentage = 0m;
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var user = await _context.Users
+                    .Include(u => u.Rank) // ??m b?o include Rank ?? l?y DiscountPercentage
+                    .FirstOrDefaultAsync(u => u.UserID == userId);
+
+                if (user != null && user.Rank != null)
+                {
+                    rankDiscountPercentage = user.Rank.DiscountPercentage;
+                }
+            }
+            ViewBag.RankDiscountPercentage = rankDiscountPercentage; // Truy?n vào ViewBag
 
             // Get all categories with subcategories for the sidebar
             var categories = await _context.Categories

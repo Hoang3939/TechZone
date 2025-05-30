@@ -182,7 +182,7 @@ namespace ShopDienTu.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(string fullName, string email, string phone, string address,
-    string province, string district, string ward, int paymentMethodId, string notes)
+            string province, string district, string ward, int paymentMethodId, string? notes, string? promoCode)
         {
             var cart = GetCartFromSession();
             if (cart.Items.Count == 0)
@@ -191,10 +191,83 @@ namespace ShopDienTu.Controllers
             }
 
             var now = DateTime.Now;
+
             var activePromos = await _context.Promotions
-                .Where(p => p.IsActive && p.StartDate <= now && p.EndDate >= now)
+                .Where(p => p.IsActive && p.ProductID != null && p.StartDate <= now && p.EndDate >= now)
                 .ToListAsync();
 
+            decimal subtotal = 0m;
+            decimal rankDiscountPercentage = 0m;
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                rankDiscountPercentage = await _context.Users
+                    .Where(u => u.UserID == userId)
+                    .Select(u => u.Rank.DiscountPercentage)
+                    .FirstOrDefaultAsync();
+            }
+
+            foreach (var item in cart.Items)
+            {
+                var product = await _context.Products.FindAsync(item.ProductID);
+
+                if (item.Quantity > product.StockQuantity)
+                {
+                    ModelState.AddModelError("", $"Sản phẩm '{product.ProductName}' chỉ còn lại {product.StockQuantity} sản phẩm trong kho.");
+                    // Need to return to checkout with error
+                    ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync(); // Ensure these are reloaded
+                    return View("~/Views/Cart/Checkout.cshtml", cart);
+                }
+                var promo = activePromos.FirstOrDefault(p => p.ProductID == item.ProductID);
+                var basePrice = product.Price;
+
+                decimal priceAfterProductPromo = promo != null
+                    ? basePrice * (1 - promo.DiscountPercentage / 100m)
+                    : basePrice;
+
+                decimal finalUnitPrice = priceAfterProductPromo * (1 - rankDiscountPercentage / 100m);
+
+                subtotal += finalUnitPrice * item.Quantity;
+
+                item.Price = finalUnitPrice;
+            }
+
+            decimal globalVoucherDiscount = 0m;
+            ViewBag.PromoCode = promoCode;
+
+            if(!string.IsNullOrWhiteSpace(promoCode))
+            {
+                var codeNormalized = promoCode.Trim().ToUpper();
+                var globalPromo = await _context.Promotions
+                    .Where(p => p.IsActive
+                                && p.ProductID == null
+                                && p.StartDate <= now
+                                && p.EndDate >= now)
+                    .FirstOrDefaultAsync(p => p.PromoCode.ToUpper() == codeNormalized);
+
+                if (globalPromo == null)
+                {
+                    ModelState.AddModelError("promoCode", "Mã voucher không hợp lệ hoặc đã hết hạn.");
+                }
+                else if (subtotal < 20_000_000m)
+                {
+                    ModelState.AddModelError("promoCode", "Đơn hàng phải từ 20.000.000 VNĐ trở lên để sử dụng voucher.");
+                }
+                else
+                {
+                    globalVoucherDiscount = 1_000_000m;
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                // Phải load lại danh sách phương thức thanh toán cho view
+                ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync();
+                return View("~/Views/Cart/Checkout.cshtml", cart);
+            }
+
+            // Tạo đơn hàng mới
             var order = new Order
             {
                 OrderNumber = GenerateOrderNumber(),
@@ -205,7 +278,9 @@ namespace ShopDienTu.Controllers
                 OrderStatus = "Chờ xác nhận",
                 UserID = User.Identity.IsAuthenticated
                             ? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
-                            : (int?)null
+                            : (int?)null,
+                TotalAmount = subtotal - globalVoucherDiscount,
+                Discount = globalVoucherDiscount > 0 ? globalVoucherDiscount : (decimal?)null
             };
 
             using var tx = await _context.Database.BeginTransactionAsync();
@@ -220,42 +295,19 @@ namespace ShopDienTu.Controllers
                     HttpContext.Session.SetString($"{GuestInfoSessionKey}_{order.OrderID}", JsonConvert.SerializeObject(guest));
                 }
 
-                decimal total = 0;
-                decimal rankDiscount = 0;
-
-                // Nếu có user → lấy giảm giá theo rank
-                if (order.UserID != null)
-                {
-                    rankDiscount = await _context.Users
-                        .Where(u => u.UserID == order.UserID)
-                        .Select(u => u.Rank.DiscountPercentage)
-                        .FirstOrDefaultAsync();
-                }
-
                 foreach (var item in cart.Items)
                 {
                     var product = await _context.Products.FindAsync(item.ProductID);
-                    if (item.Quantity > product.StockQuantity)
-                        throw new ArgumentException($"Chỉ còn lại {product.StockQuantity} sản phẩm trong kho");
-
-                    var promo = activePromos.FirstOrDefault(p => p.ProductID == item.ProductID);
-                    var basePrice = product.Price;
-
-                    decimal priceAfterPromo = promo != null
-                        ? basePrice * (1 - promo.DiscountPercentage / 100m)
-                        : basePrice;
-
-                    decimal finalPrice = priceAfterPromo * (1 - rankDiscount / 100m);
 
                     product.StockQuantity -= item.Quantity;
-                    total += finalPrice * item.Quantity;
+                    _context.Products.Update(product);
 
                     _context.OrderDetails.Add(new OrderDetail
                     {
                         OrderID = order.OrderID,
                         ProductID = product.ProductID,
                         Quantity = item.Quantity,
-                        UnitPrice = finalPrice
+                        UnitPrice = item.Price
                     });
                 }
 
@@ -263,15 +315,13 @@ namespace ShopDienTu.Controllers
                 {
                     OrderID = order.OrderID,
                     Status = "Đang xử lý",
-                    Description = "Đơn hàng đã được tạo, đang chờ xác nhận!",
+                    Description = "Đơn hàng đã được tạo, đang chờ xác nhân!",
                     CreatedAt = now
                 });
 
-                order.TotalAmount = total;
                 await _context.SaveChangesAsync();
                 await tx.CommitAsync();
 
-                // TÍNH ĐIỂM + CẬP NHẬT RANK
                 if (order.UserID != null)
                 {
                     var user = await _context.Users
@@ -284,16 +334,16 @@ namespace ShopDienTu.Controllers
                         user.Points = (user.Points ?? 0) + earnedPoints;
 
                         var newRank = await _context.Ranks
-                            .Where(r => r.MinimumPoints <= user.Points)
+                            .Where(r => r.MinimumPoints <=  user.Points)
                             .OrderByDescending(r => r.MinimumPoints)
                             .FirstOrDefaultAsync();
 
                         if (newRank != null && user.RankID != newRank.RankID)
                         {
                             user.RankID = newRank.RankID;
+                            _logger.LogInformation("Xếp hạng của người dùng {UserId} được cập nhật từ {OldRankId} thành {NewRankId} với {Points} điểm.", user.UserID, user.RankID, newRank.RankID, user.Points);
                         }
-
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(); // Lưu thay đổi rank và điểm
                     }
                 }
             }
@@ -318,6 +368,32 @@ namespace ShopDienTu.Controllers
             return RedirectToAction("OrderConfirmation", new { id = order.OrderID });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<JsonResult> ValidateVoucher([FromForm] string promoCode, [FromForm] decimal subtotal)
+        {
+            var now = DateTime.Now;
+
+            // Lấy khuyến mãi toàn hệ thống (ProductID == null) đang active
+            var promo = await _context.Promotions
+                .Where(p => p.IsActive
+                            && p.ProductID == null
+                            && p.StartDate <= now
+                            && p.EndDate >= now)
+                .FirstOrDefaultAsync(p => p.PromoCode.ToUpper() == promoCode.Trim().ToUpper());
+
+            if (promo == null)
+            {
+                return Json(new { success = false, error = "Mã voucher không hợp lệ hoặc đã hết hạn." });
+            }
+            if (subtotal < 20_000_000m)
+            {
+                return Json(new { success = false, error = "Đơn hàng phải từ 20.000.000 VNĐ trở lên để sử dụng voucher." });
+            }
+
+            // ở đây cứng là 1.000.000 nhưng bạn có thể dùng promo.DiscountAmount nếu lưu trong DB
+            return Json(new { success = true, code = promo.PromoCode, discount = 1000000 });
+        }
 
         // GET: Order/OrderConfirmation/5
         [HttpGet]
