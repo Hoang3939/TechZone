@@ -199,13 +199,19 @@ namespace ShopDienTu.Controllers
             decimal subtotal = 0m;
             decimal rankDiscountPercentage = 0m;
 
+            ShopDienTu.Models.User currentUser = null;
             if (User.Identity.IsAuthenticated)
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                rankDiscountPercentage = await _context.Users
-                    .Where(u => u.UserID == userId)
-                    .Select(u => u.Rank.DiscountPercentage)
-                    .FirstOrDefaultAsync();
+
+                currentUser = await _context.Users
+                    .Include(u => u.Rank) // Đảm bảo include Rank để lấy DiscountPercentage
+                    .FirstOrDefaultAsync(u => u.UserID == userId);
+
+                if (currentUser != null && currentUser.Rank != null)
+                {
+                    rankDiscountPercentage = currentUser.Rank.DiscountPercentage;
+                }
             }
 
             foreach (var item in cart.Items)
@@ -219,22 +225,22 @@ namespace ShopDienTu.Controllers
                     ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync(); // Ensure these are reloaded
                     return View("~/Views/Cart/Checkout.cshtml", cart);
                 }
+                decimal productSpecificDiscountPercentage = 0m;
                 var promo = activePromos.FirstOrDefault(p => p.ProductID == item.ProductID);
-                var basePrice = product.Price;
+                if (promo != null)
+                {
+                    productSpecificDiscountPercentage = promo.DiscountPercentage;
+                }
 
-                decimal priceAfterProductPromo = promo != null
-                    ? basePrice * (1 - promo.DiscountPercentage / 100m)
-                    : basePrice;
+                decimal effectiveDiscountPercentage = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage);
+                decimal finalUnitPrice = product.Price * (1 - effectiveDiscountPercentage / 100m);
 
-                decimal finalUnitPrice = priceAfterProductPromo * (1 - rankDiscountPercentage / 100m);
+                subtotal += finalUnitPrice * item.Quantity; // Cộng vào subtotal dựa trên giá đã giảm
 
-                subtotal += finalUnitPrice * item.Quantity;
-
-                item.Price = finalUnitPrice;
+                item.Price = finalUnitPrice; // Lưu giá cuối cùng vào cart item để dùng khi tạo OrderDetail
             }
 
             decimal globalVoucherDiscount = 0m;
-            ViewBag.PromoCode = promoCode;
 
             if(!string.IsNullOrWhiteSpace(promoCode))
             {
@@ -276,9 +282,7 @@ namespace ShopDienTu.Controllers
                 Notes = notes,
                 CreatedAt = now,
                 OrderStatus = "Chờ xác nhận",
-                UserID = User.Identity.IsAuthenticated
-                            ? int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
-                            : (int?)null,
+                UserID = currentUser?.UserID,
                 TotalAmount = subtotal - globalVoucherDiscount,
                 Discount = globalVoucherDiscount > 0 ? globalVoucherDiscount : (decimal?)null
             };
@@ -322,29 +326,23 @@ namespace ShopDienTu.Controllers
                 await _context.SaveChangesAsync();
                 await tx.CommitAsync();
 
-                if (order.UserID != null)
+                if (order.UserID != null && currentUser != null)
                 {
-                    var user = await _context.Users
-                        .Include(u => u.Rank)
-                        .FirstOrDefaultAsync(u => u.UserID == order.UserID);
+                    int earnedPoints = (int)(order.TotalAmount / 1000m);
+                    currentUser.Points = (currentUser.Points ?? 0) + earnedPoints;
 
-                    if (user != null)
+                    var newRank = await _context.Ranks
+                        .Where(r => r.MinimumPoints <= (currentUser.Points ?? 0))
+                        .OrderByDescending(r => r.MinimumPoints)
+                        .FirstOrDefaultAsync();
+
+                    if (newRank != null && currentUser.RankID != newRank.RankID)
                     {
-                        int earnedPoints = (int)(order.TotalAmount / 1000m);
-                        user.Points = (user.Points ?? 0) + earnedPoints;
-
-                        var newRank = await _context.Ranks
-                            .Where(r => r.MinimumPoints <=  user.Points)
-                            .OrderByDescending(r => r.MinimumPoints)
-                            .FirstOrDefaultAsync();
-
-                        if (newRank != null && user.RankID != newRank.RankID)
-                        {
-                            user.RankID = newRank.RankID;
-                            _logger.LogInformation("Xếp hạng của người dùng {UserId} được cập nhật từ {OldRankId} thành {NewRankId} với {Points} điểm.", user.UserID, user.RankID, newRank.RankID, user.Points);
-                        }
-                        await _context.SaveChangesAsync(); // Lưu thay đổi rank và điểm
+                        currentUser.RankID = newRank.RankID;
+                        _logger.LogInformation("Xếp hạng của người dùng {UserId} được cập nhật từ {OldRankId} thành {NewRankId} với {Points} điểm.", currentUser.UserID, currentUser.RankID, newRank.RankID, currentUser.Points);
                     }
+                    _context.Update(currentUser); // Đảm bảo EF theo dõi thay đổi của currentUser
+                    await _context.SaveChangesAsync(); // Lưu thay đổi rank và điểm
                 }
             }
             catch (DbUpdateException dbEx)

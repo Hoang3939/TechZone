@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "MixtQZM8QWA=",
+  "dgSpecHash": "MjcWA18ggS4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+  "projectFilePath": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\tranv\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\tranv\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

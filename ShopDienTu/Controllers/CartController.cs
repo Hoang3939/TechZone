@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace ElectronicsShop.Controllers
 {
@@ -39,19 +40,49 @@ namespace ElectronicsShop.Controllers
                 return NotFound();
             }
 
+            if (quantity <= 0 || quantity > product.StockQuantity)
+            {
+                TempData["ErrorMessage"] = $"Số lượng yêu cầu không hợp lệ. Chỉ còn {product.StockQuantity} sản phẩm trong kho.";
+                return RedirectToAction(nameof(Index));
+            }
+
             var now = DateTime.Now;
+
+            decimal productSpecificDiscountPercentage = 0m;
             var promo = await _context.Promotions
                 .Where(p => p.ProductID == productId && p.IsActive && p.StartDate <= now && p.EndDate >= now)
                 .FirstOrDefaultAsync();
 
-            var unitPrice = promo != null ? product.Price * (1 - promo.DiscountPercentage / 100m) : product.Price;
+            if (promo != null)
+            {
+                productSpecificDiscountPercentage = promo.DiscountPercentage;
+            }
 
-            product.Price = unitPrice;
+            decimal rankDiscountPercentage = 0m;
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var user = await _context.Users
+                    .Include(u => u.Rank) // Đảm bảo load Rank
+                    .FirstOrDefaultAsync(u => u.UserID == userId);
+
+                if (user != null && user.Rank != null)
+                {
+                    rankDiscountPercentage = user.Rank.DiscountPercentage;
+                }
+            }
+
+            decimal effectiveDiscountPercentage = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage);
+
+            decimal finalUnitPrice = product.Price * (1 - effectiveDiscountPercentage / 100m);
+
+            product.Price = finalUnitPrice;
 
             var cart = GetCartFromSession();
             cart.AddItem(product, quantity);
             SaveCartToSession(cart);
 
+            TempData["SuccessMessage"] = $"Đã thêm {quantity} sản phẩm '{product.ProductName}' vào giỏ hàng.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -63,6 +94,7 @@ namespace ElectronicsShop.Controllers
             cart.RemoveItem(productId);
             SaveCartToSession(cart);
 
+            TempData["SuccessMessage"] = "Đã xóa sản phẩm khỏi giỏ hàng.";
             return RedirectToAction(nameof(Index));
         }
 

@@ -14,7 +14,7 @@
         <div class="col-lg-3 mb-4">
             @* --- Sidebar --- *@
             <div class="sidebar card">
-                 <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white">
                     <h3 class="sidebar-title mb-0 fs-5">Danh mục sản phẩm</h3>
                 </div>
                 <div class="card-body p-0">
@@ -23,21 +23,21 @@
                         {
                             <li class="list-group-item p-0">
                                 <div class="category-item @(ViewBag.SelectedCategoryId == category.CategoryID ? "active" : "")"
-                                     data-category-id="@category.CategoryID">
+                                data-category-id="@category.CategoryID">
                                     <a asp-controller="Home" asp-action="Index" asp-route-categoryId="@category.CategoryID"
-                                       class="d-flex justify-content-between align-items-center w-100 text-decoration-none p-3 @(ViewBag.SelectedCategoryId == category.CategoryID ? "text-white bg-primary" : "text-dark")">
+                                    class="d-flex justify-content-between align-items-center w-100 text-decoration-none p-3 @(ViewBag.SelectedCategoryId == category.CategoryID ? "text-white bg-primary" : "text-dark")">
                                         <span>@category.CategoryName</span>
                                         <i class="fas fa-chevron-down @(ViewBag.SelectedCategoryId == category.CategoryID ? "" : "text-primary")"></i>
                                     </a>
                                 </div>
                                 <ul class="subcategory-list list-unstyled mb-0 ps-3 @(ViewBag.SelectedCategoryId == category.CategoryID ? "d-block" : "d-none")"
-                                    id="subcategory-@category.CategoryID">
+                                id="subcategory-@category.CategoryID">
                                     @foreach (var subcategory in category.SubCategories)
                                     {
                                         <li class="subcategory-item py-1 @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "active" : "")">
                                             <a asp-controller="Home" asp-action="Index"
-                                               asp-route-subcategoryId="@subcategory.SubCategoryID"
-                                               class="d-block w-100 text-decoration-none @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "text-primary fw-bold" : "text-dark")">
+                                            asp-route-subcategoryId="@subcategory.SubCategoryID"
+                                            class="d-block w-100 text-decoration-none @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "text-primary fw-bold" : "text-dark")">
                                                 @subcategory.SubCategoryName
                                             </a>
                                         </li>
@@ -45,11 +45,11 @@
                                 </ul>
                             </li>
                         }
-                         <li class="list-group-item p-0">
+                        <li class="list-group-item p-0">
                             <a asp-controller="Home" asp-action="Index" class="d-block w-100 text-decoration-none p-3 text-primary fw-bold">
                                 Xem tất cả sản phẩm
                             </a>
-                         </li>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -59,7 +59,7 @@
         <div class="col-lg-9">
             <div class="card">
                 <div class="card-header bg-white">
-                     <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center">
                         <h2 class="section-title mb-0 fs-4">Sản phẩm</h2>
                         <div class="filter-options">
                             <select id="sort-filter" class="form-select form-select-sm" onchange="location = this.value;">
@@ -78,22 +78,36 @@
                             @foreach (var product in Model)
                             {
                                 // Tìm khuyến mãi tốt nhất cho sản phẩm này
-                                var productSpecificPromotion = activePromotions
-                                    .FirstOrDefault(p => p.ProductID == product.ProductID);
+                                decimal productSpecificDiscountPercentage = 0m;
+                                var productSpecificPromo = activePromotions.FirstOrDefault(p => p.ProductID == product.ProductID);
 
-                                decimal basePrice = product.Price; // Giá gốc của sản phẩm
-                                decimal priceAfterProductPromo = basePrice;
-                                decimal percentageForBadge = 0; // Phần trăm giảm giá hiển thị trên badge
-
-                                // Áp dụng giảm giá từ khuyến mãi sản phẩm cụ thể (nếu có)
-                                if (productSpecificPromotion != null)
+                                if (productSpecificPromo != null)
                                 {
-                                    priceAfterProductPromo = basePrice * (1 - productSpecificPromotion.DiscountPercentage / 100m);
-                                    percentageForBadge = productSpecificPromotion.DiscountPercentage;
+                                    productSpecificDiscountPercentage = productSpecificPromo.DiscountPercentage;
                                 }
 
-                                // Áp dụng giảm giá theo Rank của người dùng (nếu có và người dùng đã đăng nhập)
-                                decimal finalDisplayedPrice = priceAfterProductPromo * (1 - rankDiscountPercentage / 100m);
+                                decimal effectiveDiscountPercentage;
+                                decimal badgeDisplayPercentage = 0m;
+
+                                if (User.Identity.IsAuthenticated)
+                                {
+                                    // Người dùng đã đăng nhập:
+                                    //   - effectiveDiscountPercentage: lấy MAX giữa giảm giá sản phẩm và giảm giá rank
+                                    effectiveDiscountPercentage = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage);
+                                    //   - badgeDisplayPercentage: cũng lấy MAX của hai loại giảm giá
+                                    badgeDisplayPercentage = effectiveDiscountPercentage;
+                                }
+                                else
+                                {
+                                    // Khách vãng lai:
+                                    //   - effectiveDiscountPercentage: chỉ áp dụng giảm giá sản phẩm cụ thể
+                                    effectiveDiscountPercentage = productSpecificDiscountPercentage;
+                                    //   - badgeDisplayPercentage: chỉ hiển thị giảm giá sản phẩm cụ thể (nếu có)
+                                    badgeDisplayPercentage = productSpecificDiscountPercentage;
+                                }
+
+                                // 3. Tính toán giá cuối cùng hiển thị
+                                decimal finalDisplayedPrice = product.Price * (1 - effectiveDiscountPercentage / 100m);
 
                                 <div class="col">
                                     <div class="card product-card h-100 position-relative"> @* Thêm position-relative *@
@@ -116,10 +130,10 @@
                                                 <img src="@imageUrl" alt="@product.ProductName" class="card-img-top img-fluid product-img-custom"> @* Thêm class để css nếu cần *@
 
                                                 @* ** Hiển thị Badge giảm giá ** *@
-                                                @if (percentageForBadge > 0) // Chỉ hiển thị badge nếu có khuyến mãi sản phẩm
+                                                @if (badgeDisplayPercentage > 0)
                                                 {
                                                     <span class="badge bg-danger position-absolute top-0 end-0 m-2 fs-6">
-                                                        -@percentageForBadge.ToString("0")%
+                                                        -@badgeDisplayPercentage.ToString("0")%
                                                     </span>
                                                 }
                                             </div>
@@ -137,14 +151,14 @@
                                             </h3>
                                             <div class="product-price mt-auto"> @* Đẩy giá và nút xuống *@
                                                 @* Hiển thị giá gốc gạch ngang chỉ khi có khuyến mãi sản phẩm cụ thể *@
-                                                @if (productSpecificPromotion != null)
+                                                @if (effectiveDiscountPercentage > 0)
                                                 {
                                                     <span class="current-price text-danger fw-bold me-2">@string.Format("{0:N0}", finalDisplayedPrice) VNĐ</span>
                                                     <del class="original-price text-muted small">@string.Format("{0:N0}", product.Price) VNĐ</del>
                                                 }
                                                 else
                                                 {
-                                                    <span class="current-price fw-bold">@string.Format("{0:N0}", finalDisplayedPrice) VNĐ</span>
+                                                    <span class="current-price fw-bold">@string.Format("{0:N0}", product.Price) VNĐ</span>
                                                 }
                                             </div>
                                             <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-2">

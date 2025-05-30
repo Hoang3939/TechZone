@@ -2,13 +2,19 @@
 @{
     ViewData["Title"] = Model.ProductName;
     var now = DateTime.Now;
+
+    var rankDiscountPercentage = ViewBag.RankDiscountPercentage as decimal? ?? 0m;
+
+    decimal productSpecificDiscountPercentage = 0m;
     var promo = Model.Promotions?.FirstOrDefault(p => p.IsActive && p.StartDate <= now && p.EndDate >= now);
-    decimal displayedPrice = Model.Price;
-    decimal? discountedPrice = null;
-    if(promo != null)
+    if (promo != null)
     {
-        discountedPrice = Math.Round(Model.Price * (1 - promo.DiscountPercentage / 100m), 2);
+        productSpecificDiscountPercentage = promo.DiscountPercentage;
     }
+
+    decimal effectiveDiscountPercentageForMainProduct = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage);
+
+    decimal finalDisplayedPriceForMainProduct = Model.Price * (1 - effectiveDiscountPercentageForMainProduct / 100m);
 }
 
 <div class="container">
@@ -70,14 +76,14 @@
                     </div>
 
                     <div class="product-price fs-3 fw-bold mb-4">
-                        @if(discountedPrice.HasValue)
+                        @if (effectiveDiscountPercentageForMainProduct > 0)
                         {
-                            <span class="text-muted"><del>@string.Format("{0:N0}", displayedPrice) VNĐ</del></span>
-                            <span class="text-danger ms-2">@string.Format("{0:N0}", discountedPrice) VNĐ</span>
+                            <span class="text-muted"><del>@string.Format("{0:N0}", Model.Price) VNĐ</del></span>
+                            <span class="text-danger ms-2">@string.Format("{0:N0}", finalDisplayedPriceForMainProduct) VNĐ</span>
                         }
                         else
                         {
-                            <span class="text-danger">@string.Format("{0:N0}", displayedPrice) VNĐ</span>
+                            <span class="text-danger">@string.Format("{0:N0}", Model.Price) VNĐ</span>
                         }
                     </div>
 
@@ -231,6 +237,15 @@
                     @* Ép kiểu ViewBag.RelatedProducts để tránh lỗi dynamic dispatch và rõ ràng hơn *@
                     @foreach (var relatedProduct in (IEnumerable<ShopDienTu.Models.Product>)ViewBag.RelatedProducts)
                     {
+                        decimal relatedProductSpecificDiscountPercentage = 0m;
+                        var relatedProductSpecificPromo = relatedProduct.Promotions?.FirstOrDefault(p => p.IsActive && p.StartDate <= now && p.EndDate >= now);
+                        if (relatedProductSpecificPromo != null)
+                        {
+                            relatedProductSpecificDiscountPercentage = relatedProductSpecificPromo.DiscountPercentage;
+                        }
+
+                        decimal effectiveDiscountPercentageForRelatedProduct = Math.Max(relatedProductSpecificDiscountPercentage, rankDiscountPercentage);
+                        decimal relatedFinalDisplayedPrice = relatedProduct.Price * (1 - effectiveDiscountPercentageForRelatedProduct / 100m);
                         <div class="col">
                             <div class="card product-card h-100">
                                 <div class="product-image">
@@ -255,7 +270,18 @@
                                             @relatedProduct.ProductName
                                         </a>
                                     </h3>
-                                    <div class="product-price">@string.Format("{0:N0}", relatedProduct.Price) ₫</div>
+                                    <div class="product-price">
+                                        @* Hiển thị giá gốc gạch ngang nếu có bất kỳ giảm giá nào được áp dụng *@
+                                        @if (effectiveDiscountPercentageForRelatedProduct > 0)
+                                        {
+                                            <span class="text-muted"><del>@string.Format("{0:N0}", relatedProduct.Price) VNĐ</del></span>
+                                            <span class="text-danger ms-2">@string.Format("{0:N0}", relatedFinalDisplayedPrice) VNĐ</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-danger">@string.Format("{0:N0}", relatedProduct.Price) VNĐ</span>
+                                        }
+                                    </div>
                                     <form asp-controller="Cart" asp-action="AddToCart" method="post">
                                         <input type="hidden" name="productId" value="@relatedProduct.ProductID" />
                                         <input type="hidden" name="quantity" value="1" />

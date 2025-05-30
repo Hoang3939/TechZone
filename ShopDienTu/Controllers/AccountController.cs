@@ -265,23 +265,30 @@ namespace ShopDienTu.Controllers
                     return NotFound();
                 }
 
-                if (user.RankID == null || user.Rank == null)
+                int currentPoints = user.Points ?? 0;
+
+                var newRank = await _context.Ranks
+                    .Where(r => r.MinimumPoints <= currentPoints)
+                    .OrderByDescending(r => r.MinimumPoints)
+                    .FirstOrDefaultAsync();
+
+                if (newRank != null && (user.RankID == null || user.RankID != newRank.RankID))
                 {
-                    var newRank = await _context.Ranks
-                        .Where(r => r.MinimumPoints <= (user.Points ?? 0))
-                        .OrderByDescending(r => r.MinimumPoints)
-                        .FirstOrDefaultAsync();
-
-                    if (newRank != null)
-                    {
-                        user.RankID = newRank.RankID;
-                        _context.Update(user);
-                        await _context.SaveChangesAsync();
-                        user.Rank = newRank; // Gán lại để truyền qua ViewBag luôn
-                    }
+                    _logger.LogInformation("User {UserId} rank changed from {OldRankName} (ID: {OldRankId}) to {NewRankName} (ID: {NewRankId}) with {Points} points.",
+                                           userId,
+                                           user.Rank?.RankName ?? "No Rank",
+                                           user.RankID,
+                                           newRank.RankName,
+                                           newRank.RankID,
+                                           currentPoints);
+                    user.RankID = newRank.RankID; // Cập nhật RankID của user
+                    _context.Update(user); // Đánh dấu user entity là đã thay đổi
+                    await _context.SaveChangesAsync();
+                    user.Rank = newRank; // Gán lại để truyền qua ViewBag luôn
                 }
+                
 
-                ViewBag.Points = user.Points ?? 0;
+                ViewBag.Points = currentPoints;
                 ViewBag.RankName = user.Rank?.RankName ?? "Chưa có hạng";
 
                 return View(user);
