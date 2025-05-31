@@ -191,17 +191,63 @@ body {
     }
 
 /* Product Details */
-.product-main-image {
-    background-color: #f8f9fa;
-    padding: 20px;
+.product-main-image-container {
+    height: 300px;
+    width: 100%;
+    display: flex; /* Dùng flexbox ?? c?n gi?a ?nh */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; /* ??m b?o ?nh không tràn ra ngoài n?u nó quá l?n */
+    border: 1px solid #e9ecef; /* Thêm vi?n nh? cho khung ?nh chính */
     border-radius: 5px;
-    text-align: center;
+    padding: 10px; /* Thêm padding bên trong khung */
+    background-color: #f8f9fa;
 }
 
-    .product-main-image img {
-        max-height: 300px;
-        object-fit: contain;
+    .product-main-image-container img#mainProductImage {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain; /* ??m b?o toàn b? ?nh hi?n th? mà không b? c?t */
+        transition: opacity 0.2s ease-in-out;
     }
+
+        .product-main-image-container img#mainProductImage.fade-out {
+            opacity: 0;
+        }
+
+.product-thumbnails {
+    margin-top: 15px;
+    /* justify-content: center; ?ã thêm vào HTML */
+}
+
+.thumbnail-item {
+    border: 2px solid transparent; /* Vi?n m?c ??nh trong su?t */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out;
+    overflow: hidden; /* ??m b?o hình ?nh bên trong có border-radius */
+    display: inline-block; /* ?? me-2, mb-2 ho?t ??ng t?t h?n */
+}
+
+    .thumbnail-item:hover {
+        border-color: #0d6efd; /* Màu vi?n khi hover (màu primary) */
+    }
+
+    .thumbnail-item.active {
+        border-color: #dc3545; /* Màu vi?n cho thumbnail ?ang ho?t ??ng (màu danger) */
+    }
+
+    .thumbnail-item img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover; /* C?t ?nh ?? l?p ??y khung 80x80px */
+        border-radius: 3px; /* Bo góc nh? cho ?nh thumbnail */
+    }
+
+.product-description img {
+    max-width: 100%; /* ??m b?o ?nh trong mô t? không tràn ra ngoài */
+    height: auto;
+}
 
 /* Cart Page */
 .table > :not(caption) > * > * {

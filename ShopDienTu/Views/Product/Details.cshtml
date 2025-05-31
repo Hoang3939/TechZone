@@ -41,25 +41,21 @@
                 <!-- Product Images -->
                 <div class="col-md-5 mb-4">
                     @{
-                        // Lấy ảnh chính hoặc ảnh đầu tiên nếu không có ảnh chính
-                        var mainImage = Model.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath;
-                        if (string.IsNullOrEmpty(mainImage))
-                        {
-                            mainImage = Model.ProductImages?.FirstOrDefault()?.ImagePath ?? "/images/no-image.jpg";
-                        }
+                        var allImages = Model.ProductImages?.OrderBy(i => i.IsMainImage == false).ThenBy(i => i.ImageID).ToList() ?? new List<ProductImage>();
+                        var mainImageObject = allImages.FirstOrDefault(i => i.IsMainImage) ?? allImages.FirstOrDefault();
+                        var mainImagePath = mainImageObject?.ImagePath ?? "/images/no-image.jpg";
                     }
-                    <div class="product-main-image mb-3">
-                        <img src="/images/@mainImage" alt="@Model.ProductName" class="img-fluid rounded">
+                    <div class="product-main-image-container mb-3 position-relative">
+                        <img id="mainProductImage" src="/images/@mainImagePath" alt="@Model.ProductName" class="img-fluid rounded">
                     </div>
                     @if (Model.ProductImages?.Count > 1)
                     {
-                        <div class="product-thumbnails d-flex">
-                            @foreach (var image in Model.ProductImages)
+                        <div class="product-thumbnails d-flex flex-wrap justify-content-center">
+                            @foreach (var image in allImages)
                             {
-                                <div class="thumbnail-item me-2">
-                                    <img src="@image.ImagePath" alt="@Model.ProductName" class="img-thumbnail"
-                                    style="width: 80px; height: 80px; object-fit: cover; cursor: pointer;"
-                                    onclick="document.querySelector('.product-main-image img').src = this.src">
+                                <div class="thumbnail-item me-2 mb-2 @(image.ImagePath == mainImagePath ? "active" : "")">
+                                    <img src="/images/@image.ImagePath" alt="@Model.ProductName" class="img-thumbnail"
+                                         data-full-image="/images/@image.ImagePath">
                                 </div>
                             }
                         </div>
@@ -302,6 +298,40 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            const mainProductImage = document.getElementById('mainProductImage');
+            const thumbnailItems = document.querySelectorAll('.thumbnail-item'); // Select the div with thumbnail-item class
+
+                        if (mainProductImage && thumbnailItems.length > 0) {
+                // Function to update the main image and active thumbnail with fade effect
+                function showImage(selectedImgElement) {
+                    // Start fade-out effect
+                    mainProductImage.classList.add('fade-out');
+
+                    // After the fade-out transition, change the image source and then fade in
+                    // The timeout duration should match the CSS transition duration (e.g., 200ms)
+                    setTimeout(() => {
+                        mainProductImage.src = selectedImgElement.dataset.fullImage;
+                        mainProductImage.classList.remove('fade-out'); // Remove to fade back in
+                    }, 200); // 200ms matches the CSS transition: opacity 0.2s
+
+                    // Update active class on thumbnails immediately
+                    thumbnailItems.forEach(item => item.classList.remove('active'));
+                    // Add 'active' class to the parent of the currently selected thumbnail image
+                    selectedImgElement.closest('.thumbnail-item').classList.add('active');
+                }
+
+                // Add click listeners for thumbnails
+                thumbnailItems.forEach(item => {
+                    const thumbnailImg = item.querySelector('img');
+                    if (thumbnailImg) {
+                        item.addEventListener('click', function() {
+                            showImage(thumbnailImg); // Call showImage with the actual img element
+                        });
+                    }
+                });
+            }
+
             // Rating stars functionality
             const ratingInputs = document.querySelectorAll('.rating-input input');
             const ratingLabels = document.querySelectorAll('.rating-input label');
