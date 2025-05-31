@@ -30,8 +30,8 @@
                                         <i class="fas fa-chevron-down @(ViewBag.SelectedCategoryId == category.CategoryID ? "" : "text-primary")"></i>
                                     </a>
                                 </div>
-                                <ul class="subcategory-list list-unstyled mb-0 ps-3 @(ViewBag.SelectedCategoryId == category.CategoryID ? "d-block" : "d-none")"
-                                id="subcategory-@category.CategoryID">
+                                <ul class="subcategory-list list-unstyled mb-0 ps-3 @(ViewBag.SelectedCategoryId == category.CategoryID ? "active" : "")"
+                                    id="subcategory-@category.CategoryID">
                                     @foreach (var subcategory in category.SubCategories)
                                     {
                                         <li class="subcategory-item py-1 @(ViewBag.SelectedSubcategoryId == subcategory.SubCategoryID ? "active" : "")">
@@ -45,11 +45,6 @@
                                 </ul>
                             </li>
                         }
-                        <li class="list-group-item p-0">
-                            <a asp-controller="Home" asp-action="Index" class="d-block w-100 text-decoration-none p-3 text-primary fw-bold">
-                                Xem tất cả sản phẩm
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </div>
@@ -198,15 +193,18 @@
             transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
             border: 1px solid #eee;
         }
-        .product-card:hover {
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-            transform: translateY(-5px);
-        }
+
+            .product-card:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                transform: translateY(-5px);
+            }
+
         .product-img-custom {
             max-height: 200px; /* Giới hạn chiều cao ảnh */
             object-fit: contain; /* Hiển thị ảnh vừa khung, không bị méo */
             padding: 10px;
         }
+
         .product-name {
             /* Giới hạn tên sản phẩm 2 dòng */
             display: -webkit-box;
@@ -216,33 +214,41 @@
             text-overflow: ellipsis;
             height: 2.4em; /* Chiều cao khoảng 2 dòng text */
             line-height: 1.2em;
-             font-weight: 500; /* Độ đậm vừa phải */
+            font-weight: 500; /* Độ đậm vừa phải */
         }
-         .product-link-hover:hover {
+
+        .product-link-hover:hover {
             color: var(--bs-primary) !important; /* Đổi màu khi hover */
         }
-         .sidebar .list-group-item {
+
+        .sidebar .list-group-item {
             border-left: 0;
             border-right: 0;
-         }
-         .sidebar .list-group-item:first-child {
-             border-top: 0;
-         }
-          .sidebar .list-group-item:last-child {
-             border-bottom: 0;
-         }
+        }
+
+            .sidebar .list-group-item:first-child {
+                border-top: 0;
+            }
+
+            .sidebar .list-group-item:last-child {
+                border-bottom: 0;
+            }
+
         .category-item i {
-             transition: transform 0.3s ease;
-         }
+            transition: transform 0.3s ease;
+        }
+
         .subcategory-list {
-             background-color: #f8f9fa; /* Màu nền nhẹ cho subcategory */
-         }
-         .subcategory-list.d-block { /* Chỉ hiển thị khi active */
-             display: block !important;
-         }
-          .subcategory-list.d-none { /* Ẩn đi */
-             display: none !important;
-         }
+            background-color: #f8f9fa; /* Màu nền nhẹ cho subcategory */
+        }
+
+            /* .subcategory-list.d-block { /* Chỉ hiển thị khi active */ */
+            /*     display: block !important; */
+            /* } */
+
+            /* .subcategory-list.d-none { /* Ẩn đi */ */
+            /*     display: none !important; */
+            /* } */
     </style>
 }
 
@@ -253,89 +259,81 @@
             // Xử lý đóng/mở Subcategory
             document.querySelectorAll('.category-item a').forEach(link => {
                 link.addEventListener('click', function(e) {
-                     // Chỉ xử lý khi click vào icon hoặc khoảng trống xung quanh nó trong thẻ a
-                     if (e.target.tagName.toLowerCase() === 'i' || e.target === this) {
-                         // Ngăn không cho chuyển trang khi bấm vào category cha
-                         if(this.closest('.category-item').hasAttribute('data-category-id')) {
-                              e.preventDefault();
-                         }
+                    const categoryItem = this.closest('.category-item');
+                    const categoryId = categoryItem.getAttribute('data-category-id');
 
-                        const categoryItem = this.closest('.category-item');
-                        const categoryId = categoryItem.getAttribute('data-category-id');
-                        if(categoryId) {
-                             const subcategoryList = document.getElementById(`subcategory-${categoryId}`);
-                             const icon = categoryItem.querySelector('i');
+                    if (categoryId) {
+                        e.preventDefault();
 
-                             // Toggle active class trên UL con
-                             const isActive = subcategoryList.classList.toggle('d-block');
-                              subcategoryList.classList.toggle('d-none', !isActive);
+                        const subcategoryList = document.getElementById(`subcategory-${categoryId}`);
+                        const icon = categoryItem.querySelector('i');
 
+                        if (subcategoryList && icon) {
+                            // Kiểm tra xem submenu hiện tại có đang được mở không bằng class 'active' của bạn
+                            const isCurrentlyOpen = subcategoryList.classList.contains('active'); // <-- SỬA TẠI ĐÂY
 
-                             // Toggle icon rotation
-                             icon.style.transform = isActive ? 'rotate(180deg)' : 'rotate(0)';
+                            // Đóng tất cả các subcategory khác đang mở
+                            // LƯU Ý: Ở đây bạn muốn đóng các UL có class 'active', không phải 'd-block'
+                            document.querySelectorAll('.subcategory-list.active').forEach(otherList => { // <-- SỬA TẠI ĐÂY
+                                if (otherList !== subcategoryList) {
+                                    otherList.classList.remove('active'); // <-- SỬA TẠI ĐÂY
+                                    // Không cần thêm d-none vì max-height:0 đã ẩn rồi
+                                    const otherIcon = otherList.closest('.list-group-item').querySelector('.category-item i');
+                                    if(otherIcon) otherIcon.style.transform = 'rotate(0)';
+                                }
+                            });
 
-                              // Bỏ active của category cha nếu nó đang active (để không bị màu nền xanh)
-                              // categoryItem.classList.toggle('active', isActive);
-                              // link.classList.toggle('text-white', isActive);
-                              // link.classList.toggle('bg-primary', isActive);
-                              // link.classList.toggle('text-dark', !isActive);
-
-                               // Đóng các subcategory khác nếu đang mở
-                              document.querySelectorAll('.subcategory-list.d-block').forEach(otherList => {
-                                  if (otherList !== subcategoryList) {
-                                       otherList.classList.remove('d-block');
-                                       otherList.classList.add('d-none');
-                                       const otherIcon = otherList.closest('.list-group-item').querySelector('.category-item i');
-                                       if(otherIcon) otherIcon.style.transform = 'rotate(0)';
-                                  }
-                              });
-                         }
-                     }
-                     // Nếu click vào tên category (span) thì cho phép link hoạt động bình thường
-                     // Nếu click vào subcategory thì link hoạt động bình thường
+                            // Sau khi đóng các cái khác, bây giờ toggle cái được click
+                            if (!isCurrentlyOpen) {
+                                // Nếu nó đang đóng, mở nó ra
+                                subcategoryList.classList.add('active'); // <-- SỬA TẠI ĐÂY
+                                // Không cần remove d-none vì nó không được dùng cho max-height
+                                icon.style.transform = 'rotate(180deg)';
+                            } else {
+                                // Nếu nó đang mở, đóng nó lại
+                                subcategoryList.classList.remove('active'); // <-- SỬA TẠI ĐÂY
+                                // Không cần add d-none vì max-height:0 đã ẩn rồi
+                                icon.style.transform = 'rotate(0)';
+                            }
+                        }
+                    }
                 });
             });
 
             // Xử lý giữ trạng thái selected cho Sort Filter
             const sortFilter = document.getElementById('sort-filter');
             if (sortFilter) {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const currentSort = urlParams.get('sortOrder'); // Lấy sortOrder từ URL
-                    let found = false;
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentSort = urlParams.get('sortOrder');
+                let found = false;
                 for (let i = 0; i < sortFilter.options.length; i++) {
-                        const optionValue = sortFilter.options[i].value;
-                        // Kiểm tra xem giá trị option có chứa đúng sortOrder không
-                        if (currentSort && optionValue.includes('sortOrder=' + currentSort)) {
-                            sortFilter.options[i].selected = true; // Đặt là selected
-                            found = true;
+                    const optionValue = sortFilter.options[i].value;
+                    if (currentSort && optionValue.includes('sortOrder=' + currentSort)) {
+                        sortFilter.options[i].selected = true;
+                        found = true;
                         break;
                     } else if (!currentSort && !optionValue.includes('sortOrder=')) {
-                            // Nếu không có sortOrder trên URL, chọn option mặc định (không có sortOrder=...)
-                            sortFilter.options[i].selected = true;
-                            found = true;
-                            break;
+                        sortFilter.options[i].selected = true;
+                        found = true;
+                        break;
                     }
                 }
-                    // Fallback nếu không tìm thấy khớp nào (ít khi xảy ra)
-                    if(!found) {
+                if(!found) {
                     sortFilter.options[0].selected = true;
-                    }
+                }
             }
 
-
-             // Giữ trạng thái mở của subcategory nếu category cha đang được chọn
-             const selectedCategoryId = '@ViewBag.SelectedCategoryId';
-             if (selectedCategoryId) {
-                 const subList = document.getElementById(`subcategory-${selectedCategoryId}`);
-                 const icon = document.querySelector(`.category-item[data-category-id='${selectedCategoryId}'] i`);
-                 if (subList && icon) {
-                     subList.classList.add('d-block');
-                     subList.classList.remove('d-none');
-                     icon.style.transform = 'rotate(180deg)';
-                 }
-             }
-
-
+            // Giữ trạng thái mở của subcategory nếu category cha đang được chọn (khi tải trang)
+            const selectedCategoryId = '@ViewBag.SelectedCategoryId';
+            if (selectedCategoryId && selectedCategoryId !== '0') {
+                const subList = document.getElementById(`subcategory-${selectedCategoryId}`);
+                const icon = document.querySelector(`.category-item[data-category-id='${selectedCategoryId}'] i`);
+                if (subList && icon) {
+                    subList.classList.add('active'); // <-- SỬA TẠI ĐÂY: Thêm class 'active'
+                    // subList.classList.remove('d-none'); // <-- XÓA DÒNG NÀY
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            }
         });
     </script>
 }
