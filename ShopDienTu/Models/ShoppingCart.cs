@@ -2,12 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ShopDienTu.Models.ViewModels;
 
 namespace ShopDienTu.Models
 {
     public class ShoppingCart
     {
-        public List<CartItem> Items { get; set; } = new List<CartItem>();
+        public List<CartItemViewModel> Items { get; set; } = new List<CartItemViewModel>();
 
         public void AddItem(Product product, int quantity)
         {
@@ -19,7 +20,7 @@ namespace ShopDienTu.Models
             }
             else
             {
-                Items.Add(new CartItem
+                Items.Add(new CartItemViewModel
                 {
                     ProductID = product.ProductID,
                     ProductName = product.ProductName,
@@ -62,15 +63,5 @@ namespace ShopDienTu.Models
         {
             return Items.Sum(i => i.Quantity);
         }
-    }
-
-    public class CartItem
-    {
-        public int ProductID { get; set; }
-        public string ProductName { get; set; }
-        public decimal Price { get; set; }
-        public int Quantity { get; set; }
-        public string ImagePath { get; set; }
-        public decimal Total => Price * Quantity;
     }
 }

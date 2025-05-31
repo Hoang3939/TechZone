@@ -8,12 +8,12 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using ShopDienTu.Data;
-using ShopDienTu;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Logging;
 using ShopDienTu.Models;
 using System.ComponentModel.DataAnnotations;
+using ShopDienTu.Services;
 
 namespace ShopDienTu.Controllers
 {
@@ -21,11 +21,13 @@ namespace ShopDienTu.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<AccountController> _logger;
+        private readonly IShoppingCartService _shoppingCartService;
 
-        public AccountController(ApplicationDbContext context, ILogger<AccountController> logger)
+        public AccountController(ApplicationDbContext context, ILogger<AccountController> logger, IShoppingCartService shoppingCartService)
         {
             _context = context;
             _logger = logger;
+            _shoppingCartService = shoppingCartService;
         }
 
         [HttpGet]
@@ -92,6 +94,8 @@ namespace ShopDienTu.Controllers
 
                         _logger.LogInformation("User {UserName} logged in at {Time}.", user.UserName, DateTime.UtcNow);
 
+                        await _shoppingCartService.MergeAnonymousCartAsync(User, HttpContext.Session);
+
                         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         {
                             return Redirect(returnUrl);
@@ -153,9 +157,7 @@ namespace ShopDienTu.Controllers
                         Password = HashPassword(model.Password),
                         Phone = model.Phone,
                         Role = "User",
-                        CreatedAt = DateTime.Now,
-                        Orders = new List<Order>(),
-                        Reviews = new List<Review>()
+                        CreatedAt = DateTime.Now
                     };
 
                     _context.Users.Add(user);
@@ -186,6 +188,8 @@ namespace ShopDienTu.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
+                    await _shoppingCartService.MergeAnonymousCartAsync(User, HttpContext.Session);
+
                     TempData["SuccessMessage"] = "Đăng ký tài khoản thành công!";
                     return RedirectToAction("Index", "Home");
                 }
@@ -203,6 +207,7 @@ namespace ShopDienTu.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            TempData["SuccessMessage"] = "Đăng xuất thành công!";
             return RedirectToAction("Index", "Home");
         }
 
@@ -267,6 +272,7 @@ namespace ShopDienTu.Controllers
 
                 int currentPoints = user.Points ?? 0;
 
+                // Logic cập nhật Rank tự động dựa trên điểm
                 var newRank = await _context.Ranks
                     .Where(r => r.MinimumPoints <= currentPoints)
                     .OrderByDescending(r => r.MinimumPoints)
@@ -340,18 +346,26 @@ namespace ShopDienTu.Controllers
                 user.FullName = model.FullName;
                 user.Email = model.Email;
                 user.Phone = model.Phone;
-                user.Address = model.Address;
-                bool alreadyExists = await _context.UserAddresses
-                    .AnyAsync(a => a.UserID == userId && a.Address == user.Address);
 
-                if (!alreadyExists && !string.IsNullOrWhiteSpace(user.Address))
+                if (!string.IsNullOrWhiteSpace(model.Address))
                 {
-                    _context.UserAddresses.Add(new UserAddress
+                    // Lấy địa chỉ hiện tại của người dùng để so sánh
+                    var existingAddresses = await _context.UserAddresses
+                        .Where(a => a.UserID == userId)
+                        .ToListAsync();
+
+                    bool addressExists = existingAddresses.Any(a => a.Address == model.Address);
+
+                    if (!addressExists) // Nếu địa chỉ mới chưa tồn tại trong danh sách địa chỉ của user
                     {
-                        UserID = userId,
-                        Address = user.Address,
-                        AddedAt = DateTime.Now
-                    });
+                        _context.UserAddresses.Add(new UserAddress
+                        {
+                            UserID = userId,
+                            Address = model.Address,
+                            AddedAt = DateTime.Now
+                        });
+                    }
+                    // Nếu địa chỉ mới đã tồn tại hoặc là rỗng, không làm gì cả với UserAddress
                 }
 
                 _context.Update(user);
@@ -364,6 +378,10 @@ namespace ShopDienTu.Controllers
             {
                 _logger.LogError(ex, "Error updating profile for user {UserId}", model.UserID);
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi cập nhật thông tin tài khoản. Vui lòng thử lại sau.";
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                var currentUser = await _context.Users.Include(u => u.Rank).FirstOrDefaultAsync(u => u.UserID == userId);
+                ViewBag.Points = currentUser?.Points ?? 0;
+                ViewBag.RankName = currentUser?.Rank?.RankName ?? "Chưa có hạng";
                 return View("Profile", model);
             }
         }

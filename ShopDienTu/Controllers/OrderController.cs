@@ -11,6 +11,7 @@ using ShopDienTu;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using ShopDienTu.Models;
+using ShopDienTu.Services;
 
 namespace ShopDienTu.Controllers
 {
@@ -18,13 +19,14 @@ namespace ShopDienTu.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<OrderController> _logger;
-        private const string CartSessionKey = "Cart";
+        private readonly IShoppingCartService _shoppingCartService;
         private const string GuestInfoSessionKey = "GuestOrderInfo";
 
-        public OrderController(ApplicationDbContext context, ILogger<OrderController> logger)
+        public OrderController(ApplicationDbContext context, ILogger<OrderController> logger, IShoppingCartService shoppingCartService)
         {
             _context = context;
             _logger = logger;
+            _shoppingCartService = shoppingCartService;
         }
 
         // GET: Order/TrackOrder
@@ -184,22 +186,22 @@ namespace ShopDienTu.Controllers
         public async Task<IActionResult> PlaceOrder(string fullName, string email, string phone, string address,
             string province, string district, string ward, int paymentMethodId, string? notes, string? promoCode)
         {
-            var cart = GetCartFromSession();
+            var cart = await _shoppingCartService.GetCartAsync(User, HttpContext.Session);
             if (cart.Items.Count == 0)
             {
+                TempData["ErrorMessage"] = "Giỏ hàng của bạn đang trống.";
                 return RedirectToAction("Index", "Cart");
             }
 
             var now = DateTime.Now;
-
-            var activePromos = await _context.Promotions
-                .Where(p => p.IsActive && p.ProductID != null && p.StartDate <= now && p.EndDate >= now)
-                .ToListAsync();
-
             decimal subtotal = 0m;
             decimal rankDiscountPercentage = 0m;
-
             ShopDienTu.Models.User currentUser = null;
+
+            //var activePromos = await _context.Promotions
+            //    .Where(p => p.IsActive && p.ProductID != null && p.StartDate <= now && p.EndDate >= now)
+            //    .ToListAsync();
+
             if (User.Identity.IsAuthenticated)
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -225,19 +227,8 @@ namespace ShopDienTu.Controllers
                     ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync(); // Ensure these are reloaded
                     return View("~/Views/Cart/Checkout.cshtml", cart);
                 }
-                decimal productSpecificDiscountPercentage = 0m;
-                var promo = activePromos.FirstOrDefault(p => p.ProductID == item.ProductID);
-                if (promo != null)
-                {
-                    productSpecificDiscountPercentage = promo.DiscountPercentage;
-                }
 
-                decimal effectiveDiscountPercentage = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage);
-                decimal finalUnitPrice = product.Price * (1 - effectiveDiscountPercentage / 100m);
-
-                subtotal += finalUnitPrice * item.Quantity; // Cộng vào subtotal dựa trên giá đã giảm
-
-                item.Price = finalUnitPrice; // Lưu giá cuối cùng vào cart item để dùng khi tạo OrderDetail
+                subtotal += item.Price * item.Quantity; // Cộng vào subtotal dựa trên giá đã giảm
             }
 
             decimal globalVoucherDiscount = 0m;
@@ -357,12 +348,14 @@ namespace ShopDienTu.Controllers
                 await tx.RollbackAsync();
                 _logger.LogError(ex, "Lỗi khi đặt hàng!");
                 ModelState.AddModelError("", ex.Message);
+                ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync();
                 return RedirectToAction("Checkout", "Cart");
             }
 
-            cart.Clear();
-            SaveCartToSession(cart);
-            TempData["TrackOrderId"] = order.OrderID;
+            // Xóa giỏ hàng sau khi đặt hàng thành công bằng service
+            await _shoppingCartService.ClearCartAsync(User, HttpContext.Session);
+            TempData["TrackOrderId"] = order.OrderID; // Lưu ID đơn hàng để người dùng có thể xem lại ngay
+            TempData["SuccessMessage"] = $"Đơn hàng {order.OrderNumber} của bạn đã được đặt thành công!"; // Thông báo thành công
             return RedirectToAction("OrderConfirmation", new { id = order.OrderID });
         }
 
@@ -397,57 +390,44 @@ namespace ShopDienTu.Controllers
         [HttpGet]
         public async Task<IActionResult> OrderConfirmation(int? id)
         {
-            //if (id == null)
-            //{
-            //    return NotFound();
-            //}
-
-            //try
-            //{
-            //    var order = await _context.Orders
-            //        .Include(o => o.User)
-            //        .Include(o => o.PaymentMethod)
-            //        .FirstOrDefaultAsync(m => m.OrderID == id);
-
-            //    if (order == null)
-            //    {
-            //        return NotFound();
-            //    }
-
-            //    // Nếu đơn hàng không có UserID, lấy thông tin khách vãng lai từ session
-            //    if (order.UserID == null)
-            //    {
-            //        var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{order.OrderID}");
-            //        if (!string.IsNullOrEmpty(guestInfoJson))
-            //        {
-            //            var guestInfo = JsonConvert.DeserializeObject<GuestOrderInfo>(guestInfoJson);
-            //            ViewBag.GuestInfo = guestInfo;
-            //        }
-            //    }
-
-            //    // Lưu ID đơn hàng vào TempData để cho phép xem chi tiết đơn hàng mà không cần đăng nhập
-            //    TempData["TrackOrderId"] = order.OrderID;
-
-            //    return View(order);
-            //}
-            //catch (Exception ex)
-            //{
-            //    _logger.LogError(ex, "Lỗi khi xem xác nhận đơn hàng {OrderId}: {Message}", id, ex.Message);
-            //    TempData["ErrorMessage"] = "Đã xảy ra lỗi khi tải thông tin xác nhận đơn hàng. Vui lòng thử lại sau.";
-            //    return RedirectToAction("Index", "Home");
-            //}
             var order = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.PaymentMethod)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(d => d.Product)
-                        .ThenInclude(p => p.ProductImages)
-                .Include(o => o.OrderStatuses)
-                .FirstOrDefaultAsync(o => o.OrderID == id);
+                            .Include(o => o.User)
+                            .Include(o => o.PaymentMethod)
+                            .Include(o => o.OrderDetails)
+                                .ThenInclude(d => d.Product)
+                                    .ThenInclude(p => p.ProductImages)
+                            .Include(o => o.OrderStatuses)
+                            .FirstOrDefaultAsync(o => o.OrderID == id);
 
             if (order == null) return NotFound();
+
+            // Kiểm tra quyền truy cập tương tự OrderDetails nếu bạn muốn chỉ người vừa đặt/login mới xem được
+            if (!User.Identity.IsAuthenticated)
+            {
+                if (!TempData.ContainsKey("TrackOrderId") || (int)TempData["TrackOrderId"] != id)
+                {
+                    // Hoặc kiểm tra session guest info nếu cần
+                    var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{id}");
+                    if (string.IsNullOrEmpty(guestInfoJson))
+                    {
+                        TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang này.";
+                        return RedirectToAction("TrackOrder");
+                    }
+                }
+            }
+
+
+            // Nếu đơn hàng không có UserID, lấy thông tin khách vãng lai từ session
+            if (order.UserID == null)
+            {
+                var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{order.OrderID}");
+                if (!string.IsNullOrEmpty(guestInfoJson))
+                {
+                    var guestInfo = JsonConvert.DeserializeObject<GuestOrderInfo>(guestInfoJson);
+                    ViewBag.GuestInfo = guestInfo;
+                }
+            }
             return View(order);
-                
         }
 
         // GET: Order/CancelOrder/5
@@ -576,22 +556,6 @@ namespace ShopDienTu.Controllers
             var random = new Random();
             var now = DateTime.Now;
             return $"ORD{now:yyMMdd}{random.Next(100000, 999999)}";
-        }
-
-        private ShoppingCart GetCartFromSession()
-        {
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            if (string.IsNullOrEmpty(cartJson))
-            {
-                return new ShoppingCart();
-            }
-            return JsonConvert.DeserializeObject<ShoppingCart>(cartJson);
-        }
-
-        private void SaveCartToSession(ShoppingCart cart)
-        {
-            var cartJson = JsonConvert.SerializeObject(cart);
-            HttpContext.Session.SetString(CartSessionKey, cartJson);
         }
     }
 

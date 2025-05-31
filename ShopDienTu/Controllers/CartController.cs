@@ -7,23 +7,25 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using ShopDienTu.Services;
 
 namespace ElectronicsShop.Controllers
 {
     public class CartController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private const string CartSessionKey = "Cart";
+        private readonly IShoppingCartService _shoppingCartService;
 
-        public CartController(ApplicationDbContext context)
+        public CartController(ApplicationDbContext context, IShoppingCartService shoppingCartService)
         {
             _context = context;
+            _shoppingCartService = shoppingCartService;
         }
 
         // GET: Cart
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var cart = GetCartFromSession();
+            var cart = await _shoppingCartService.GetCartAsync(User, HttpContext.Session);
             return View(cart);
         }
 
@@ -31,107 +33,66 @@ namespace ElectronicsShop.Controllers
         [HttpPost]
         public async Task<IActionResult> AddToCart(int productId, int quantity = 1)
         {
-            var product = await _context.Products
-                .Include(p => p.ProductImages)
-                .FirstOrDefaultAsync(p => p.ProductID == productId);
-
-            if (product == null)
+            try
             {
-                return NotFound();
-            }
+                // Ủy quyền việc thêm sản phẩm cho Service
+                await _shoppingCartService.AddItemAsync(User, HttpContext.Session, productId, quantity);
 
-            if (quantity <= 0 || quantity > product.StockQuantity)
+                // Lấy thông tin sản phẩm để hiển thị TempData (không cần logic giá/giỏ hàng ở đây)
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductID == productId);
+                TempData["SuccessMessage"] = $"Đã thêm {quantity} sản phẩm '{product?.ProductName}' vào giỏ hàng.";
+            }
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Số lượng yêu cầu không hợp lệ. Chỉ còn {product.StockQuantity} sản phẩm trong kho.";
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMessage"] = ex.Message; // Service sẽ ném Exception với thông báo lỗi
             }
-
-            var now = DateTime.Now;
-
-            decimal productSpecificDiscountPercentage = 0m;
-            var promo = await _context.Promotions
-                .Where(p => p.ProductID == productId && p.IsActive && p.StartDate <= now && p.EndDate >= now)
-                .FirstOrDefaultAsync();
-
-            if (promo != null)
-            {
-                productSpecificDiscountPercentage = promo.DiscountPercentage;
-            }
-
-            decimal rankDiscountPercentage = 0m;
-            if (User.Identity.IsAuthenticated)
-            {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var user = await _context.Users
-                    .Include(u => u.Rank) // Đảm bảo load Rank
-                    .FirstOrDefaultAsync(u => u.UserID == userId);
-
-                if (user != null && user.Rank != null)
-                {
-                    rankDiscountPercentage = user.Rank.DiscountPercentage;
-                }
-            }
-
-            decimal effectiveDiscountPercentage = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage);
-
-            decimal finalUnitPrice = product.Price * (1 - effectiveDiscountPercentage / 100m);
-
-            product.Price = finalUnitPrice;
-
-            var cart = GetCartFromSession();
-            cart.AddItem(product, quantity);
-            SaveCartToSession(cart);
-
-            TempData["SuccessMessage"] = $"Đã thêm {quantity} sản phẩm '{product.ProductName}' vào giỏ hàng.";
             return RedirectToAction(nameof(Index));
         }
 
         // POST: Cart/RemoveFromCart
         [HttpPost]
-        public IActionResult RemoveFromCart(int productId)
+        public async Task<IActionResult> RemoveFromCart(int productId)
         {
-            var cart = GetCartFromSession();
-            cart.RemoveItem(productId);
-            SaveCartToSession(cart);
-
+            // Ủy quyền việc xóa sản phẩm cho Service
+            await _shoppingCartService.RemoveItemAsync(User, HttpContext.Session, productId);
             TempData["SuccessMessage"] = "Đã xóa sản phẩm khỏi giỏ hàng.";
             return RedirectToAction(nameof(Index));
         }
 
         // POST: Cart/UpdateQuantity
         [HttpPost]
-        public IActionResult UpdateQuantity(int productId, int quantity)
+        public async Task<IActionResult> UpdateQuantity(int productId, int quantity)
         {
-            if (quantity <= 0)
+            try
             {
-                return RedirectToAction(nameof(RemoveFromCart), new { productId });
+                // Ủy quyền việc cập nhật số lượng cho Service
+                await _shoppingCartService.UpdateQuantityAsync(User, HttpContext.Session, productId, quantity);
             }
-
-            var cart = GetCartFromSession();
-            cart.UpdateQuantity(productId, quantity);
-            SaveCartToSession(cart);
-
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message; // Service sẽ ném Exception với thông báo lỗi
+            }
             return RedirectToAction(nameof(Index));
         }
 
         // POST: Cart/ClearCart
         [HttpPost]
-        public IActionResult ClearCart()
+        public async Task<IActionResult> ClearCart()
         {
-            var cart = GetCartFromSession();
-            cart.Clear();
-            SaveCartToSession(cart);
-
+            // Ủy quyền việc xóa toàn bộ giỏ hàng cho Service
+            await _shoppingCartService.ClearCartAsync(User, HttpContext.Session);
+            TempData["SuccessMessage"] = "Giỏ hàng đã được làm trống.";
             return RedirectToAction(nameof(Index));
         }
 
         // GET: Cart/Checkout
         public async Task<IActionResult> Checkout()
         {
-            var cart = GetCartFromSession();
+            var cart = await _shoppingCartService.GetCartAsync(User, HttpContext.Session);
 
             if (cart.Items.Count == 0)
             {
+                TempData["ErrorMessage"] = "Giỏ hàng của bạn đang trống.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -143,22 +104,6 @@ namespace ElectronicsShop.Controllers
             ViewBag.PaymentMethods = paymentMethods;
 
             return View(cart);
-        }
-
-        private ShoppingCart GetCartFromSession()
-        {
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            if (string.IsNullOrEmpty(cartJson))
-            {
-                return new ShoppingCart();
-            }
-            return JsonConvert.DeserializeObject<ShoppingCart>(cartJson);
-        }
-
-        private void SaveCartToSession(ShoppingCart cart)
-        {
-            var cartJson = JsonConvert.SerializeObject(cart);
-            HttpContext.Session.SetString(CartSessionKey, cartJson);
         }
     }
 }

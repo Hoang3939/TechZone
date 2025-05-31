@@ -1,23 +1,26 @@
 ﻿using ShopDienTu.Models;
 using Microsoft.AspNetCore.Mvc;
+using ShopDienTu.Services;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace ShopDienTu.ViewComponents
 {
     public class CartSummaryViewComponent : ViewComponent
     {
-        private const string CartSessionKey = "Cart";
+        private readonly IShoppingCartService _shoppingCartService;
+
+        public CartSummaryViewComponent(IShoppingCartService shoppingCartService)
+        {
+            _shoppingCartService = shoppingCartService;
+        }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var cartJson = HttpContext.Session.GetString(CartSessionKey);
-            if (string.IsNullOrEmpty(cartJson))
-            {
-                return Content("0");
-            }
+            var cart = await _shoppingCartService.GetCartAsync(User as ClaimsPrincipal, HttpContext.Session);
 
-            var cart = JsonConvert.DeserializeObject<ShoppingCart>(cartJson);
+            // Trả về tổng số lượng sản phẩm từ giỏ hàng (View Model)
             return Content(cart.GetTotalItems().ToString());
         }
     }

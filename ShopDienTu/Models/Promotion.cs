@@ -46,9 +46,12 @@ namespace ShopDienTu.Models
         [Display(Name = "Mô tả")]
         public string Description { get; set; }
 
+        public int? RankID { get; set; }
+
         // Navigation property
         [ForeignKey("ProductID")]
         public virtual Product Product { get; set; }
+        public virtual Rank Rank{ get; set; }
 
         // Custom validation (ví dụ, có thể đặt ở đây hoặc check trong Controller)
         // public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

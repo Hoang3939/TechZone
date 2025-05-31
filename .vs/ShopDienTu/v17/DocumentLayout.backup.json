@@ -3,16 +3,80 @@
   "WorkspaceRootPath": "C:\\Users\\tranv\\source\\repos\\TechZone\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\shoppingcart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\shoppingcart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\ordertracking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\ordertracking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\viewcomponents\\cartsummaryviewcomponent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\viewcomponents\\cartsummaryviewcomponent.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\views\\cart\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\controllers\\cartcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\services\\shoppingcartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\services\\shoppingcartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\services\\interfaces\\ishoppingcartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\services\\interfaces\\ishoppingcartservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\rank.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\rank.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\cartitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\cartitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\cart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\cart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\shoppingcart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\shoppingcart.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\viewmodels\\cartitemviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\viewmodels\\cartitemviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -27,32 +91,12 @@
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\views\\account\\profile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\views\\account\\profile.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\rank.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\rank.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\useraddress.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -71,20 +115,12 @@
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\review.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\promotion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\paymentmethod.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\paymentmethod.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\ordertracking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|solutionrelative:shopdientu\\models\\ordertracking.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{6A510056-37E5-42B8-878A-B12E46618CD3}|ShopDienTu\\ShopDienTu.csproj|c:\\users\\tranv\\source\\repos\\techzone\\shopdientu\\models\\orderstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -106,24 +142,141 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 29,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "CartSummaryViewComponent.cs",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ViewComponents\\CartSummaryViewComponent.cs",
+              "RelativeDocumentMoniker": "ShopDienTu\\ViewComponents\\CartSummaryViewComponent.cs",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ViewComponents\\CartSummaryViewComponent.cs",
+              "RelativeToolTip": "ShopDienTu\\ViewComponents\\CartSummaryViewComponent.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAAABcAAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T08:19:55.954Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "ShopDienTu\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "ShopDienTu\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAQwHQAAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-05-31T08:18:22.092Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Program.cs",
+              "RelativeDocumentMoniker": "ShopDienTu\\Program.cs",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Program.cs",
+              "RelativeToolTip": "ShopDienTu\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAABIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:50:45.458Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\appsettings.json",
+              "RelativeDocumentMoniker": "ShopDienTu\\appsettings.json",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\appsettings.json",
+              "RelativeToolTip": "ShopDienTu\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-31T07:50:36.445Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "ShoppingCartService.cs",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Services\\ShoppingCartService.cs",
+              "RelativeDocumentMoniker": "ShopDienTu\\Services\\ShoppingCartService.cs",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Services\\ShoppingCartService.cs",
+              "RelativeToolTip": "ShopDienTu\\Services\\ShoppingCartService.cs",
+              "ViewState": "AgIAAM4AAAAAAAAAAAAgwNsAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:49:42.59Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "IShoppingCartService.cs",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Services\\Interfaces\\IShoppingCartService.cs",
+              "RelativeDocumentMoniker": "ShopDienTu\\Services\\Interfaces\\IShoppingCartService.cs",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Services\\Interfaces\\IShoppingCartService.cs",
+              "RelativeToolTip": "ShopDienTu\\Services\\Interfaces\\IShoppingCartService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:43:54.467Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "CartItem.cs",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\CartItem.cs",
+              "RelativeDocumentMoniker": "ShopDienTu\\Models\\CartItem.cs",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\CartItem.cs",
+              "RelativeToolTip": "ShopDienTu\\Models\\CartItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:28:51.058Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Cart.cs",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Cart.cs",
+              "RelativeDocumentMoniker": "ShopDienTu\\Models\\Cart.cs",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Cart.cs",
+              "RelativeToolTip": "ShopDienTu\\Models\\Cart.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:28:08.873Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "CartItemViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\ViewModels\\CartItemViewModel.cs",
+              "RelativeDocumentMoniker": "ShopDienTu\\Models\\ViewModels\\CartItemViewModel.cs",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\ViewModels\\CartItemViewModel.cs",
+              "RelativeToolTip": "ShopDienTu\\Models\\ViewModels\\CartItemViewModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-31T07:22:08.651Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Cart\\Index.cshtml",
               "RelativeDocumentMoniker": "ShopDienTu\\Views\\Cart\\Index.cshtml",
               "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Cart\\Index.cshtml",
               "RelativeToolTip": "ShopDienTu\\Views\\Cart\\Index.cshtml",
-              "ViewState": "AgIAAAMAAAAAAAAAAAAAAHkAAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAGoAAAAAAAAAAAAQwHgAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-05-30T17:01:54.123Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 19,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "ShopDienTu\\Views\\Home\\Index.cshtml",
@@ -131,12 +284,11 @@
               "RelativeToolTip": "ShopDienTu\\Views\\Home\\Index.cshtml",
               "ViewState": "AgIAAGwAAAAAAAAAAAAAAIkAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-05-30T15:16:34.576Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-30T15:16:34.576Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 21,
               "Title": "ProductController.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\ProductController.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Controllers\\ProductController.cs",
@@ -144,12 +296,11 @@
               "RelativeToolTip": "ShopDienTu\\Controllers\\ProductController.cs",
               "ViewState": "AgIAACkAAAAAAAAAAAAcwD4AAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-30T15:06:49.05Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-30T15:06:49.05Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 20,
               "Title": "Details.cshtml",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Product\\Details.cshtml",
               "RelativeDocumentMoniker": "ShopDienTu\\Views\\Product\\Details.cshtml",
@@ -157,12 +308,11 @@
               "RelativeToolTip": "ShopDienTu\\Views\\Product\\Details.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgBAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-05-30T15:06:34.506Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-30T15:06:34.506Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 23,
               "Title": "Profile.cshtml",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Account\\Profile.cshtml",
               "RelativeDocumentMoniker": "ShopDienTu\\Views\\Account\\Profile.cshtml",
@@ -170,12 +320,11 @@
               "RelativeToolTip": "ShopDienTu\\Views\\Account\\Profile.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-05-30T13:47:45.254Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-30T13:47:45.254Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 25,
               "Title": "Addresses.cshtml",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Views\\Account\\Addresses.cshtml",
               "RelativeDocumentMoniker": "ShopDienTu\\Views\\Account\\Addresses.cshtml",
@@ -187,20 +336,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 5,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Data\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Data\\ApplicationDbContext.cs",
               "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Data\\ApplicationDbContext.cs",
               "RelativeToolTip": "ShopDienTu\\Data\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAQwA0AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAYwKEAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-30T13:46:17.877Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 26,
               "Title": "SubCategory.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\SubCategory.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\SubCategory.cs",
@@ -212,20 +361,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 17,
               "Title": "ShoppingCart.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\ShoppingCart.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\ShoppingCart.cs",
               "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\ShoppingCart.cs",
               "RelativeToolTip": "ShopDienTu\\Models\\ShoppingCart.cs",
-              "ViewState": "AgIAAC4AAAAAAAAAAAAIwEIAAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAACIAAAAAAAAAAAAswDwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-30T13:45:09.581Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 27,
               "Title": "Review.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Review.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\Review.cs",
@@ -237,19 +386,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
+              "DocumentIndex": 13,
               "Title": "Promotion.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Promotion.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\Promotion.cs",
               "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Promotion.cs",
               "RelativeToolTip": "ShopDienTu\\Models\\Promotion.cs",
-              "ViewState": "AgIAABkAAAAAAAAAAAAkwB0AAAA0AAAAAAAAAA==",
+              "ViewState": "AgIAABkAAAAAAAAAAAAkwDAAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-30T13:44:24.341Z"
+              "WhenOpened": "2025-05-30T13:44:24.341Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 28,
               "Title": "Product.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Product.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\Product.cs",
@@ -261,7 +411,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 29,
               "Title": "PaymentMethod.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\PaymentMethod.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\PaymentMethod.cs",
@@ -273,7 +423,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 1,
               "Title": "OrderTracking.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\OrderTracking.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\OrderTracking.cs",
@@ -281,11 +431,12 @@
               "RelativeToolTip": "ShopDienTu\\Models\\OrderTracking.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-30T13:43:24.653Z"
+              "WhenOpened": "2025-05-30T13:43:24.653Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 30,
               "Title": "OrderStatus.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\OrderStatus.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\OrderStatus.cs",
@@ -297,7 +448,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 31,
               "Title": "OrderDetail.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\OrderDetail.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\OrderDetail.cs",
@@ -309,7 +460,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 24,
               "Title": "UserAddress.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\UserAddress.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\UserAddress.cs",
@@ -321,7 +472,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 14,
               "Title": "Rank.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Rank.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\Rank.cs",
@@ -329,24 +480,25 @@
               "RelativeToolTip": "ShopDienTu\\Models\\Rank.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-30T13:41:25.664Z"
+              "WhenOpened": "2025-05-30T13:41:25.664Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 6,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\User.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\User.cs",
               "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\User.cs",
               "RelativeToolTip": "ShopDienTu\\Models\\User.cs",
-              "ViewState": "AgIAACAAAAAAAAAAAAAAwEEAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAC8AAAAAAAAAAAAwwDsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-30T13:40:52.05Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 32,
               "Title": "Order.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Models\\Order.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Models\\Order.cs",
@@ -358,20 +510,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 0,
               "Title": "OrderController.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\OrderController.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Controllers\\OrderController.cs",
-              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\OrderController.cs",
-              "RelativeToolTip": "ShopDienTu\\Controllers\\OrderController.cs",
-              "ViewState": "AgIAADcBAAAAAAAAAAAAwBABAABCAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\OrderController.cs*",
+              "RelativeToolTip": "ShopDienTu\\Controllers\\OrderController.cs*",
+              "ViewState": "AgIAAB0CAAAAAAAAAAAmwDkCAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-30T13:09:34.839Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 22,
               "Title": "HomeController.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Controllers\\HomeController.cs",
@@ -379,31 +531,30 @@
               "RelativeToolTip": "ShopDienTu\\Controllers\\HomeController.cs",
               "ViewState": "AgIAAEwAAAAAAAAAAAAswHMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-30T11:41:50.441Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-30T11:41:50.441Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 8,
               "Title": "CartController.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\CartController.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Controllers\\CartController.cs",
-              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\CartController.cs*",
-              "RelativeToolTip": "ShopDienTu\\Controllers\\CartController.cs*",
-              "ViewState": "AgIAAIAAAAAAAAAAAAAAAIYAAAA3AAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\CartController.cs",
+              "RelativeToolTip": "ShopDienTu\\Controllers\\CartController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAGoAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-30T11:05:18.441Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 7,
               "Title": "AccountController.cs",
               "DocumentMoniker": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\AccountController.cs",
               "RelativeDocumentMoniker": "ShopDienTu\\Controllers\\AccountController.cs",
               "ToolTip": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\Controllers\\AccountController.cs",
               "RelativeToolTip": "ShopDienTu\\Controllers\\AccountController.cs",
-              "ViewState": "AgIAAOQAAAAAAAAAAAAIwFUBAAApAAAAAAAAAA==",
+              "ViewState": "AgIAAN4AAAAAAAAAAAAywH8BAABRAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-30T10:32:40.674Z",
               "EditorCaption": ""
