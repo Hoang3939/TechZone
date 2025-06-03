@@ -22,7 +22,7 @@ namespace ShopDienTu.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(int? categoryId = null, int? subcategoryId = null, string sortOrder = null)
+        public async Task<IActionResult> Index(string searchTerm, int? categoryId = null, int? subcategoryId = null, string sortOrder = null, int? page = 1, int? pageSize = 10)
         {
             var now = DateTime.Now;
             var activePromotions = await _context.Promotions
@@ -52,11 +52,25 @@ namespace ShopDienTu.Controllers
             ViewBag.Categories = categories;
 
             // Get featured products
-            var productsQuery = _context.Products
+            IQueryable<Product> productsQuery = _context.Products
                 .Include(p => p.SubCategory)
                 .ThenInclude(s => s.Category)
                 .Include(p => p.ProductImages)
+                .AsSplitQuery() // V?n nên dùng AsSplitQuery n?u có nhi?u Include collection
                 .Where(p => p.IsActive);
+
+            // L?c theo t? khóa tìm ki?m
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                productsQuery = productsQuery.Where(p =>
+                    p.ProductName.ToLower().Contains(searchTerm.ToLower()) ||
+                    (p.Description != null && p.Description.ToLower().Contains(searchTerm.ToLower())));
+                ViewBag.SearchTerm = searchTerm;
+            }
+            else
+            {
+                productsQuery = productsQuery.OrderByDescending(p => p.CreatedAt);
+            }
 
             // Filter by category if specified
             if (categoryId.HasValue)
@@ -90,7 +104,23 @@ namespace ShopDienTu.Controllers
             }
 
             ViewBag.CurrentSort = sortOrder;
-            var products = await productsQuery.ToListAsync();
+
+            int currentPage = page ?? 1; // Trang hi?n t?i, m?c ??nh là 1
+            int itemsPerPage = pageSize ?? 10; // S? s?n ph?m trên m?i trang, m?c ??nh là 9
+
+            int totalItems = await productsQuery.CountAsync(); // T?ng s? s?n ph?m (tr??c khi phân trang)
+            ViewBag.TotalItems = totalItems;
+
+            int totalPages = (int)Math.Ceiling((double)totalItems / itemsPerPage);
+            ViewBag.TotalPages = totalPages;
+            ViewBag.CurrentPage = currentPage;
+            ViewBag.PageSize = itemsPerPage;
+
+            // Áp d?ng Skip và Take ?? l?y s?n ph?m cho trang hi?n t?i
+            var products = await productsQuery
+                                .Skip((currentPage - 1) * itemsPerPage)
+                                .Take(itemsPerPage)
+                                .ToListAsync();
 
             return View(products);
         }

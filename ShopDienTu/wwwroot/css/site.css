@@ -4,10 +4,29 @@ body {
     background-color: #f8f9fa;
 }
 
+/* ??nh ngh?a các bi?n màu */
+:root {
+    --color-text-secondary: #888;
+    --color-red: #dc3545; /* ?? m?c ??nh c?a Bootstrap */
+    --color-green: #28a745; /* Xanh lá cây */
+    --color-text-dark: #333; /* ?en */
+    --color-light-gray-bg: #f5f5f5; /* N?n cho "Tr? góp 0%" */
+    --color-dark-gray-text: #555; /* Ch? cho "Tr? góp 0%" */
+    --color-border-subtle: #eee;
+    --color-card-border-active: rgba(255, 165, 0, 0.4); /* Màu cam nh?t cho border khi active */
+    --color-card-background-active: linear-gradient(to bottom, rgba(255, 165, 0, 0.1), rgba(255, 255, 255, 0)); /* Gradient cho n?n khi active */
+    --color-countdown-text: #666; /* Màu cho ch? ??ng h? ??m ng??c */
+
+    --sidebar-width: 250px; /* Chi?u r?ng c?a sidebar chính */
+    --mega-menu-width: 450px; /* Chi?u r?ng c?a mega menu */
+}
+
 /* Header Styles */
 .header {
     background-color: #fff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1010; /* T?ng z-index ?? hi?n th? trên overlay */
+    position: relative; /* ??m b?o z-index ho?t ??ng */
 }
 
 .navbar-brand h1 {
@@ -16,21 +35,64 @@ body {
     color: #0d6efd;
 }
 
+/* Nút "Danh m?c" trên Header */
+#sidebarToggleBtn {
+    background-color: #0d6efd; /* Màu xanh d??ng Bootstrap primary */
+    color: white;
+    border: none; /* Gi? none ho?c ??i v? border m?c ??nh c?a btn-primary n?u mu?n */
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+}
+
+    #sidebarToggleBtn:hover {
+        background-color: #0b5ed7; /* Màu xanh d??ng Bootstrap primary hover */
+        color: white;
+    }
+
+    #sidebarToggleBtn .fas {
+        margin-right: 8px; /* Gi? kho?ng cách gi?a icon và ch? */
+    }
+
 .search-form {
     width: 100%;
     max-width: 500px;
 }
 
+    /* Nút tìm ki?m */
+    .search-form .btn-primary {
+        background-color: #0d6efd; /* Màu xanh d??ng Bootstrap primary */
+        border-color: #0d6efd; /* Màu xanh d??ng Bootstrap primary */
+        color: white;
+    }
+
+        .search-form .btn-primary:hover {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+            color: white;
+        }
+
 .header-action-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: #212529;
+    color: #212529; /* Màu ch? m?c ??nh */
+    font-size: 0.85rem;
+    text-decoration: none;
+    padding: 0 8px;
 }
 
     .header-action-btn i {
         font-size: 18px;
-        color: #0d6efd;
+        color: #0d6efd; /* Màu xanh d??ng Bootstrap primary */
+        margin-bottom: 4px;
+    }
+
+    .header-action-btn span {
+        white-space: nowrap;
     }
 
 .cart-count {
@@ -39,110 +101,415 @@ body {
     height: 18px;
 }
 
-/* Sidebar Styles */
-.sidebar {
+.navbar-nav .dropdown-menu {
     border: none;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-nav .dropdown-item:hover {
+    background-color: #f8f9fa; /* Màu xám nh?t Bootstrap */
+    color: #333;
+}
+
+/* === OVERLAY EFFECT CHO TOÀN B? TRANG === */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Màu t?i overlay */
+    z-index: 1000; /* ??m b?o n?m trên n?i dung nh?ng d??i sidebar */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none; /* Cho phép click xuyên qua overlay ban ??u */
+}
+
+/* Hi?n th? overlay khi sidebar ???c hi?n th? */
+body.sidebar-visible::after {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto; /* B?t l?i pointer events khi overlay hi?n th? */
+}
+
+/* === BAT DAU CSS CHO SIDEBAR === */
+
+#global-sidebar {
+    position: fixed;
+    left: calc(-1 * var(--sidebar-width));
+    width: var(--sidebar-width);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 1010;
+    transition: left 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    background-color: #fff;
+    border-radius: 0;
+    visibility: hidden;
+    border-right: 1px solid #e0e0e0;
+    /* === ADDED/MODIFIED FOR FLEXBOX === */
+    display: flex; /* Bi?n global-sidebar thành flex container */
+    flex-direction: column; /* S?p x?p các ph?n t? con theo chi?u d?c */
+    overflow-y: hidden; /* ?n overflow trên container chính, ?? ph?n t? con qu?n lý */
+}
+
+    #global-sidebar.show {
+        left: 0;
+        visibility: visible;
+    }
+
+.sidebar { /* ?ây là th? .card element */
+    width: 100%;
+    /* height: 100%; Removed, flex-grow will handle */
+    border: none;
+    /* === ADDED/MODIFIED FOR FLEXBOX === */
+    display: flex; /* Bi?n .sidebar thành flex container */
+    flex-direction: column; /* S?p x?p các ph?n t? con theo chi?u d?c */
+    flex-grow: 1; /* Cho phép .sidebar co giãn và l?p ??y #global-sidebar */
+    overflow-y: hidden; /* ?n overflow ? ?ây, ?? card-body x? lý cu?n */
+}
+
+    .sidebar .card-body {
+        padding: 0;
+        /* === ADDED/MODIFIED FOR FLEXBOX === */
+        flex-grow: 1; /* Cho phép card-body co giãn và l?p ??y không gian còn l?i trong .sidebar */
+        display: flex; /* Bi?n card-body thành flex container */
+        flex-direction: column; /* S?p x?p các ph?n t? con theo chi?u d?c */
+        overflow-y: auto; /* Cho phép cu?n bên trong card-body n?u danh m?c tràn */
+    }
+
+.category-list {
+    background-color: #fff;
+    /* height: 100%; Removed, flex-grow will handle */
+    /* === ADDED/MODIFIED FOR FLEXBOX === */
+    flex-grow: 1; /* Cho phép category-list co giãn và l?p ??y card-body */
+    /* overflow-y: auto; Removed, overflow is now on card-body */
+    padding: 0;
+    margin: 0; /* ??m b?o không có margin m?c ??nh t?o kho?ng tr?ng */
 }
 
 .category-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
+    padding: 0;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    /* ??m b?o không có margin-bottom trên category-item */
 }
+
+    .category-item:last-child {
+        border-bottom: none;
+    }
+
+    .category-item a {
+        padding: 10px 15px;
+        font-weight: 500;
+        color: #333;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        width: 100%;
+        transition: color 0.2s ease;
+    }
+
+        .category-item a .fas.fa-chevron-right {
+            margin-left: auto;
+            color: #999;
+        }
 
     .category-item:hover {
-        background-color: rgba(13, 110, 253, 0.05);
+        background-color: #f0f0f0;
     }
+
+        .category-item:hover a {
+            color: var(--bs-primary);
+        }
+
+            .category-item:hover a .fas.fa-chevron-right {
+                color: var(--bs-primary);
+            }
 
     .category-item.active {
-        background-color: #0d6efd;
+        background-color: var(--bs-primary);
         color: white;
+        border-left: 4px solid var(--bs-primary);
     }
 
-    .category-item i {
-        transition: transform 0.3s;
-    }
+        .category-item.active a {
+            color: white;
+            font-weight: 500;
+            padding-left: calc(15px - 4px);
+        }
 
-.subcategory-list {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-    background-color: #f8f9fa;
+            .category-item.active a .fas.fa-chevron-right {
+                color: white !important;
+            }
+
+/* === B?T ??U CSS CHO MEGA MENU (Ki?m tra l?i Flexbox) === */
+
+.mega-menu-container {
+    position: fixed;
+    left: calc(-1 * var(--mega-menu-width));
+    width: var(--mega-menu-width);
+    background-color: #fff;
+    border-left: 1px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1010;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+    /* overflow-y: auto; Moved to mega-menu-content */
+    /* === ADDED/MODIFIED FOR FLEXBOX === */
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden; /* ?n overflow trên container chính, ?? ph?n t? con qu?n lý */
 }
 
-    .subcategory-list.active {
-        max-height: 500px;
+    .mega-menu-container.show {
+        opacity: 1;
+        visibility: visible;
     }
 
-.subcategory-item {
-    padding: 8px 15px 8px 30px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+.mega-menu-header {
+    background-color: #fff;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0; /* Ng?n header co l?i */
 }
 
-    .subcategory-item:hover {
-        background-color: rgba(13, 110, 253, 0.05);
+.mega-menu-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--bs-primary);
+}
+
+.mega-menu-content {
+    padding: 15px;
+    flex-grow: 1; /* Cho phép ph?n n?i dung chính co giãn ?? l?p ??y không gian còn l?i */
+    display: flex; /* Bi?n content thành flex container */
+    flex-direction: column; /* S?p x?p các ph?n t? con theo chi?u d?c */
+    overflow-y: auto; /* Cho phép cu?n bên trong content n?u nó tràn */
+}
+
+    .mega-menu-content > .row {
+        flex-grow: 1; /* Cho phép hàng co giãn ?? l?p ??y content */
+        display: flex; /* Bi?n hàng thành flex container */
+        flex-direction: row;
     }
 
-    .subcategory-item.active {
-        background-color: #e9ecef;
-        color: #0d6efd;
+        .mega-menu-content > .row > .col-6 {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1; /* Cho phép c?t co giãn */
+        }
+
+.mega-menu-column-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+    flex-shrink: 0; /* Ng?n tiêu ?? c?t co l?i */
+}
+
+.mega-menu-list {
+    padding-left: 0;
+    list-style: none;
+    margin-bottom: 0; /* Lo?i b? margin-bottom m?c ??nh c?a ul */
+    flex-grow: 1; /* Cho phép danh sách co giãn ?? l?p ??y c?t */
+}
+
+    .mega-menu-list li a {
+        display: block;
+        padding: 5px 0;
+        color: #555;
+        text-decoration: none;
+        font-size: 0.85rem;
+        transition: color 0.2s ease-in-out;
     }
 
-/* Product Card Styles */
+        .mega-menu-list li a:hover {
+            color: var(--bs-primary);
+            text-decoration: none;
+        }
+
+/* === KET THUC CSS CHO SIDEBAR === */
+
+/* === B?T ??U CSS M?I CHO S?N PH?M === */
+
+/* ??nh ngh?a các bi?n màu */
+:root {
+    --color-text-secondary: #888;
+    --color-red: #dc3545; /* ?? */
+    --color-green: #28a745; /* Xanh lá cây */
+    --color-text-dark: #333; /* ?en */
+    --color-light-gray-bg: #f5f5f5; /* N?n cho "Tr? góp 0%" */
+    --color-dark-gray-text: #555; /* Ch? cho "Tr? góp 0%" */
+    --color-border-subtle: #eee;
+    --color-card-border-active: rgba(41, 127, 238, 0.4); /* Màu cam nh?t cho border khi active */
+    --color-card-background-active: linear-gradient(to bottom, rgba(0, 132, 242, 0.1), rgba(0, 112, 206, 0)); /* Gradient cho n?n khi active */
+    --color-countdown-text: #666; /* Màu cho ch? ??ng h? ??m ng??c */
+    --sidebar-width: 250px; /* Chi?u r?ng c?a sidebar chính */
+    --mega-menu-width: 450px; /* Chi?u r?ng c?a mega menu */
+}
+
 .product-card {
-    height: 100%;
-    transition: transform 0.3s, box-shadow 0.3s;
-    border: none;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: 8px; /* Bo tròn góc */
+    overflow: hidden; /* ??m b?o n?i dung không tràn ra ngoài border-radius */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* Shadow nh? */
+    transition: all 0.2s ease-in-out;
+    background-color: #fff; /* N?n tr?ng m?c ??nh */
 }
 
     .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Shadow n?i b?t h?n khi hover */
+        transform: translateY(-3px); /* Nh?c nh? lên */
+        border-color: var(--color-card-border-active); /* ??i màu border khi hover */
+        background: var(--color-card-background-active); /* Áp d?ng gradient khi hover */
     }
 
-.product-image {
-    height: 180px;
+.product-image-link {
+    display: block; /* ??m b?o link bao tr?n hình ?nh và các badge */
+    position: relative; /* Cho phép các badge con ??nh v? tuy?t ??i */
+}
+
+.product-image-container {
+    position: relative;
+    padding-bottom: 90%; /* T? l? khung hình g?n vuông */
+    overflow: hidden;
+    background-color: #fff; /* N?n tr?ng cho khu v?c ?nh */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 15px;
-    background-color: #f8f9fa;
 }
 
-    .product-image img {
-        max-height: 100%;
-        object-fit: contain;
+.product-img-custom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Hi?n th? ?nh v?a khung, không b? méo */
+    padding: 10px; /* Padding bên trong ?nh */
+    max-height: unset; /* Override max-height t? tr??c */
+}
+
+/* --- PH?N CSS C?A N?I DUNG S?N PH?M (TRONG card-body) --- */
+
+.ProductCard_cardInfo {
+    padding: 12px; /* Padding t?ng th? cho card-body, tùy ch?nh */
+    padding-top: 8px; /* Gi?m padding top ?? sát h?n v?i ?nh */
+}
+
+/* Label "Tr? góp 0%" */
+.product-label-loan {
+    margin-bottom: 8px; /* Kho?ng cách d??i label */
+}
+
+    .product-label-loan span {
+        display: inline-block;
+        padding: 4px 8px;
+        background-color: var(--color-light-gray-bg); /* N?n xám nh?t */
+        color: var(--color-dark-gray-text); /* Ch? xám ??m */
+        font-size: 0.8rem; /* Kích th??c font */
+        border-radius: 4px; /* Bo tròn góc */
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        font-weight: 500; /* ?? ??m v?a ph?i */
     }
+
+/* Kh?i giá */
+.product-price-block {
+    margin-bottom: 12px; /* Kho?ng cách d??i kh?i giá */
+}
+
+.price-old-discount {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px; /* Kho?ng cách v?i giá hi?n t?i */
+    line-height: 1.2;
+}
+
+.price-old {
+    color: var(--color-text-secondary); /* Màu xám */
+    text-decoration: line-through;
+    font-size: 0.95rem; /* H?i to h?n default small */
+    font-weight: 400; /* Regular */
+    margin-right: 4px; /* Kho?ng cách v?i ph?n tr?m gi?m giá */
+}
+
+.price-discount-percent {
+    color: var(--color-red); /* Màu ?? */
+    font-weight: 400; /* Semibold */
+    font-size: 0.95rem; /* Cùng kích th??c v?i giá c? */
+}
+
+.price-current {
+    color: #000; /* Màu ?en */
+    font-size: 1.4rem; /* Kích th??c l?n h?n */
+    font-weight: 650; /* R?t ??m */
+    line-height: 1.2; /* ??m b?o dòng không quá cao */
+    margin-bottom: 8px; /* Kho?ng cách v?i dòng gi?m giá */
+}
+
+.currency-unit {
+    /* Class m?i ?? g?ch chân riêng ??n v? ti?n t? */
+    text-decoration: underline;
+}
+
+.price-reduction-amount {
+    color: var(--color-green); /* Màu xanh lá cây */
+    font-size: 0.85rem; /* Kích th??c nh? */
+    font-weight: 400; /* Regular */
+    line-height: 1.2;
+}
+
+/* ??ng h? ??m ng??c */
+.product-countdown-timer {
+    font-size: 0.85rem;
+    color: var(--color-countdown-text); /* Màu xám cho ??ng h? ??m ng??c */
+    margin-bottom: 8px; /* Kho?ng cách d??i ??ng h? */
+    font-weight: 400;
+}
+
+/* Tên s?n ph?m */
+.product-title-text {
+    font-size: 1.2rem; /* Kích th??c font cho tiêu ?? s?n ph?m (l?n h?n m?u tr??c m?t chút) */
+    line-height: 1.3;
+    margin-bottom: 0; /* Kho?ng cách d??i tiêu ?? */
+    flex-grow: 1; /* Cho phép tiêu ?? m? r?ng */
+    /* Gi?i h?n 2 dòng */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: auto; /* T? ??ng ?i?u ch?nh chi?u cao */
+    min-height: 2.6em; /* ??m b?o ?? ch? cho 2 dòng */
+}
+
+    .product-title-text a {
+        font-weight: 600; /* Semibold */
+        color: var(--color-text-dark); /* Màu ch? ?en */
+        text-decoration: none; /* B? g?ch chân m?c ??nh */
+    }
+
+        .product-title-text a:hover {
+            color: var(--bs-primary) !important; /* ??i màu khi hover */
+        }
+
+/* === K?T THÚC CSS CHO S?N PH?M === */
 
 .product-category {
     font-size: 12px;
     color: #6c757d;
     margin-bottom: 5px;
-}
-
-.product-name {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    height: 44px;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-}
-
-.product-price {
-    font-size: 18px;
-    font-weight: 700;
-    color: #dc3545;
-    margin-bottom: 15px;
 }
 
 /* Footer Styles */
@@ -272,10 +639,10 @@ body {
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }

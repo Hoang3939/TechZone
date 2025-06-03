@@ -305,20 +305,104 @@
       "PackagePath": "staticwebassets\\images\\AcerNito5i7.jpg"
     },
     {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\AcerNitro5i7_1.jpg",
+      "PackagePath": "staticwebassets\\images\\AcerNitro5i7_1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\CPUCoreI9.jpg",
+      "PackagePath": "staticwebassets\\images\\CPUCoreI9.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\CPUCoreI91.jpg",
+      "PackagePath": "staticwebassets\\images\\CPUCoreI91.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\CorsairK70.jpg",
+      "PackagePath": "staticwebassets\\images\\CorsairK70.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\CorsairK70_1.jpg",
+      "PackagePath": "staticwebassets\\images\\CorsairK70_1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\DellUltraSharp.jpg",
+      "PackagePath": "staticwebassets\\images\\DellUltraSharp.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\DellUltraSharp1.jpg",
+      "PackagePath": "staticwebassets\\images\\DellUltraSharp1.jpg"
+    },
+    {
       "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\asus_rog.jpg",
       "PackagePath": "staticwebassets\\images\\asus_rog.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\asus_rog1.jpg",
+      "PackagePath": "staticwebassets\\images\\asus_rog1.jpg"
     },
     {
       "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\g102_logitech.jpg",
       "PackagePath": "staticwebassets\\images\\g102_logitech.jpg"
     },
     {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\g102_logitech1.jpg",
+      "PackagePath": "staticwebassets\\images\\g102_logitech1.jpg"
+    },
+    {
       "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\galaxy_a55.jpg",
       "PackagePath": "staticwebassets\\images\\galaxy_a55.jpg"
     },
     {
-      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\narutohiennhanjpg.jpg",
-      "PackagePath": "staticwebassets\\images\\narutohiennhanjpg.jpg"
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\galaxy_a55_1.jpg",
+      "PackagePath": "staticwebassets\\images\\galaxy_a55_1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\havid_630bt.jpg",
+      "PackagePath": "staticwebassets\\images\\havid_630bt.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\havid_630bt1.jpg",
+      "PackagePath": "staticwebassets\\images\\havid_630bt1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\ip15promax.jpg",
+      "PackagePath": "staticwebassets\\images\\ip15promax.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\ip15promax1.jpg",
+      "PackagePath": "staticwebassets\\images\\ip15promax1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\ip16promax1.jpg",
+      "PackagePath": "staticwebassets\\images\\ip16promax1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\ip16promaxm.jpg",
+      "PackagePath": "staticwebassets\\images\\ip16promaxm.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\laptop_dell.jpg",
+      "PackagePath": "staticwebassets\\images\\laptop_dell.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\laptop_dell1.jpg",
+      "PackagePath": "staticwebassets\\images\\laptop_dell1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\lenovo_legion.jpg",
+      "PackagePath": "staticwebassets\\images\\lenovo_legion.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\lenovo_legion1.jpg",
+      "PackagePath": "staticwebassets\\images\\lenovo_legion1.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\logitech_g502.jpg",
+      "PackagePath": "staticwebassets\\images\\logitech_g502.jpg"
+    },
+    {
+      "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\images\\logitech_g502_1.jpg",
+      "PackagePath": "staticwebassets\\images\\logitech_g502_1.jpg"
     },
     {
       "Id": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\wwwroot\\js\\site.js",

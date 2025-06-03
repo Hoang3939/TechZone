@@ -3369,11 +3369,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+      "projectUniqueName": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
       "projectName": "ShopDienTu",
-      "projectPath": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+      "projectPath": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
       "packagesPath": "C:\\Users\\tranv\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tranv\\source\\repos\\TechZone\\ShopDienTu\\obj\\",
+      "outputPath": "C:\\Users\\tranv\\Source\\Repos\\TechZone\\ShopDienTu\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

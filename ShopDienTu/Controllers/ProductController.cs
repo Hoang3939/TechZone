@@ -79,7 +79,7 @@ namespace ShopDienTu.Controllers
                 .Include(p => p.SubCategory)
                 .ThenInclude(s => s.Category)
                 .Include(p => p.ProductImages)
-                .Where(p => p.IsActive && (p.ProductName.Contains(searchTerm) || p.Description.Contains(searchTerm)))
+                .Where(p => p.IsActive && (p.ProductName.ToLower().Contains(searchTerm.ToLower()) || (p.Description != null && p.Description.ToLower().Contains(searchTerm.ToLower()))))
                 .ToListAsync();
 
             ViewBag.SearchTerm = searchTerm;
@@ -91,7 +91,7 @@ namespace ShopDienTu.Controllers
                 .ToListAsync();
             ViewBag.Categories = categories;
 
-            return View(products);
+            return View("~/Views/Home/Index.cshtml", products);
         }
     }
 }
