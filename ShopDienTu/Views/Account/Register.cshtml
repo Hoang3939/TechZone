@@ -1,4 +1,4 @@
-﻿@model ShopDienTu.Controllers.RegisterViewModel
+﻿@model ShopDienTu.Models.RegisterViewModel
 @{
     ViewData["Title"] = "Đăng ký";
 }
@@ -13,36 +13,28 @@
                         <p class="text-muted">Tạo tài khoản để mua sắm và theo dõi đơn hàng dễ dàng hơn</p>
                     </div>
 
-                    @* Hiển thị tất cả lỗi ModelState (bao gồm cả lỗi không thuộc trường cụ thể) *@
                     @if (!ViewData.ModelState.IsValid)
                     {
                         <div class="alert alert-danger">
                             <div asp-validation-summary="All" class="list-unstyled mb-0"></div>
                         </div>
                     }
-                    @* HOẶC chỉ hiển thị lỗi không thuộc trường cụ thể (ModelOnly) nếu bạn đã có asp-validation-for cho từng trường *@
-                    @* <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div> *@
-
 
                     <form asp-controller="Account" asp-action="Register" method="post" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <input asp-for="UserName" class="form-control" placeholder="Tên đăng nhập" required>
-                                    <label asp-for="UserName"></label> @* Label sẽ tự động lấy DisplayName từ ViewModel *@
-                                    <div class="invalid-feedback">
-                                        Vui lòng nhập tên đăng nhập. @* Bootstrap feedback *@
-                                    </div>
-                                    <span asp-validation-for="UserName" class="text-danger"></span> @* ASP.NET Core validation message *@
+                                    <label asp-for="UserName"></label>
+                                    <span asp-validation-for="UserName" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
                                     <input asp-for="FullName" class="form-control" placeholder="Họ tên" required>
                                     <label asp-for="FullName"></label>
-                                    <div class="invalid-feedback">
-                                        Vui lòng nhập họ tên.
-                                    </div>
                                     <span asp-validation-for="FullName" class="text-danger"></span>
                                 </div>
                             </div>
@@ -51,18 +43,12 @@
                         <div class="form-floating mb-3">
                             <input asp-for="Email" class="form-control" placeholder="Email" required>
                             <label asp-for="Email"></label>
-                            <div class="invalid-feedback">
-                                Vui lòng nhập email hợp lệ.
-                            </div>
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input asp-for="Phone" class="form-control" placeholder="Số điện thoại" required> @* Thêm required nếu Phone bắt buộc trong ViewModel *@
+                            <input asp-for="Phone" class="form-control" placeholder="Số điện thoại" required>
                             <label asp-for="Phone"></label>
-                            <div class="invalid-feedback">
-                                Vui lòng nhập số điện thoại. @* Chỉ hiển thị nếu Phone có 'required' và rỗng *@
-                            </div>
                             <span asp-validation-for="Phone" class="text-danger"></span>
                         </div>
 
@@ -71,42 +57,30 @@
                                 <div class="form-floating mb-3">
                                     <input asp-for="Password" type="password" class="form-control" placeholder="Mật khẩu" required>
                                     <label asp-for="Password"></label>
-                                    <div class="invalid-feedback">
-                                        Vui lòng nhập mật khẩu.
-                                    </div>
                                     <span asp-validation-for="Password" class="text-danger"></span>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                                    @* THAY ĐỔI name="confirmPassword" thành asp-for="ConfirmPassword" *@
                                     <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Xác nhận mật khẩu" required>
                                     <label asp-for="ConfirmPassword"></label>
-                                    <div class="invalid-feedback">
-                                        Vui lòng xác nhận mật khẩu.
-                                    </div>
                                     <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-floating mb-3">
-                            @* Giả sử Address có trong RegisterViewModel và không bắt buộc *@
                             <input asp-for="Address" class="form-control" placeholder="Địa chỉ">
                             <label asp-for="Address"></label>
                             <span asp-validation-for="Address" class="text-danger"></span>
+                            <small class="text-muted">Địa chỉ này sẽ được lưu làm địa chỉ mặc định (tùy chọn)</small>
                         </div>
 
                         <div class="form-check mb-3">
-                            @* THAY ĐỔI id, name, value thành asp-for="AgreeTerms" *@
-                            <input asp-for="AgreeTerms" class="form-check-input" type="checkbox">
-                            @* Label giờ sẽ tự động lấy DisplayName từ [Display(Name="...")] của AgreeTerms trong ViewModel *@
+                            <input asp-for="AgreeTerms" class="form-check-input" type="checkbox" required>
                             <label asp-for="AgreeTerms" class="form-check-label">
                                 Tôi đồng ý với <a href="#" class="text-decoration-none">Điều khoản dịch vụ</a> và <a href="#" class="text-decoration-none">Chính sách bảo mật</a>
                             </label>
-                            <div class="invalid-feedback">
-                                Bạn phải đồng ý với điều khoản dịch vụ để tiếp tục.
-                            </div>
                             <span asp-validation-for="AgreeTerms" class="text-danger"></span>
                         </div>
 
@@ -131,14 +105,11 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script>
-        // Example starter JavaScript for disabling form submissions if there are invalid fields
         (function () {
             'use strict'
 
-            // Fetch all the forms we want to apply custom Bootstrap validation styles to
             var forms = document.querySelectorAll('.needs-validation')
 
-            // Loop over them and prevent submission
             Array.prototype.slice.call(forms)
                 .forEach(function (form) {
                     form.addEventListener('submit', function (event) {
@@ -151,5 +122,17 @@
                     }, false)
                 })
         })()
+        // Đảm bảo checkbox điều khoản được kiểm tra
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const form = document.querySelector('form');
+        //     const agreeTermsCheckbox = document.getElementById('AgreeTerms');
+
+        //     form.addEventListener('submit', function(e) {
+        //         if (!agreeTermsCheckbox.checked) {
+        //             e.preventDefault();
+        //             alert('Bạn phải đồng ý với điều khoản dịch vụ để đăng ký.');
+        //         }
+        //     });
+        // });
     </script>
 }

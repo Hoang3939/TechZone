@@ -74,7 +74,7 @@ namespace ShopDienTu.Controllers
                             new Claim(ClaimTypes.Name, user.UserName),
                             new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
                             new Claim(ClaimTypes.Email, user.Email),
-                            new Claim(ClaimTypes.Role, user.Role ?? "User"),
+                            new Claim(ClaimTypes.Role, user.Role ?? "Customer"),
                             new Claim("Phone", user.Phone ?? "")
                         };
 
@@ -130,77 +130,96 @@ namespace ShopDienTu.Controllers
         // POST: Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(Models.RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Debug: Kiểm tra ModelState
+                if (!ModelState.IsValid)
                 {
-                    if (!model.AgreeTerms)
-                    {
-                        ModelState.AddModelError("AgreeTerms", "Bạn phải đồng ý với điều khoản dịch vụ để đăng ký.");
-                        return View(model);
-                    }
+                    _logger.LogWarning("ModelState không hợp lệ: {Errors}",
+                        string.Join(", ", ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)));
 
-                    var userExists = await _context.Users.AnyAsync(u => u.UserName == model.UserName || u.Email == model.Email);
-                    if (userExists)
-                    {
-                        ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc email đã tồn tại.");
-                        return View(model);
-                    }
-
-                    var user = new User
-                    {
-                        UserName = model.UserName,
-                        Email = model.Email,
-                        FullName = model.FullName,
-                        Password = HashPassword(model.Password),
-                        Phone = model.Phone,
-                        Role = "User",
-                        CreatedAt = DateTime.Now
-                    };
-
-                    _context.Users.Add(user);
-                    await _context.SaveChangesAsync();
-
-                    _logger.LogInformation("User {UserName} created a new account at {Time}.", user.UserName, DateTime.UtcNow);
-
-                    // Đăng nhập người dùng sau khi đăng ký
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.UserName),
-                        new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim(ClaimTypes.Role, user.Role)
-                    };
-
-                    var claimsIdentity = new ClaimsIdentity(
-                        claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-                    var authProperties = new AuthenticationProperties
-                    {
-                        IsPersistent = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
-                    };
-
-                    await HttpContext.SignInAsync(
-                        CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity),
-                        authProperties);
-
-                    await _shoppingCartService.MergeAnonymousCartAsync(User, HttpContext.Session);
-
-                    TempData["SuccessMessage"] = "Đăng ký tài khoản thành công!";
-                    return RedirectToAction("Index", "Home");
+                    return View(model);
                 }
-                catch (Exception ex)
+
+                // Kiểm tra tên đăng nhập đã tồn tại
+                var userNameExists = await _context.Users.AnyAsync(u => u.UserName == model.UserName);
+                if (userNameExists)
                 {
-                    _logger.LogError(ex, "Error during registration for user {UserName}", model.UserName);
-                    ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại sau.");
+                    ModelState.AddModelError("UserName", "Tên đăng nhập đã tồn tại.");
+                    return View(model);
                 }
+
+                // Kiểm tra email đã tồn tại
+                var emailExists = await _context.Users.AnyAsync(u => u.Email == model.Email);
+                if (emailExists)
+                {
+                    ModelState.AddModelError("Email", "Email đã được sử dụng bởi tài khoản khác.");
+                    return View(model);
+                }
+
+                // Lấy rank mặc định (rank có điểm thấp nhất)
+                var defaultRank = await _context.Ranks
+                    .OrderBy(r => r.MinimumPoints)
+                    .FirstOrDefaultAsync();
+
+                var user = new User
+                {
+                    UserName = model.UserName,
+                    Email = model.Email,
+                    FullName = model.FullName,
+                    Password = HashPassword(model.Password),
+                    Phone = model.Phone,
+                    Address = model.Address, // Có thể null
+                    Role = "Customer", // Sửa từ "User" thành "Customer"
+                    CreatedAt = DateTime.Now,
+                    Points = 0,
+                    RankID = defaultRank?.RankID // Gán rank mặc định
+                };
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("User {UserName} created a new account at {Time}.", user.UserName, DateTime.UtcNow);
+
+                // Đăng nhập người dùng sau khi đăng ký
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.Role),
+                    new Claim("Phone", user.Phone ?? "")
+                };
+
+                var claimsIdentity = new ClaimsIdentity(
+                    claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                };
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    authProperties);
+
+                await _shoppingCartService.MergeAnonymousCartAsync(User, HttpContext.Session);
+
+                TempData["SuccessMessage"] = "Đăng ký tài khoản thành công! Chào mừng bạn đến với cửa hàng.";
+                return RedirectToAction("Index", "Home");
             }
-
-            return View(model);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during registration for user {UserName}: {Message}", model.UserName, ex.Message);
+                ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi trong quá trình đăng ký: " + ex.Message);
+                return View(model);
+            }
         }
 
         // GET: Account/Logout
@@ -287,12 +306,11 @@ namespace ShopDienTu.Controllers
                                            newRank.RankName,
                                            newRank.RankID,
                                            currentPoints);
-                    user.RankID = newRank.RankID; // Cập nhật RankID của user
-                    _context.Update(user); // Đánh dấu user entity là đã thay đổi
+                    user.RankID = newRank.RankID;
+                    _context.Update(user);
                     await _context.SaveChangesAsync();
-                    user.Rank = newRank; // Gán lại để truyền qua ViewBag luôn
+                    user.Rank = newRank;
                 }
-                
 
                 ViewBag.Points = currentPoints;
                 ViewBag.RankName = user.Rank?.RankName ?? "Chưa có hạng";
@@ -346,27 +364,7 @@ namespace ShopDienTu.Controllers
                 user.FullName = model.FullName;
                 user.Email = model.Email;
                 user.Phone = model.Phone;
-
-                if (!string.IsNullOrWhiteSpace(model.Address))
-                {
-                    // Lấy địa chỉ hiện tại của người dùng để so sánh
-                    var existingAddresses = await _context.UserAddresses
-                        .Where(a => a.UserID == userId)
-                        .ToListAsync();
-
-                    bool addressExists = existingAddresses.Any(a => a.Address == model.Address);
-
-                    if (!addressExists) // Nếu địa chỉ mới chưa tồn tại trong danh sách địa chỉ của user
-                    {
-                        _context.UserAddresses.Add(new UserAddress
-                        {
-                            UserID = userId,
-                            Address = model.Address,
-                            AddedAt = DateTime.Now
-                        });
-                    }
-                    // Nếu địa chỉ mới đã tồn tại hoặc là rỗng, không làm gì cả với UserAddress
-                }
+                user.Address = model.Address;
 
                 _context.Update(user);
                 await _context.SaveChangesAsync();
@@ -478,47 +476,6 @@ namespace ShopDienTu.Controllers
         public bool RememberMe { get; set; }
     }
 
-    public class RegisterViewModel
-    {
-        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
-        [Display(Name = "Tên đăng nhập")]
-        [StringLength(50, ErrorMessage = "Tên đăng nhập phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 3)]
-        public string UserName { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng nhập họ tên")]
-        [Display(Name = "Họ và tên")]
-        [StringLength(100, ErrorMessage = "Họ tên phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 2)]
-        public string FullName { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng nhập email")]
-        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
-        [Display(Name = "Email")]
-        public string Email { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
-        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
-        [Display(Name = "Số điện thoại")]
-        public string Phone { get; set; }
-
-        [Display(Name = "Đại chỉ")]
-        public string Address { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
-        [StringLength(100, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 6)]
-        [DataType(DataType.Password)]
-        [Display(Name = "Mật khẩu")]
-        public string Password { get; set; }
-
-        [DataType(DataType.Password)]
-        [Display(Name = "Xác nhận mật khẩu")]
-        [Compare("Password", ErrorMessage = "Mật khẩu và xác nhận mật khẩu không khớp.")]
-        public string ConfirmPassword { get; set; }
-
-        [Display(Name = "Tôi đồng ý với điều khoản dịch vụ")]
-        [Range(typeof(bool), "true", "true", ErrorMessage = "Bạn phải đồng ý với điều khoản dịch vụ để đăng ký.")]
-        public bool AgreeTerms { get; set; }
-    }
-
     public class ForgotPasswordViewModel
     {
         [Required(ErrorMessage = "Vui lòng nhập email")]
@@ -544,5 +501,52 @@ namespace ShopDienTu.Controllers
         [Display(Name = "Xác nhận mật khẩu mới")]
         [Compare("NewPassword", ErrorMessage = "Mật khẩu mới và xác nhận mật khẩu không khớp.")]
         public string ConfirmPassword { get; set; }
+    }
+}
+
+namespace ShopDienTu.Models
+{
+    public class RegisterViewModel
+    {
+        [Required(ErrorMessage = "Vui lòng nhập tên đăng nhập")]
+        [Display(Name = "Tên đăng nhập")]
+        [StringLength(20, ErrorMessage = "Tên đăng nhập phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 3)]
+        public string UserName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập họ tên")]
+        [Display(Name = "Họ và tên")]
+        [StringLength(100, ErrorMessage = "Họ tên phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 2)]
+        public string FullName { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập email")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ")]
+        [Display(Name = "Email")]
+        [StringLength(100)]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập số điện thoại")]
+        [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
+        [Display(Name = "Số điện thoại")]
+        [StringLength(15)]
+        public string Phone { get; set; }
+
+        [Display(Name = "Địa chỉ")]
+        [StringLength(255)]
+        public string? Address { get; set; }
+
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu")]
+        [StringLength(100, ErrorMessage = "Mật khẩu phải có ít nhất {2} ký tự và tối đa {1} ký tự.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu")]
+        public string Password { get; set; }
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Xác nhận mật khẩu")]
+        [Compare("Password", ErrorMessage = "Mật khẩu và xác nhận mật khẩu không khớp.")]
+        public string ConfirmPassword { get; set; }
+
+        [Display(Name = "Tôi đồng ý với điều khoản dịch vụ")]
+        [Required(ErrorMessage = "Bạn phải đồng ý với điều khoản dịch vụ để đăng ký.")]
+        public bool AgreeTerms { get; set; }
     }
 }
