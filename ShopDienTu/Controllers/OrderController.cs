@@ -44,21 +44,18 @@ namespace ShopDienTu.Controllers
             {
                 try
                 {
-                    // Tìm đơn hàng dựa trên OrderNumber
                     var order = await _context.Orders
                         .Include(o => o.User)
                         .FirstOrDefaultAsync(o => o.OrderNumber == model.OrderNumber);
 
                     if (order != null)
                     {
-                        // Kiểm tra email
                         if (order.User != null && order.User.Email == model.Email)
                         {
                             return RedirectToAction("OrderDetails", new { id = order.OrderID });
                         }
                         else
                         {
-                            // Kiểm tra thông tin khách vãng lai từ session
                             var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{order.OrderID}");
                             if (!string.IsNullOrEmpty(guestInfoJson))
                             {
@@ -107,7 +104,6 @@ namespace ShopDienTu.Controllers
                     return NotFound();
                 }
 
-                // Kiểm tra quyền truy cập
                 if (User.Identity.IsAuthenticated)
                 {
                     var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -118,10 +114,8 @@ namespace ShopDienTu.Controllers
                 }
                 else
                 {
-                    // Nếu không đăng nhập, chỉ cho phép xem đơn hàng vừa đặt hoặc đã tra cứu
                     if (!TempData.ContainsKey("TrackOrderId") || (int)TempData["TrackOrderId"] != id)
                     {
-                        // Kiểm tra thông tin khách vãng lai từ session
                         var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{id}");
                         if (string.IsNullOrEmpty(guestInfoJson))
                         {
@@ -130,7 +124,6 @@ namespace ShopDienTu.Controllers
                     }
                 }
 
-                // Nếu đơn hàng không có UserID, lấy thông tin khách vãng lai từ session
                 if (order.UserID == null)
                 {
                     var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{order.OrderID}");
@@ -198,16 +191,12 @@ namespace ShopDienTu.Controllers
             decimal rankDiscountPercentage = 0m;
             ShopDienTu.Models.User currentUser = null;
 
-            //var activePromos = await _context.Promotions
-            //    .Where(p => p.IsActive && p.ProductID != null && p.StartDate <= now && p.EndDate >= now)
-            //    .ToListAsync();
-
             if (User.Identity.IsAuthenticated)
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
                 currentUser = await _context.Users
-                    .Include(u => u.Rank) // Đảm bảo include Rank để lấy DiscountPercentage
+                    .Include(u => u.Rank)
                     .FirstOrDefaultAsync(u => u.UserID == userId);
 
                 if (currentUser != null && currentUser.Rank != null)
@@ -223,30 +212,18 @@ namespace ShopDienTu.Controllers
                 if (item.Quantity > product.StockQuantity)
                 {
                     ModelState.AddModelError("", $"Sản phẩm '{product.ProductName}' chỉ còn lại {product.StockQuantity} sản phẩm trong kho.");
-                    // Need to return to checkout with error
-                    ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync(); // Ensure these are reloaded
 
-                    if (User.Identity.IsAuthenticated)
-                    {
-                        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                        ViewBag.CurrentUser = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
-                        ViewBag.DefaultUserAddress = await _context.UserAddresses
-                                                                    .Where(ua => ua.UserID == userId && ua.IsDefault)
-                                                                    .Include(ua => ua.Province)
-                                                                    .Include(ua => ua.District)
-                                                                    .Include(ua => ua.Ward)
-                                                                    .FirstOrDefaultAsync();
-                    }
-
+                    // Reload ViewBag data for checkout view
+                    await LoadCheckoutViewBagData();
                     return View("~/Views/Cart/Checkout.cshtml", cart);
                 }
 
-                subtotal += item.Price * item.Quantity; // Cộng vào subtotal dựa trên giá đã giảm
+                subtotal += item.Price * item.Quantity;
             }
 
             decimal globalVoucherDiscount = 0m;
 
-            if(!string.IsNullOrWhiteSpace(promoCode))
+            if (!string.IsNullOrWhiteSpace(promoCode))
             {
                 var codeNormalized = promoCode.Trim().ToUpper();
                 var globalPromo = await _context.Promotions
@@ -272,27 +249,14 @@ namespace ShopDienTu.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync();
-                // Nếu lỗi, cần pre-fill lại thông tin user và địa chỉ mặc định nếu có
-                if (User.Identity.IsAuthenticated)
-                {
-                    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                    ViewBag.CurrentUser = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
-                    ViewBag.DefaultUserAddress = await _context.UserAddresses
-                                                                .Where(ua => ua.UserID == userId && ua.IsDefault)
-                                                                .Include(ua => ua.Province)
-                                                                .Include(ua => ua.District)
-                                                                .Include(ua => ua.Ward)
-                                                                .FirstOrDefaultAsync();
-                }
-                return View("~/Views/Order/Checkout.cshtml", cart); // Use Order/Checkout
+                await LoadCheckoutViewBagData();
+                return View("~/Views/Cart/Checkout.cshtml", cart);
             }
 
             var provinceName = (await _context.Provinces.FindAsync(provinceId))?.ProvinceName ?? "";
             var districtName = (await _context.Districts.FindAsync(districtId))?.DistrictName ?? "";
             var wardName = (await _context.Wards.FindAsync(wardId))?.WardName ?? "";
 
-            // Tạo đơn hàng mới
             var order = new Order
             {
                 OrderNumber = GenerateOrderNumber(),
@@ -338,7 +302,7 @@ namespace ShopDienTu.Controllers
                 {
                     OrderID = order.OrderID,
                     Status = "Đang xử lý",
-                    Description = "Đơn hàng đã được tạo, đang chờ xác nhân!",
+                    Description = "Đơn hàng đã được tạo, đang chờ xác nhận!",
                     CreatedAt = now
                 });
 
@@ -360,8 +324,8 @@ namespace ShopDienTu.Controllers
                         currentUser.RankID = newRank.RankID;
                         _logger.LogInformation("Xếp hạng của người dùng {UserId} được cập nhật từ {OldRankId} thành {NewRankId} với {Points} điểm.", currentUser.UserID, currentUser.RankID, newRank.RankID, currentUser.Points);
                     }
-                    _context.Update(currentUser); // Đảm bảo EF theo dõi thay đổi của currentUser
-                    await _context.SaveChangesAsync(); // Lưu thay đổi rank và điểm
+                    _context.Update(currentUser);
+                    await _context.SaveChangesAsync();
                 }
             }
             catch (DbUpdateException dbEx)
@@ -376,15 +340,53 @@ namespace ShopDienTu.Controllers
                 await tx.RollbackAsync();
                 _logger.LogError(ex, "Lỗi khi đặt hàng!");
                 ModelState.AddModelError("", ex.Message);
-                ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync();
+                await LoadCheckoutViewBagData();
                 return RedirectToAction("Checkout", "Cart");
             }
 
-            // Xóa giỏ hàng sau khi đặt hàng thành công bằng service
             await _shoppingCartService.ClearCartAsync(User, HttpContext.Session);
-            TempData["TrackOrderId"] = order.OrderID; // Lưu ID đơn hàng để người dùng có thể xem lại ngay
-            TempData["SuccessMessage"] = $"Đơn hàng {order.OrderNumber} của bạn đã được đặt thành công!"; // Thông báo thành công
+            TempData["TrackOrderId"] = order.OrderID;
+            TempData["SuccessMessage"] = $"Đơn hàng {order.OrderNumber} của bạn đã được đặt thành công!";
             return RedirectToAction("OrderConfirmation", new { id = order.OrderID });
+        }
+
+        // Helper method to load ViewBag data for checkout
+        private async Task LoadCheckoutViewBagData()
+        {
+            ViewBag.PaymentMethods = await _context.PaymentMethods
+                .Where(pm => pm.IsActive)
+                .ToListAsync();
+
+            if (User.Identity.IsAuthenticated)
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                ViewBag.CurrentUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.UserID == userId);
+
+                ViewBag.DefaultUserAddress = await _context.UserAddresses
+                    .Where(ua => ua.UserID == userId && ua.IsDefault)
+                    .Include(ua => ua.Province)
+                    .Include(ua => ua.District)
+                    .Include(ua => ua.Ward)
+                    .FirstOrDefaultAsync();
+
+                // If no default address, get the first address
+                if (ViewBag.DefaultUserAddress == null)
+                {
+                    ViewBag.DefaultUserAddress = await _context.UserAddresses
+                        .Where(ua => ua.UserID == userId)
+                        .Include(ua => ua.Province)
+                        .Include(ua => ua.District)
+                        .Include(ua => ua.Ward)
+                        .OrderByDescending(ua => ua.UserAddressID)
+                        .FirstOrDefaultAsync();
+                }
+
+                ViewBag.Provinces = await _context.Provinces
+                    .OrderBy(p => p.ProvinceName)
+                    .ToListAsync();
+            }
         }
 
         [HttpPost]
@@ -393,7 +395,6 @@ namespace ShopDienTu.Controllers
         {
             var now = DateTime.Now;
 
-            // Lấy khuyến mãi toàn hệ thống (ProductID == null) đang active
             var promo = await _context.Promotions
                 .Where(p => p.IsActive
                             && p.ProductID == null
@@ -410,7 +411,6 @@ namespace ShopDienTu.Controllers
                 return Json(new { success = false, error = "Đơn hàng phải từ 20.000.000 VNĐ trở lên để sử dụng voucher." });
             }
 
-            // ở đây cứng là 1.000.000 nhưng bạn có thể dùng promo.DiscountAmount nếu lưu trong DB
             return Json(new { success = true, code = promo.PromoCode, discount = 1000000 });
         }
 
@@ -429,12 +429,10 @@ namespace ShopDienTu.Controllers
 
             if (order == null) return NotFound();
 
-            // Kiểm tra quyền truy cập tương tự OrderDetails nếu bạn muốn chỉ người vừa đặt/login mới xem được
             if (!User.Identity.IsAuthenticated)
             {
                 if (!TempData.ContainsKey("TrackOrderId") || (int)TempData["TrackOrderId"] != id)
                 {
-                    // Hoặc kiểm tra session guest info nếu cần
                     var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{id}");
                     if (string.IsNullOrEmpty(guestInfoJson))
                     {
@@ -444,8 +442,6 @@ namespace ShopDienTu.Controllers
                 }
             }
 
-
-            // Nếu đơn hàng không có UserID, lấy thông tin khách vãng lai từ session
             if (order.UserID == null)
             {
                 var guestInfoJson = HttpContext.Session.GetString($"{GuestInfoSessionKey}_{order.OrderID}");
@@ -477,7 +473,6 @@ namespace ShopDienTu.Controllers
                     return NotFound();
                 }
 
-                // Kiểm tra quyền truy cập
                 if (User.Identity.IsAuthenticated)
                 {
                     var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -488,14 +483,12 @@ namespace ShopDienTu.Controllers
                 }
                 else
                 {
-                    // Nếu không đăng nhập, chỉ cho phép hủy đơn hàng vừa đặt
                     if (!TempData.ContainsKey("TrackOrderId") || (int)TempData["TrackOrderId"] != id)
                     {
                         return RedirectToAction("TrackOrder");
                     }
                 }
 
-                // Chỉ cho phép hủy đơn hàng ở trạng thái "Chờ xác nhận"
                 if (order.OrderStatus != "Chờ xác nhận")
                 {
                     TempData["ErrorMessage"] = "Không thể hủy đơn hàng ở trạng thái hiện tại.";
@@ -525,7 +518,6 @@ namespace ShopDienTu.Controllers
                     return NotFound();
                 }
 
-                // Kiểm tra quyền truy cập
                 if (User.Identity.IsAuthenticated)
                 {
                     var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -536,25 +528,21 @@ namespace ShopDienTu.Controllers
                 }
                 else
                 {
-                    // Nếu không đăng nhập, chỉ cho phép hủy đơn hàng vừa đặt
                     if (!TempData.ContainsKey("TrackOrderId") || (int)TempData["TrackOrderId"] != id)
                     {
                         return RedirectToAction("TrackOrder");
                     }
                 }
 
-                // Chỉ cho phép hủy đơn hàng ở trạng thái "Chờ xác nhận"
                 if (order.OrderStatus != "Chờ xác nhận")
                 {
                     TempData["ErrorMessage"] = "Không thể hủy đơn hàng ở trạng thái hiện tại.";
                     return RedirectToAction("OrderDetails", new { id = order.OrderID });
                 }
 
-                // Cập nhật trạng thái đơn hàng
                 order.OrderStatus = "Đã hủy";
                 order.UpdatedAt = DateTime.Now;
 
-                // Thêm trạng thái đơn hàng mới
                 var orderStatus = new OrderStatus
                 {
                     OrderID = order.OrderID,
@@ -577,17 +565,14 @@ namespace ShopDienTu.Controllers
             }
         }
 
-        // Phương thức tạo mã đơn hàng
         private string GenerateOrderNumber()
         {
-            // Tạo mã đơn hàng theo định dạng: ORD + năm + tháng + ngày + 6 số ngẫu nhiên
             var random = new Random();
             var now = DateTime.Now;
             return $"ORD{now:yyMMdd}{random.Next(100000, 999999)}";
         }
     }
 
-    // Lớp để lưu thông tin khách vãng lai
     public class GuestOrderInfo
     {
         public string FullName { get; set; }

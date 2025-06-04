@@ -41,9 +41,6 @@
                         <a asp-controller="Account" asp-action="ChangePassword" class="list-group-item list-group-item-action">
                             <i class="fas fa-lock me-2"></i> Đổi mật khẩu
                         </a>
-                        <a asp-controller="Account" asp-action="Addresses" class="list-group-item list-group-item-action">
-                            <i class="fas fa-map-marker-alt me-2"></i> Sổ địa chỉ
-                        </a>
                         <a asp-controller="Account" asp-action="Wishlist" class="list-group-item list-group-item-action">
                             <i class="fas fa-heart me-2"></i> Sản phẩm yêu thích
                         </a>
@@ -106,12 +103,6 @@
                                 <input asp-for="Phone" class="form-control" />
                                 <span asp-validation-for="Phone" class="text-danger"></span>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label asp-for="Address" class="form-label">Địa chỉ</label>
-                            <textarea asp-for="Address" class="form-control" rows="3"></textarea>
-                            <span asp-validation-for="Address" class="text-danger"></span>
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end">

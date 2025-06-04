@@ -103,21 +103,53 @@ namespace ElectronicsShop.Controllers
 
             ViewBag.PaymentMethods = paymentMethods;
 
-            List<UserAddress> userAddresses = new List<UserAddress>();
             if (User.Identity.IsAuthenticated)
             {
                 // Lấy ID người dùng hiện tại
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (int.TryParse(userIdString, out int userId)) // Sử dụng TryParse để an toàn hơn
+                if (int.TryParse(userIdString, out int userId))
                 {
-                    // Lấy danh sách địa chỉ của người dùng
-                    userAddresses = await _context.UserAddresses
-                                                    .Where(ua => ua.UserID == userId)
-                                                    .OrderByDescending(ua => ua.IsDefault) // Ưu tiên địa chỉ mặc định
-                                                    .ToListAsync();
+                    // Lấy thông tin người dùng hiện tại
+                    var currentUser = await _context.Users
+                        .FirstOrDefaultAsync(u => u.UserID == userId);
+                    ViewBag.CurrentUser = currentUser;
+
+                    // Lấy địa chỉ mặc định của người dùng với dữ liệu địa lý liên quan
+                    var defaultAddress = await _context.UserAddresses
+                        .Where(ua => ua.UserID == userId && ua.IsDefault)
+                        .Include(ua => ua.Province)
+                        .Include(ua => ua.District)
+                        .Include(ua => ua.Ward)
+                        .FirstOrDefaultAsync();
+
+                    // Nếu không có địa chỉ mặc định, lấy địa chỉ đầu tiên
+                    if (defaultAddress == null)
+                    {
+                        defaultAddress = await _context.UserAddresses
+                            .Where(ua => ua.UserID == userId)
+                            .Include(ua => ua.Province)
+                            .Include(ua => ua.District)
+                            .Include(ua => ua.Ward)
+                            .OrderByDescending(ua => ua.UserAddressID)
+                            .FirstOrDefaultAsync();
+                    }
+
+                    ViewBag.DefaultUserAddress = defaultAddress;
+
+                    // Lấy tất cả địa chỉ của người dùng
+                    var userAddresses = await _context.UserAddresses
+                        .Where(ua => ua.UserID == userId)
+                        .OrderByDescending(ua => ua.IsDefault)
+                        .ThenByDescending(ua => ua.UserAddressID)
+                        .ToListAsync();
+                    ViewBag.UserAddresses = userAddresses;
+
+                    // Lấy danh sách tỉnh/thành phố cho việc chọn địa chỉ
+                    ViewBag.Provinces = await _context.Provinces
+                        .OrderBy(p => p.ProvinceName)
+                        .ToListAsync();
                 }
             }
-            ViewBag.UserAddresses = userAddresses;
 
             return View(cart);
         }
