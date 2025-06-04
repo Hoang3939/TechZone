@@ -1,6 +1,8 @@
 ﻿@model ShopDienTu.Models.ShoppingCart
 @{
     ViewData["Title"] = "Thanh toán";
+    var currentUser = ViewBag.CurrentUser as User;
+    var defaultAddress = ViewBag.DefaultUserAddress as UserAddress;
 }
 
 <div class="container">
@@ -19,44 +21,41 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="fullName" class="form-label">Họ tên</label>
-                                <input type="text" class="form-control" id="fullName" name="fullName" required 
-                                value="@(User.Identity.IsAuthenticated ? User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value : "")">
+                                <input type="text" class="form-control" id="fullName" name="fullName" required
+                                       value="@(currentUser != null ? currentUser.FullName : "")">
                             </div>
                             <div class="col-md-6">
                                 <label for="phone" class="form-label">Số điện thoại</label>
-                                <input type="tel" class="form-control" id="phone" name="phone" required>
+                                <input type="tel" class="form-control" id="phone" name="phone" required
+                                       value="@(defaultAddress != null ? defaultAddress.PhoneNumber : "")">
                             </div>
                             <div class="col-12">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="email" required
-                                value="@(User.Identity.IsAuthenticated ? User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value : "")">
+                                       value="@(currentUser != null ? currentUser.Email : "")">
                             </div>
+
                             <div class="col-12">
-                                <label for="address" class="form-label">Địa chỉ</label>
-                                <input type="text" class="form-control" id="address" name="address" required>
+                                <label for="displayAddress" class="form-label">Địa chỉ giao hàng</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="displayAddress"
+                                           placeholder="Chọn địa chỉ giao hàng của bạn" readonly required
+                                           value="@(defaultAddress != null ? defaultAddress.FullAddressDisplay : "")">
+                                    <button type="button" class="btn btn-outline-secondary" id="selectAddressBtn">
+                                        <i class="fas fa-map-marker-alt me-2"></i>Chọn địa chỉ
+                                    </button>
+                                </div>
+                                <span class="text-danger" id="addressValidationError" style="display: none;">Vui lòng chọn địa chỉ giao hàng.</span>
                             </div>
-                            <div class="col-md-4">
-                                <label for="province" class="form-label">Tỉnh/Thành phố</label>
-                                <select class="form-select" id="province" name="province" required>
-                                    <option value="">Chọn tỉnh/thành phố</option>
-                                    <option value="Hà Nội">Hà Nội</option>
-                                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                                    <option value="Đà Nẵng">Đà Nẵng</option>
-                                    <!-- Add more provinces here -->
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="district" class="form-label">Quận/Huyện</label>
-                                <select class="form-select" id="district" name="district" required>
-                                    <option value="">Chọn quận/huyện</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label for="ward" class="form-label">Phường/Xã</label>
-                                <select class="form-select" id="ward" name="ward" required>
-                                    <option value="">Chọn phường/xã</option>
-                                </select>
-                            </div>
+
+                            <input type="hidden" id="hiddenAddress" name="address"
+                                   value="@(defaultAddress != null ? defaultAddress.Address : "")" />
+                            <input type="hidden" id="hiddenProvinceId" name="provinceId"
+                                   value="@(defaultAddress != null ? defaultAddress.ProvinceID.ToString() : "")" />
+                            <input type="hidden" id="hiddenDistrictId" name="districtId"
+                                   value="@(defaultAddress != null ? defaultAddress.DistrictID.ToString() : "")" />
+                            <input type="hidden" id="hiddenWardId" name="wardId"
+                                   value="@(defaultAddress != null ? defaultAddress.WardID.ToString() : "")" />
                         </div>
 
                         <div class="mb-3">
@@ -153,91 +152,74 @@
 
 @section Scripts {
     <script>
+        const SELECTED_ADDRESS_LS_KEY = 'SelectedUserAddress';
         document.addEventListener('DOMContentLoaded', function() {
-            // Sample data for districts and wards - in a real app, this would come from an API
-            const locationData = {
-                'Hà Nội': {
-                    districts: ['Ba Đình', 'Hoàn Kiếm', 'Hai Bà Trưng', 'Đống Đa', 'Cầu Giấy'],
-                    wards: {
-                        'Ba Đình': ['Phúc Xá', 'Trúc Bạch', 'Vĩnh Phúc', 'Cống Vị', 'Liễu Giai'],
-                        'Hoàn Kiếm': ['Hàng Bạc', 'Hàng Bồ', 'Hàng Đào', 'Hàng Gai', 'Cửa Đông'],
-                        'Hai Bà Trưng': ['Nguyễn Du', 'Bách Khoa', 'Phạm Đình Hổ', 'Bạch Mai', 'Thanh Nhàn'],
-                        'Đống Đa': ['Cát Linh', 'Văn Miếu', 'Quốc Tử Giám', 'Láng Thượng', 'Ô Chợ Dừa'],
-                        'Cầu Giấy': ['Nghĩa Đô', 'Nghĩa Tân', 'Mai Dịch', 'Dịch Vọng', 'Quan Hoa']
-                    }
-                },
-                'TP. Hồ Chí Minh': {
-                    districts: ['Quận 1', 'Quận 2', 'Quận 3', 'Quận 4', 'Quận 5'],
-                    wards: {
-                        'Quận 1': ['Bến Nghé', 'Bến Thành', 'Cầu Kho', 'Cầu Ông Lãnh', 'Đa Kao'],
-                        'Quận 2': ['An Khánh', 'An Lợi Đông', 'An Phú', 'Bình An', 'Bình Khánh'],
-                        'Quận 3': ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5'],
-                        'Quận 4': ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5'],
-                        'Quận 5': ['Phường 1', 'Phường 2', 'Phường 3', 'Phường 4', 'Phường 5']
-                    }
-                },
-                'Đà Nẵng': {
-                    districts: ['Hải Châu', 'Thanh Khê', 'Sơn Trà', 'Ngũ Hành Sơn', 'Liên Chiểu'],
-                    wards: {
-                        'Hải Châu': ['Hải Châu 1', 'Hải Châu 2', 'Thạch Thang', 'Thanh Bình', 'Thuận Phước'],
-                        'Thanh Khê': ['An Khê', 'Chính Gián', 'Hòa Khê', 'Tam Thuận', 'Tân Chính'],
-                        'Sơn Trà': ['An Hải Bắc', 'An Hải Đông', 'An Hải Tây', 'Mân Thái', 'Nại Hiên Đông'],
-                        'Ngũ Hành Sơn': ['Hòa Hải', 'Hòa Quý', 'Khuê Mỹ', 'Mỹ An', 'Mỹ Đa'],
-                        'Liên Chiểu': ['Hòa Hiệp Bắc', 'Hòa Hiệp Nam', 'Hòa Khánh Bắc', 'Hòa Khánh Nam', 'Hòa Minh']
-                    }
-                }
-            };
-
-            const provinceSelect = document.getElementById('province');
-            const districtSelect = document.getElementById('district');
-            const wardSelect = document.getElementById('ward');
-
-            // Update districts when province changes
-            provinceSelect.addEventListener('change', function() {
-                const selectedProvince = this.value;
-                districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
-                wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-
-                if (selectedProvince && locationData[selectedProvince]) {
-                    locationData[selectedProvince].districts.forEach(district => {
-                        const option = document.createElement('option');
-                        option.value = district;
-                        option.textContent = district;
-                        districtSelect.appendChild(option);
-                    });
-                }
-            });
-
-            // Update wards when district changes
-            districtSelect.addEventListener('change', function() {
-                const selectedProvince = provinceSelect.value;
-                const selectedDistrict = this.value;
-                wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-
-                if (selectedProvince && selectedDistrict && 
-                    locationData[selectedProvince] && 
-                    locationData[selectedProvince].wards[selectedDistrict]) {
-                    locationData[selectedProvince].wards[selectedDistrict].forEach(ward => {
-                        const option = document.createElement('option');
-                        option.value = ward;
-                        option.textContent = ward;
-                        wardSelect.appendChild(option);
-                    });
-                }
-            });
-
-            // Lấy các element cần thiết
-            const form          = document.getElementById('checkoutForm');
-            const applyBtn      = document.getElementById('applyVoucherBtn');
-            const placeBtn      = document.getElementById('placeOrderBtn');
-            const codeInput     = document.getElementById('PromoCode');
-            const errorEl       = document.getElementById('promoError');
-            const voucherRow    = document.getElementById('voucherRow');
+            // Các elements cần thiết
+            const displayAddressInput = document.getElementById('displayAddress');
+            const selectAddressBtn = document.getElementById('selectAddressBtn');
+            const hiddenAddressInput = document.getElementById('hiddenAddress');
+            const phoneInput = document.getElementById('phone');
+            const hiddenProvinceIdInput = document.getElementById('hiddenProvinceId');
+            const hiddenDistrictIdInput = document.getElementById('hiddenDistrictId');
+            const hiddenWardIdInput = document.getElementById('hiddenWardId');
+            const addressValidationError = document.getElementById('addressValidationError');
+            // Các elements cho Voucher (giữ nguyên)
+            const form = document.getElementById('checkoutForm');
+            const applyBtn = document.getElementById('applyVoucherBtn');
+            const placeBtn = document.getElementById('placeOrderBtn');
+            const codeInput = document.getElementById('PromoCode');
+            const errorEl = document.getElementById('promoError');
+            const voucherRow = document.getElementById('voucherRow');
             const appliedCodeEl = document.getElementById('appliedPromoCode');
-            const discountEl    = document.getElementById('discountAmount');
-            const subtotalEl    = document.getElementById('subtotal');
-            const finalTotalEl  = document.getElementById('finalTotal');
-            const token         = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const discountEl = document.getElementById('discountAmount');
+            const subtotalEl = document.getElementById('subtotal');
+            const finalTotalEl = document.getElementById('finalTotal');
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            // Xử lý nút "Chọn địa chỉ"
+            if (selectAddressBtn) {
+                selectAddressBtn.addEventListener('click', function() {
+                    window.open('@Url.Action("Index", "Address", new { selectMode = true })', '_blank');
+                });
+            }
+
+            // Hàm để điền thông tin địa chỉ vào các trường
+            function populateAddressFields(addressData) {
+                if (addressData) {
+                    displayAddressInput.value = addressData.fullAddressDisplay;
+                    hiddenAddressInput.value = addressData.address;
+                    phoneInput.value = addressData.phoneNumber;
+                    hiddenProvinceIdInput.value = addressData.provinceID;
+                    hiddenDistrictIdInput.value = addressData.districtID;
+                    hiddenWardIdInput.value = addressData.wardID;
+                    addressValidationError.style.display = 'none';
+                } else {
+                    displayAddressInput.value = '';
+                    hiddenAddressInput.value = '';
+                    phoneInput.value = '';
+                    hiddenProvinceIdInput.value = '';
+                    hiddenDistrictIdInput.value = '';
+                    hiddenWardIdInput.value = '';
+                    addressValidationError.style.display = 'block';
+                }
+            }
+
+            // Kiểm tra localStorage khi trang tải và khi có sự kiện focus lại tab
+            function checkAndPopulateAddress() {
+                const storedAddress = localStorage.getItem(SELECTED_ADDRESS_LS_KEY);
+                if (storedAddress) {
+                    const addressData = JSON.parse(storedAddress);
+                    populateAddressFields(addressData);
+                    localStorage.removeItem(SELECTED_ADDRESS_LS_KEY);
+                } else if (!displayAddressInput.value) {
+                    // Nếu không có địa chỉ mặc định từ server và chưa chọn địa chỉ nào
+                    addressValidationError.style.display = 'block';
+                }
+            }
+
+            // Lắng nghe sự kiện focus của cửa sổ để kiểm tra địa chỉ khi người dùng quay lại tab checkout
+            window.addEventListener('focus', checkAndPopulateAddress);
+            checkAndPopulateAddress();
 
             // 3) Hàm chung để áp voucher (AJAX)
             async function tryApplyVoucher() {
@@ -281,21 +263,33 @@
                 tryApplyVoucher();
             });
 
+            codeInput.addEventListener('input', function() {
+                if (!this.value.trim()) {
+                    tryApplyVoucher();
+                }
+            });
+
             // 5) Gắn listener cho “Đặt hàng”
             placeBtn.addEventListener('click', async function() {
+                if (!displayAddressInput.value || !hiddenAddressInput.value || !hiddenProvinceIdInput.value || !hiddenDistrictIdInput.value || !hiddenWardIdInput.value) {
+                    addressValidationError.style.display = 'block';
+                    displayAddressInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                } else {
+                    addressValidationError.style.display = 'none';
+                }
                 // HTML5 validation
                 if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
+                    form.reportValidity();
+                    return;
                 }
                 // Nếu đã nhập mã mà chưa apply
                 if (codeInput.value.trim() && voucherRow.classList.contains('d-none')) {
-                const ok = await tryApplyVoucher();
-                if (!ok) return;    // lỗi đã show
-                // nếu apply thành công, chờ người dùng click lại để submit
-                return;
+                    const ok = await tryApplyVoucher();
+                    if (!ok) return;
+                    alert('Mã giảm giá đã được áp dụng. Vui lòng nhấn "Đặt hàng" một lần nữa để hoàn tất.');
+                    return;
                 }
-                // submit form
                 form.submit();
             });
         });

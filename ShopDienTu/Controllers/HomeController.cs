@@ -22,94 +22,131 @@ namespace ShopDienTu.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTerm, int? categoryId = null, int? subcategoryId = null, string sortOrder = null, int? page = 1, int? pageSize = 10)
+        public async Task<IActionResult> Index(string searchTerm, int? categoryId = null, int? subcategoryId = null, string sortOrder = null, int? page = 1, int? pageSize = 10, decimal? minPrice = null, decimal? maxPrice = null)
         {
             var now = DateTime.Now;
+
+            // L?y t?t c? các khuy?n mãi ?ang ho?t ??ng (nh? ban ??u, ?? hi?n th? chung n?u c?n)
             var activePromotions = await _context.Promotions
                 .Where(p => p.IsActive && p.ProductID != null && p.StartDate <= now && p.EndDate >= now)
-                .ToListAsync(); // L?y t?t c? active promotions (có th? t?i ?u h?n)
-            ViewBag.ActivePromotions = activePromotions;
+                .ToListAsync();
+            ViewBag.ActivePromotions = activePromotions; // Gi? l?i ViewBag này
 
+            // L?y chi?t kh?u rank c?a ng??i dùng hi?n t?i
             decimal rankDiscountPercentage = 0m;
             if (User.Identity.IsAuthenticated)
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                var user = await _context.Users
-                    .Include(u => u.Rank) // ??m b?o include Rank ?? l?y DiscountPercentage
-                    .FirstOrDefaultAsync(u => u.UserID == userId);
-
-                if (user != null && user.Rank != null)
+                var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(userIdClaim, out int userId))
                 {
-                    rankDiscountPercentage = user.Rank.DiscountPercentage;
+                    var user = await _context.Users
+                        .Include(u => u.Rank)
+                        .FirstOrDefaultAsync(u => u.UserID == userId);
+
+                    if (user != null && user.Rank != null)
+                    {
+                        rankDiscountPercentage = user.Rank.DiscountPercentage;
+                    }
                 }
             }
-            ViewBag.RankDiscountPercentage = rankDiscountPercentage; // Truy?n vào ViewBag
+            ViewBag.RankDiscountPercentage = rankDiscountPercentage; 
 
-            // Get all categories with subcategories for the sidebar
+            // L?y t?t c? danh m?c và danh m?c con cho sidebar
             var categories = await _context.Categories
                 .Include(c => c.SubCategories)
                 .ToListAsync();
-            ViewBag.Categories = categories;
+            ViewBag.Categories = categories; // Gi? l?i ViewBag này
 
-            // Get featured products
-            IQueryable<Product> productsQuery = _context.Products
+            // B?t ??u truy v?n s?n ph?m
+            // S? d?ng m?t ki?u ?n danh ?? ch?a Product và EffectivePrice ?ã tính toán
+            var productsQueryWithCalculatedPrice = _context.Products
                 .Include(p => p.SubCategory)
-                .ThenInclude(s => s.Category)
+                    .ThenInclude(s => s.Category)
                 .Include(p => p.ProductImages)
-                .AsSplitQuery() // V?n nên dùng AsSplitQuery n?u có nhi?u Include collection
-                .Where(p => p.IsActive);
+                .AsSplitQuery()
+                .Where(p => p.IsActive)
+                .Select(p => new
+                {
+                    Product = p,
+                    BestPromotion = _context.Promotions
+                        .Where(promo => promo.ProductID == p.ProductID &&
+                                        promo.IsActive &&
+                                        promo.StartDate <= now &&
+                                        promo.EndDate >= now)
+                        .OrderByDescending(promo => promo.DiscountPercentage) // Ch? s?p x?p theo DiscountPercentage
+                        .FirstOrDefault()
+                })
+                .AsQueryable(); // Gi? l?i là IQueryable ?? ti?p t?c l?c trên database
+
+            // Tính toán EffectivePrice ch? d?a vào DiscountPercentage (vì Promotion model không có FixedDiscountAmount)
+            var finalProductsQuery = productsQueryWithCalculatedPrice.Select(x => new
+            {
+                Product = x.Product,
+                EffectivePrice = (x.Product.Price - (x.BestPromotion != null ? x.Product.Price * (x.BestPromotion.DiscountPercentage / 100M)  : 0m)) * (1 - rankDiscountPercentage / 100m)
+            }).AsQueryable();
 
             // L?c theo t? khóa tìm ki?m
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                productsQuery = productsQuery.Where(p =>
-                    p.ProductName.ToLower().Contains(searchTerm.ToLower()) ||
-                    (p.Description != null && p.Description.ToLower().Contains(searchTerm.ToLower())));
-                ViewBag.SearchTerm = searchTerm;
+                finalProductsQuery = finalProductsQuery.Where(x =>
+                    x.Product.ProductName.ToLower().Contains(searchTerm.ToLower()) ||
+                    (x.Product.Description != null && x.Product.Description.ToLower().Contains(searchTerm.ToLower())));
+                ViewBag.SearchTerm = searchTerm; 
             }
             else
             {
-                productsQuery = productsQuery.OrderByDescending(p => p.CreatedAt);
+                finalProductsQuery = finalProductsQuery.OrderByDescending(x => x.Product.CreatedAt);
             }
 
-            // Filter by category if specified
+            
             if (categoryId.HasValue)
             {
-                productsQuery = productsQuery.Where(p => p.SubCategory.CategoryID == categoryId.Value);
-                ViewBag.SelectedCategoryId = categoryId.Value;
+                finalProductsQuery = finalProductsQuery.Where(x => x.Product.SubCategory.CategoryID == categoryId.Value);
+                ViewBag.SelectedCategoryId = categoryId.Value; 
             }
 
-            // Filter by subcategory if specified
             if (subcategoryId.HasValue)
             {
-                productsQuery = productsQuery.Where(p => p.SubCategoryID == subcategoryId.Value);
+                finalProductsQuery = finalProductsQuery.Where(x => x.Product.SubCategoryID == subcategoryId.Value);
                 ViewBag.SelectedSubcategoryId = subcategoryId.Value;
             }
 
-            // Apply sorting
+            if (minPrice.HasValue)
+            {
+                finalProductsQuery = finalProductsQuery.Where(x => x.EffectivePrice >= minPrice.Value);
+            }
+            if (maxPrice.HasValue)
+            {
+                finalProductsQuery = finalProductsQuery.Where(x => x.EffectivePrice <= maxPrice.Value);
+            }
+
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+
+            // Áp d?ng s?p x?p
             switch (sortOrder)
             {
                 case "price_asc":
-                    productsQuery = productsQuery.OrderBy(p => p.Price);
+                    finalProductsQuery = finalProductsQuery.OrderBy(x => x.EffectivePrice);
                     break;
                 case "price_desc":
-                    productsQuery = productsQuery.OrderByDescending(p => p.Price);
+                    finalProductsQuery = finalProductsQuery.OrderByDescending(x => x.EffectivePrice);
                     break;
                 case "newest":
-                    productsQuery = productsQuery.OrderByDescending(p => p.CreatedAt);
+                    finalProductsQuery = finalProductsQuery.OrderByDescending(x => x.Product.CreatedAt);
                     break;
                 default:
-                    productsQuery = productsQuery.OrderByDescending(p => p.CreatedAt);
+                    finalProductsQuery = finalProductsQuery.OrderByDescending(x => x.Product.CreatedAt);
                     break;
             }
 
             ViewBag.CurrentSort = sortOrder;
 
-            int currentPage = page ?? 1; // Trang hi?n t?i, m?c ??nh là 1
-            int itemsPerPage = pageSize ?? 10; // S? s?n ph?m trên m?i trang, m?c ??nh là 9
+            int currentPage = page ?? 1;
+            int itemsPerPage = pageSize ?? 10;
 
-            int totalItems = await productsQuery.CountAsync(); // T?ng s? s?n ph?m (tr??c khi phân trang)
-            ViewBag.TotalItems = totalItems;
+            int totalItems = await finalProductsQuery.CountAsync(); 
+            ViewBag.TotalItems = totalItems; 
 
             int totalPages = (int)Math.Ceiling((double)totalItems / itemsPerPage);
             ViewBag.TotalPages = totalPages;
@@ -117,9 +154,11 @@ namespace ShopDienTu.Controllers
             ViewBag.PageSize = itemsPerPage;
 
             // Áp d?ng Skip và Take ?? l?y s?n ph?m cho trang hi?n t?i
-            var products = await productsQuery
+            // Cu?i cùng, ch?n l?i ch? Product ?? truy?n v? View
+            var products = await finalProductsQuery
                                 .Skip((currentPage - 1) * itemsPerPage)
                                 .Take(itemsPerPage)
+                                .Select(x => x.Product) // Ch? l?y ??i t??ng Product ?? truy?n v? View
                                 .ToListAsync();
 
             return View(products);

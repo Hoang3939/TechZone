@@ -103,6 +103,22 @@ namespace ElectronicsShop.Controllers
 
             ViewBag.PaymentMethods = paymentMethods;
 
+            List<UserAddress> userAddresses = new List<UserAddress>();
+            if (User.Identity.IsAuthenticated)
+            {
+                // Lấy ID người dùng hiện tại
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (int.TryParse(userIdString, out int userId)) // Sử dụng TryParse để an toàn hơn
+                {
+                    // Lấy danh sách địa chỉ của người dùng
+                    userAddresses = await _context.UserAddresses
+                                                    .Where(ua => ua.UserID == userId)
+                                                    .OrderByDescending(ua => ua.IsDefault) // Ưu tiên địa chỉ mặc định
+                                                    .ToListAsync();
+                }
+            }
+            ViewBag.UserAddresses = userAddresses;
+
             return View(cart);
         }
     }

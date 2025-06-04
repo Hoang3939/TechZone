@@ -27,6 +27,9 @@ namespace ShopDienTu.Data
         public DbSet<UserAddress> UserAddresses { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<District> Districts { get; set; }
+        public DbSet<Province> Provinces { get; set; }
+        public DbSet<Ward> Wards { get; set; }
 
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)

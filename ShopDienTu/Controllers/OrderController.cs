@@ -184,7 +184,7 @@ namespace ShopDienTu.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PlaceOrder(string fullName, string email, string phone, string address,
-            string province, string district, string ward, int paymentMethodId, string? notes, string? promoCode)
+            int provinceId, int districtId, int wardId, int paymentMethodId, string? notes, string? promoCode)
         {
             var cart = await _shoppingCartService.GetCartAsync(User, HttpContext.Session);
             if (cart.Items.Count == 0)
@@ -225,6 +225,19 @@ namespace ShopDienTu.Controllers
                     ModelState.AddModelError("", $"Sản phẩm '{product.ProductName}' chỉ còn lại {product.StockQuantity} sản phẩm trong kho.");
                     // Need to return to checkout with error
                     ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync(); // Ensure these are reloaded
+
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                        ViewBag.CurrentUser = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+                        ViewBag.DefaultUserAddress = await _context.UserAddresses
+                                                                    .Where(ua => ua.UserID == userId && ua.IsDefault)
+                                                                    .Include(ua => ua.Province)
+                                                                    .Include(ua => ua.District)
+                                                                    .Include(ua => ua.Ward)
+                                                                    .FirstOrDefaultAsync();
+                    }
+
                     return View("~/Views/Cart/Checkout.cshtml", cart);
                 }
 
@@ -259,16 +272,31 @@ namespace ShopDienTu.Controllers
 
             if (!ModelState.IsValid)
             {
-                // Phải load lại danh sách phương thức thanh toán cho view
                 ViewBag.PaymentMethods = await _context.PaymentMethods.ToListAsync();
-                return View("~/Views/Cart/Checkout.cshtml", cart);
+                // Nếu lỗi, cần pre-fill lại thông tin user và địa chỉ mặc định nếu có
+                if (User.Identity.IsAuthenticated)
+                {
+                    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                    ViewBag.CurrentUser = await _context.Users.FirstOrDefaultAsync(u => u.UserID == userId);
+                    ViewBag.DefaultUserAddress = await _context.UserAddresses
+                                                                .Where(ua => ua.UserID == userId && ua.IsDefault)
+                                                                .Include(ua => ua.Province)
+                                                                .Include(ua => ua.District)
+                                                                .Include(ua => ua.Ward)
+                                                                .FirstOrDefaultAsync();
+                }
+                return View("~/Views/Order/Checkout.cshtml", cart); // Use Order/Checkout
             }
+
+            var provinceName = (await _context.Provinces.FindAsync(provinceId))?.ProvinceName ?? "";
+            var districtName = (await _context.Districts.FindAsync(districtId))?.DistrictName ?? "";
+            var wardName = (await _context.Wards.FindAsync(wardId))?.WardName ?? "";
 
             // Tạo đơn hàng mới
             var order = new Order
             {
                 OrderNumber = GenerateOrderNumber(),
-                ShippingAddress = $"{address}, {ward}, {district}, {province}",
+                ShippingAddress = $"{address}, {wardName}, {districtName}, {provinceName}",
                 PaymentMethodID = paymentMethodId,
                 Notes = notes,
                 CreatedAt = now,
