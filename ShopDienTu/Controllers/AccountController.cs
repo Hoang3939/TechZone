@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using ShopDienTu.Models;
 using System.ComponentModel.DataAnnotations;
 using ShopDienTu.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShopDienTu.Controllers
 {
@@ -458,6 +459,26 @@ namespace ShopDienTu.Controllers
             var hashedInput = HashPassword(password);
             return hashedInput == hashedPassword;
         }
+
+        [Authorize]
+        public async Task<IActionResult> Wishlist()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var wishlist = await _context.WishLists
+                .Where(w => w.UserID == userId)
+                .Include(w => w.Product)
+                    .ThenInclude(p => p.ProductImages)
+                .ToListAsync();
+
+            return View(wishlist);
+        }
+
     }
 
     // View Models

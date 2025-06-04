@@ -109,11 +109,25 @@
                             <button type="submit" class="btn btn-primary btn-lg me-2" @(Model.StockQuantity <= 0 ? "disabled" : "")>
                                 <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
                             </button>
-                            <a href="#" class="btn btn-outline-danger btn-lg">
-                                <i class="fas fa-heart me-2"></i>Yêu thích
-                            </a>
+                            
                         </div>
                     </form>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var isFavorite = ViewBag.IsFavorite as bool? ?? false;
+                        <form id="wishlistForm" method="post" action="/WishList/Add">
+                            <input type="hidden" name="productId" value="@Model.ProductID" />
+                            <button type="submit" id="wishlistButton" class="btn btn-lg @(isFavorite ? "btn-danger" : "btn-outline-danger")">
+                                <i class="fas fa-heart me-2"></i> Yêu thích
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <a href="/Account/Login" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-heart me-2"></i> Yêu thích
+                        </a>
+                    }
                 </div>
             </div>
         </div>
@@ -297,12 +311,12 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
 
             const mainProductImage = document.getElementById('mainProductImage');
             const thumbnailItems = document.querySelectorAll('.thumbnail-item'); // Select the div with thumbnail-item class
 
-                        if (mainProductImage && thumbnailItems.length > 0) {
+            if (mainProductImage && thumbnailItems.length > 0) {
                 // Function to update the main image and active thumbnail with fade effect
                 function showImage(selectedImgElement) {
                     // Start fade-out effect
@@ -325,7 +339,7 @@
                 thumbnailItems.forEach(item => {
                     const thumbnailImg = item.querySelector('img');
                     if (thumbnailImg) {
-                        item.addEventListener('click', function() {
+                        item.addEventListener('click', function () {
                             showImage(thumbnailImg); // Call showImage with the actual img element
                         });
                     }
@@ -336,11 +350,11 @@
             const ratingInputs = document.querySelectorAll('.rating-input input');
             const ratingLabels = document.querySelectorAll('.rating-input label');
 
-            ratingInputs.forEach(function(input) {
-                input.addEventListener('change', function() {
+            ratingInputs.forEach(function (input) {
+                input.addEventListener('change', function () {
                     // Update stars appearance when rating is selected
                     const rating = this.value;
-                    ratingLabels.forEach(function(label, i) {
+                    ratingLabels.forEach(function (label, i) {
                         const star = label.querySelector('i');
                         // Ngôi sao được tô màu từ phải sang trái (index i) nếu index >= 5-rating
                         if (i >= (5 - rating)) {
@@ -355,30 +369,30 @@
             });
 
             // Hover effect for rating stars
-            ratingLabels.forEach(function(label) {
-                label.addEventListener('mouseenter', function() {
+            ratingLabels.forEach(function (label) {
+                label.addEventListener('mouseenter', function () {
                     // Xác định vị trí của ngôi sao đang hover (từ 0 đến 4)
                     const position = 5 - parseInt(this.getAttribute('for').replace('star', ''));
 
                     // Tô màu các ngôi sao từ vị trí hover trở về sau (từ phải sang trái)
-                    ratingLabels.forEach(function(l, i) {
+                    ratingLabels.forEach(function (l, i) {
                         const star = l.querySelector('i');
                         if (i >= position) {
                             star.classList.remove('far');
                             star.classList.add('fas', 'text-warning');
                         } else {
-                             star.classList.remove('fas', 'text-warning');
-                             star.classList.add('far'); // Đảm bảo các sao trước đó rỗng
+                            star.classList.remove('fas', 'text-warning');
+                            star.classList.add('far'); // Đảm bảo các sao trước đó rỗng
                         }
                     });
                 });
 
-                label.addEventListener('mouseleave', function() {
+                label.addEventListener('mouseleave', function () {
                     const checkedInput = document.querySelector('.rating-input input:checked');
                     if (checkedInput) {
                         // Nếu đã có rating được chọn, khôi phục trạng thái đó
                         const rating = checkedInput.value;
-                        ratingLabels.forEach(function(l, i) {
+                        ratingLabels.forEach(function (l, i) {
                             const star = l.querySelector('i');
                             if (i >= (5 - rating)) {
                                 star.classList.remove('far');
@@ -390,7 +404,7 @@
                         });
                     } else {
                         // Nếu chưa có rating nào được chọn, reset tất cả sao về trạng thái rỗng
-                        ratingLabels.forEach(function(l) {
+                        ratingLabels.forEach(function (l) {
                             const star = l.querySelector('i');
                             star.classList.remove('fas', 'text-warning');
                             star.classList.add('far');

@@ -30,6 +30,7 @@ namespace ShopDienTu.Data
         public DbSet<District> Districts { get; set; }
         public DbSet<Province> Provinces { get; set; }
         public DbSet<Ward> Wards { get; set; }
+        public DbSet<WishList> WishLists { get; set; }
 
         // Không cấu hình gì trong OnModelCreating để tránh xung đột
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,0 +1,37 @@
+﻿@model IEnumerable<ShopDienTu.Models.WishList>
+@{
+    ViewData["Title"] = "Danh sách yêu thích";
+}
+
+<h2 class="mb-4">Danh sách sản phẩm yêu thích</h2>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Bạn chưa thêm sản phẩm nào vào danh sách yêu thích.
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var item in Model)
+        {
+            var product = item.Product;
+            var image = product?.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath ?? "/images/no-image.jpg";
+            <div class="col">
+                <div class="card h-100">
+                    <img src="/images/@image" class="card-img-top" alt="@product.ProductName" style="height: 220px; object-fit: contain;" />
+                    <div class="card-body">
+                        <h5 class="card-title">@product.ProductName</h5>
+                        <p class="card-text text-danger fw-bold">@string.Format("{0:N0}", product.Price) VNĐ</p>
+                        <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID" class="btn btn-sm btn-primary">Xem chi tiết</a>
+                        <form asp-controller="WishList" asp-action="DeleteById" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="wishlistItemId" value="@item.WishlistItemID" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

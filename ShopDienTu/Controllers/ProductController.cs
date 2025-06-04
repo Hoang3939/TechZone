@@ -54,6 +54,14 @@ namespace ShopDienTu.Controllers
             }
             ViewBag.RankDiscountPercentage = rankDiscountPercentage;
 
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (int.TryParse(userIdStr, out int userIdw))
+            {
+                var isFavorite = await _context.WishLists.AnyAsync(w => w.UserID == userIdw && w.ProductID == product.ProductID);
+                ViewBag.IsFavorite = isFavorite;
+            }
+
+
             // Get related products from the same subcategory
             var relatedProducts = await _context.Products
                 .Include(p => p.ProductImages)
