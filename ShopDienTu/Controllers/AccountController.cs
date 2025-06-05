@@ -386,12 +386,28 @@ namespace ShopDienTu.Controllers
         }
 
         // GET: Account/ChangePassword
-        public IActionResult ChangePassword()
+        public async Task<IActionResult> ChangePassword()
         {
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login");
             }
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var user = await _context.Users
+                .Include(u => u.Rank)
+                .FirstOrDefaultAsync(u => u.UserID == userId);
+
+            if (user == null)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToAction("Login");
+            }
+
+            ViewBag.FullName = user.FullName;
+            ViewBag.Email = user.Email;
+            ViewBag.Points = user.Points ?? 0;
+            ViewBag.RankName = user.Rank?.RankName ?? "Chưa có hạng";
 
             return View();
         }
@@ -401,6 +417,7 @@ namespace ShopDienTu.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login");
@@ -410,7 +427,6 @@ namespace ShopDienTu.Controllers
             {
                 try
                 {
-                    var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
                     var user = await _context.Users.FindAsync(userId);
 
                     if (user == null)
@@ -422,6 +438,7 @@ namespace ShopDienTu.Controllers
                     if (!VerifyPassword(model.CurrentPassword, user.Password))
                     {
                         ModelState.AddModelError("CurrentPassword", "Mật khẩu hiện tại không đúng.");
+                        await SetSidebarViewBagData(userId);
                         return View(model);
                     }
 
@@ -437,10 +454,38 @@ namespace ShopDienTu.Controllers
                 {
                     _logger.LogError(ex, "Error changing password");
                     ModelState.AddModelError(string.Empty, "Đã xảy ra lỗi khi đổi mật khẩu. Vui lòng thử lại sau.");
+                    await SetSidebarViewBagData(userId);
                 }
+            }
+            else
+            {
+                await SetSidebarViewBagData(userId);
             }
 
             return View(model);
+        }
+
+        private async Task SetSidebarViewBagData(int userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Rank)
+                .FirstOrDefaultAsync(u => u.UserID == userId);
+
+
+            if(user != null)
+            {
+                ViewBag.FullName = user.FullName;
+                ViewBag.Email = user.Email;
+                ViewBag.Points = user.Points ?? 0;
+                ViewBag.RankName = user.Rank?.RankName ?? "Chưa có hạng";
+            }
+            else
+            {
+                ViewBag.FullName = "Người dùng";
+                ViewBag.Email = "";
+                ViewBag.Points = 0;
+                ViewBag.RankName = "Chưa có hạng";
+            }
         }
 
         // Phương thức mã hóa mật khẩu
@@ -469,6 +514,20 @@ namespace ShopDienTu.Controllers
             {
                 return Unauthorized();
             }
+            var currentUser = await _context.Users
+                .Include(u => u.Rank) // Bao gồm thông tin Rank
+                .FirstOrDefaultAsync(u => u.UserID == userId);
+
+            if (currentUser == null)
+            {
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToAction("Login");
+            }
+
+            ViewBag.FullName = currentUser.FullName;
+            ViewBag.Email = currentUser.Email;
+            ViewBag.Points = currentUser.Points ?? 0;
+            ViewBag.RankName = currentUser.Rank?.RankName ?? "Chưa có hạng";
 
             var wishlist = await _context.WishLists
                 .Where(w => w.UserID == userId)
@@ -479,6 +538,51 @@ namespace ShopDienTu.Controllers
             return View(wishlist);
         }
 
+        [Authorize]
+        public async Task<IActionResult> Voucher()
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(!int.TryParse(userIdStr, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var user = await _context.Users.FindAsync(userId);
+            if(user == null)
+            {
+                return NotFound("Không tìm thấy thông tin người dùng.");
+            }
+
+            var userRankId = user.RankID;
+
+            var availableVouchers = await _context.Promotions
+                .Where(p => p.ProductID == null && p.DiscountPercentage == 0m && p.IsActive && p.EndDate > DateTime.Now && (p.RankID == null || p.RankID == userRankId))
+                .OrderByDescending(p => p.EndDate)
+                .ToListAsync();
+
+            ViewBag.FullName = user.FullName;
+            ViewBag.Email = user.Email;
+            ViewBag.Points = user.Points ?? 0;
+            var rank = await _context.Ranks.FindAsync(user.RankID);
+            ViewBag.RankName = rank?.RankName ?? "Chưa có hạng";
+
+            return View(availableVouchers);
+        }
+
+        [Authorize]
+        public IActionResult Reviews()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var user = _context.Users.Include(u => u.Rank).FirstOrDefault(u => u.UserID == userId);
+            if(user != null)
+            {
+                ViewBag.FullName = user.FullName;
+                ViewBag.Email = user.Email;
+                ViewBag.Points = user.Points ?? 0;
+                ViewBag.RankName = user.Rank?.RankName ?? "Chưa có hạng";
+            }
+            return View();
+        }
     }
 
     // View Models

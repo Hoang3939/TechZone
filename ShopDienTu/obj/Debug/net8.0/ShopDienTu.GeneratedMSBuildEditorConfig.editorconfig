@@ -9,301 +9,309 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = ShopDienTu
 build_property.RootNamespace = ShopDienTu
-build_property.ProjectDir = C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\
+build_property.ProjectDir = C:\Users\AnhKit\Source\Repos\TechZone\ShopDienTu\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\AnhKit\source\repos\TechZone\ShopDienTu
+build_property.MSBuildProjectDirectory = C:\Users\AnhKit\Source\Repos\TechZone\ShopDienTu
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 8.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Qcm9kdWN0c1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Delete.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Qcm9kdWN0c1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Qcm9kdWN0c1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Qcm9kdWN0c1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminProducts/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Qcm9kdWN0c1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Vc2Vyc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Delete.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Vc2Vyc1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Vc2Vyc1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Vc2Vyc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/AdminUsers/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQWRtaW5Vc2Vyc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQ2F0ZWdvcmllc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Delete.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQ2F0ZWdvcmllc1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQ2F0ZWdvcmllc1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQ2F0ZWdvcmllc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Categories/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcQ2F0ZWdvcmllc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Home/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Orders/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Orders/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcT3JkZXJzXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Orders/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Orders/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcT3JkZXJzXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Orders/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Orders/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcT3JkZXJzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUGF5bWVudE1ldGhvZHNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Delete.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUGF5bWVudE1ldGhvZHNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUGF5bWVudE1ldGhvZHNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUGF5bWVudE1ldGhvZHNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/PaymentMethods/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUGF5bWVudE1ldGhvZHNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvZHVjdEltYWdlc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Delete.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvZHVjdEltYWdlc1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvZHVjdEltYWdlc1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvZHVjdEltYWdlc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/ProductImages/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvZHVjdEltYWdlc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvbW90aW9uc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Delete.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvbW90aW9uc1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvbW90aW9uc1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvbW90aW9uc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Promotions/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcUHJvbW90aW9uc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/Error.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/_SidebarPartialView.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/_SidebarPartialView.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU2hhcmVkXF9TaWRlYmFyUGFydGlhbFZpZXcuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU3ViQ2F0ZWdvcmllc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Delete.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU3ViQ2F0ZWdvcmllc1xEZWxldGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU3ViQ2F0ZWdvcmllc1xEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU3ViQ2F0ZWdvcmllc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/SubCategories/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU3ViQ2F0ZWdvcmllc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/_ViewImports.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/_ViewStart.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/Addresses.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Addresses.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBZGRyZXNzZXMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/ChangePassword.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/ChangePassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxDaGFuZ2VQYXNzd29yZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/ForgotPassword.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/ForgotPassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/Login.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/Profile.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Profile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxQcm9maWxlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/Register.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Account/Wishlist.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Reviews.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXZpZXdzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Voucher.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWb3VjaGVyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Account/Wishlist.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxXaXNobGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Address/Create.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Address/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRkcmVzc1xDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Address/Edit.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Address/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRkcmVzc1xFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Address/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Address/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRkcmVzc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Cart/Checkout.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Cart/Checkout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxDaGVja291dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Cart/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Cart/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2FydFxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Home/Index.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Home/Privacy.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Order/CancelOrder.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Order/CancelOrder.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcQ2FuY2VsT3JkZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Order/History.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Order/History.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcSGlzdG9yeS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Order/OrderConfirmation.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Order/OrderConfirmation.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcT3JkZXJDb25maXJtYXRpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Order/OrderDetails.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Order/OrderDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcT3JkZXJEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Order/TrackOrder.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Order/TrackOrder.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcT3JkZXJcVHJhY2tPcmRlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Product/Details.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Product/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvZHVjdFxEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Shared/Error.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Shared/_LoginPartial.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Shared/_LoginPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Mb2dpblBhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/_ViewImports.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/_ViewStart.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/_AdminLayout.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Areas/Admin/Views/Shared/_AdminLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXNcQWRtaW5cVmlld3NcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = b-4x68792qer
 
-[C:/Users/AnhKit/source/repos/TechZone/ShopDienTu/Views/Shared/_Layout.cshtml]
+[C:/Users/AnhKit/Source/Repos/TechZone/ShopDienTu/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-g8rmn1n01s

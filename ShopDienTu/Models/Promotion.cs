@@ -46,6 +46,13 @@ namespace ShopDienTu.Models
         [Display(Name = "Mô tả")]
         public string Description { get; set; }
 
+        [Display(Name = "Số tiền giảm")]
+        public decimal? DiscountAmount { get; set; }
+
+        [Column(TypeName = "decimal(18, 2)")]
+        [Display(Name = "Giá trị đơn hàng tối thiểu")]
+        public decimal? MinOrderValue { get; set; }
+
         public int? RankID { get; set; }
 
         // Navigation property

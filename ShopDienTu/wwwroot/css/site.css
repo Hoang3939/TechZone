@@ -646,3 +646,57 @@ html {
 body {
     margin-bottom: 60px;
 }
+
+
+/* CSS For Voucher page*/
+.voucher-list-container {
+    background-color: #f8f9fa;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.voucher-card {
+    border: 1px solid #ccc; /* Ho?c ki?u vi?n b?n mu?n */
+    transition: transform .2s, box-shadow .2s;
+}
+
+    .voucher-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    }
+
+    .voucher-card .card-title {
+        font-weight: bold;
+        /* color: #0d6efd; */ /* N?u b?n mu?n màu xanh cho tiêu ?? và không dùng class text-primary */
+    }
+
+
+/* CSS For WishList*/
+.product-card-wishlist {
+    transition: transform .2s, box-shadow .2s;
+}
+
+    .product-card-wishlist:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    }
+
+.product-name-truncate {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* S? dòng t?i ?a mu?n hi?n th? */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 2.5em; /* ?i?u ch?nh chi?u cao d?a trên line-height và s? dòng (ví d?: 1.25em * 2 dòng) */
+    line-height: 1.25em; /* ?i?u ch?nh line-height n?u c?n */
+}
+/* CSS này giúp c? card có th? click ???c khi title có class stretched-link-card */
+.stretched-link-card::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    content: "";
+}
