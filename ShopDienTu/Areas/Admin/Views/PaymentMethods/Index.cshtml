@@ -1,183 +1,122 @@
 ﻿@model IEnumerable<ShopDienTu.Models.PaymentMethod>
-
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý phương thức thanh toán";
+    Layout = "_AdminLayout";
 }
 
-<style>
-    /* Tùy chỉnh toàn cục */
-    body {
-        background: #f4f9fc;
-        font-family: 'Poppins', 'Arial', sans-serif;
+<div class="container-fluid">
+    <h1 class="mt-4">Quản lý phương thức thanh toán</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Bảng điều khiển</a></li>
+        <li class="breadcrumb-item active">Phương thức thanh toán</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
     }
 
-    /* Container */
-    .container {
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 25px;
-        background: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
     }
 
-    /* Tiêu đề */
-    h1 {
-        text-align: center;
-        color: #2c5282;
-        font-size: 1.9rem;
-        margin-bottom: 30px;
-        font-weight: 600;
-        letter-spacing: 0.2px;
-    }
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-list mr-1"></i>
+                Danh sách phương thức thanh toán
+            </div>
+            <div>
+                <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus"></i> Thêm phương thức
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form method="get" action="@Url.Action("Index")">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm phương thức..." name="searchString" value="@ViewBag.SearchString">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-    /* Tùy chỉnh bảng */
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        background: #ffffff;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-        .table th, .table td {
-            padding: 15px;
-            text-align: left;
-            vertical-align: middle;
-            font-size: 0.95rem;
-            color: #2d3748;
-        }
-
-        .table thead {
-            background: #e6fffa;
-            color: #319795;
-        }
-
-        .table th {
-            font-weight: 500;
-            text-transform: capitalize;
-            letter-spacing: 0.5px;
-        }
-
-        .table tbody tr {
-            border-bottom: 1px solid #e6fffa;
-            transition: background 0.2s ease;
-        }
-
-            .table tbody tr:hover {
-                background: #f1f9f8;
-            }
-
-    /* Tùy chỉnh nút và liên kết */
-    .btn {
-        display: inline-block;
-        padding: 7px 15px;
-        margin-right: 8px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .btn-create {
-        background: #4fd1c5;
-        color: #ffffff;
-    }
-
-        .btn-create:hover {
-            background: #38b2ac;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-    .btn-edit {
-        color: #3182ce;
-    }
-
-        .btn-edit:hover {
-            color: #2b6cb0;
-            background: #e6f3ff;
-        }
-
-    .btn-details {
-        color: #d69e2e;
-    }
-
-        .btn-details:hover {
-            color: #b7791f;
-            background: #fefcbf;
-        }
-
-    .btn-delete {
-        color: #f687b3;
-    }
-
-        .btn-delete:hover {
-            color: #ed64a6;
-            background: #fff5f7;
-        }
-
-    /* Tùy chỉnh cột MethodName */
-    .method-name {
-        font-weight: 500;
-        color: #2c7a7b;
-    }
-
-    /* Tùy chỉnh cột IsActive */
-    .status-cell {
-        font-weight: 500;
-        padding: 6px 12px;
-        border-radius: 6px;
-        display: inline-block;
-    }
-
-    .status-active {
-        background: #c6f6d5;
-        color: #2f855a;
-    }
-
-    .status-inactive {
-        background: #fed7e2;
-        color: #9b2c2c;
-    }
-</style>
-
-<div class="container">
-    <h1>Payment Method Management</h1>
-
-    <p>
-        <a asp-action="Create" class="btn btn-create">Create New</a>
-    </p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.MethodName)</th>
-                <th>@Html.DisplayNameFor(model => model.IsActive)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td class="method-name">
-                        @Html.DisplayFor(modelItem => item.MethodName)
-                    </td>
-                    <td>
-                        <span class="status-cell @(item.IsActive ? "status-active" : "status-inactive")">
-                            @(item.IsActive ? "Active" : "Inactive")
-                        </span>
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.PaymentMethodID" class="btn btn-edit">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.PaymentMethodID" class="btn btn-details">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.PaymentMethodID" class="btn btn-delete">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="paymentMethodsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tên phương thức</th>
+                            <th style="width: 120px;">Trạng thái</th>
+                            <th style="width: 150px;" class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.MethodName</td>
+                                <td class="text-center">
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge badge-success">Kích hoạt</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-danger">Vô hiệu</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Edit", new { id = item.PaymentMethodID })" class="btn btn-info" title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Details", new { id = item.PaymentMethodID })" class="btn btn-warning" title="Chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = item.PaymentMethodID })" class="btn btn-danger" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#paymentMethodsTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": false, // Tìm kiếm đã được xử lý qua form
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+                },
+                "order": [[0, 'asc']]
+            });
+        });
+    </script>
+} 

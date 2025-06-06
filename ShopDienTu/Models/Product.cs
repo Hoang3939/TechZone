@@ -41,7 +41,7 @@ namespace ShopDienTu.Models
 
         // Navigation properties
         [ForeignKey("SubCategoryID")]
-        public virtual SubCategory SubCategory { get; set; }
+        public virtual SubCategory? SubCategory { get; set; }
 
         public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
         public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();

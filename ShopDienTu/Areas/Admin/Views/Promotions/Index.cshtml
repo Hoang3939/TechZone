@@ -1,77 +1,75 @@
 ﻿@model IEnumerable<ShopDienTu.Models.Promotion>
-
 @{
-    ViewData["Title"] = "Danh sách Khuyến mãi";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Danh sách chương trình khuyến mãi";
+    Layout = "_AdminLayout";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container-fluid">
+    <h1 class="mt-4">Danh sách chương trình khuyến mãi</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Bảng điều khiển</a></li>
+        <li class="breadcrumb-item active">Khuyến mãi</li>
+    </ol>
 
-<p>
-    <a asp-action="Create" class="btn btn-success">Tạo Khuyến mãi mới</a> @* Nút tạo mới *@
-</p>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
 
-@* Hiển thị thông báo thành công nếu có *@
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-list mr-1"></i>
+            Danh sách
+            <a asp-action="Create" class="btn btn-primary float-right">
+                <i class="fas fa-plus"></i> Thêm mới
+            </a>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.PromotionName)</th>
+                        <th>@Html.DisplayNameFor(model => model.DiscountPercentage)</th>
+                        <th>@Html.DisplayNameFor(model => model.StartDate)</th>
+                        <th>@Html.DisplayNameFor(model => model.EndDate)</th>
+                        <th>@Html.DisplayNameFor(model => model.IsActive)</th>
+                        <th>@Html.DisplayNameFor(model => model.PromoCode)</th>
+                        <th>Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.PromotionName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.DiscountPercentage)%</td>
+                            <td>@Html.DisplayFor(modelItem => item.StartDate)</td>
+                            <td>@Html.DisplayFor(modelItem => item.EndDate)</td>
+                            <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
+                            <td>@Html.DisplayFor(modelItem => item.PromoCode)</td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.PromotionID" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-action="Details" asp-route-id="@item.PromotionID" class="btn btn-info btn-sm">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.PromotionID" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-}
-
-
-<table class="table table-bordered table-hover">
-    @* Thêm class cho table *@
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.PromotionName)</th>
-            <th>@Html.DisplayNameFor(model => model.Product)</th>
-            <th>@Html.DisplayNameFor(model => model.PromoCode)</th>
-            <th class="text-center">@Html.DisplayNameFor(model => model.DiscountPercentage)</th>
-            <th class="text-center">@Html.DisplayNameFor(model => model.IsActive)</th>
-            <th>@Html.DisplayNameFor(model => model.StartDate)</th>
-            <th>@Html.DisplayNameFor(model => model.EndDate)</th>
-            <th></th> @* Cột Actions *@
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.PromotionName)</td>
-                <td>
-                    @if (item.ProductID.HasValue && item.Product != null)
-                    {
-                        @Html.DisplayFor(modelItem => item.Product.ProductName)
-                    }
-                    else
-                    {
-                        <span class="text-muted fst-italic">Chung</span> @* Hiển thị "Chung" nếu là KM global *@
-                    }
-                </td>
-                <td>@Html.DisplayFor(modelItem => item.PromoCode)</td>
-                <td class="text-center">@item.DiscountPercentage.ToString("0.##")%</td>
-                <td class="text-center">
-                    @if (item.IsActive)
-                    {
-                        <span class="badge bg-success">Kích hoạt</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Vô hiệu</span>
-                    }
-                </td>
-                <td>@item.StartDate.ToString("dd/MM/yy")</td> @* Định dạng ngắn gọn *@
-                <td>@item.EndDate.ToString("dd/MM/yy")</td> @* Định dạng ngắn gọn *@
-                <td class="text-nowrap">
-                    @* Ngăn không xuống dòng các nút action *@
-                    <a asp-action="Edit" asp-route-id="@item.PromotionID" class="btn btn-sm btn-outline-primary" title="Sửa"><i class="fas fa-pencil-alt"></i></a>
-                    <a asp-action="Details" asp-route-id="@item.PromotionID" class="btn btn-sm btn-outline-info" title="Chi tiết"><i class="fas fa-info-circle"></i></a>
-                    <a asp-action="Delete" asp-route-id="@item.PromotionID" class="btn btn-sm btn-outline-danger" title="Xóa"><i class="fas fa-trash"></i></a>
-                    @* Thêm các icon FontAwesome nếu bạn đã tích hợp *@
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+</div>

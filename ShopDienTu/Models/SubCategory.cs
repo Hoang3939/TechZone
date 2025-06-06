@@ -24,6 +24,6 @@ namespace ShopDienTu.Models
         [ForeignKey("CategoryID")]
         public virtual Category Category { get; set; }
 
-        public virtual ICollection<Product> Products { get; set; } 
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

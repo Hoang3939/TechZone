@@ -1,54 +1,43 @@
 ﻿@model ShopDienTu.Models.Promotion
-
 @{
-    ViewData["Title"] = "Xác nhận Xóa Khuyến mãi";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Xóa chương trình khuyến mãi";
+    Layout = "_AdminLayout";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container-fluid">
+    <h1 class="mt-4">Xóa chương trình khuyến mãi</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Bảng điều khiển</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Index")">Khuyến mãi</a></li>
+        <li class="breadcrumb-item active">Xóa</li>
+    </ol>
 
-<h3 class="text-danger">Bạn có chắc chắn muốn xóa chương trình khuyến mãi này không?</h3>
-<div>
-    <h4>@Model.PromotionName</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PromotionName)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.PromotionName)</dd>
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Product)</dt>
-        <dd class="col-sm-9">
-            @if (Model.ProductID.HasValue && Model.Product != null)
-            {
-                @Html.DisplayFor(model => model.Product.ProductName)
-            }
-            else
-            {
-                <span class="text-muted">Khuyến mãi chung</span>
-            }
-        </dd>
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PromoCode)</dt>
-        <dd class="col-sm-9">@(Model.PromoCode ?? "Không có")</dd>
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DiscountPercentage)</dt>
-        <dd class="col-sm-9">@Model.DiscountPercentage.ToString("0.##")%</dd>
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsActive)</dt>
-        <dd class="col-sm-9">@(Model.IsActive ? "Kích hoạt" : "Vô hiệu hóa")</dd>
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.StartDate)</dt>
-        <dd class="col-sm-9">@Model.StartDate.ToString("dd/MM/yyyy HH:mm")</dd>
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EndDate)</dt>
-        <dd class="col-sm-9">@Model.EndDate.ToString("dd/MM/yyyy HH:mm")</dd>
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
-    </dl>
-
-    <form asp-action="Delete" class="mt-3">
-        <input type="hidden" asp-for="PromotionID" />
-        <input type="submit" value="Xác nhận Xóa" class="btn btn-danger" /> |
-        <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
-    </form>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-trash mr-1"></i>
+            Xác nhận xóa
+        </div>
+        <div class="card-body">
+            <h3>Bạn có chắc chắn muốn xóa chương trình khuyến mãi này?</h3>
+            <dl class="row">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PromotionName)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.PromotionName)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DiscountPercentage)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.DiscountPercentage)%</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.StartDate)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.StartDate)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EndDate)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.EndDate)</dd>
+            </dl>
+            <form asp-area="Admin" asp-controller="Promotions" asp-action="Delete" method="post">
+                <input type="hidden" asp-for="PromotionID" />
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash mr-1"></i> Xóa
+                </button>
+                <a asp-action="Index" asp-area="Admin" asp-controller="AdminPromotions" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i> Hủy
+                </a>
+            </form>
+        </div>
+    </div>
 </div>

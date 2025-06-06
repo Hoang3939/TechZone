@@ -72,6 +72,7 @@ wwwroot\dist\js\pages\dashboard.js
 wwwroot\dist\js\pages\dashboard2.js
 wwwroot\dist\js\pages\dashboard3.js
 wwwroot\favicon.ico
+wwwroot\images\27604398-63a5-439a-8d48-d52cb7d31a3e.jpg
 wwwroot\images\AcerNito5i7.jpg
 wwwroot\images\AcerNitro5i7_1.jpg
 wwwroot\images\asus_rog.jpg
@@ -82,6 +83,7 @@ wwwroot\images\CPUCoreI9.jpg
 wwwroot\images\CPUCoreI91.jpg
 wwwroot\images\DellUltraSharp.jpg
 wwwroot\images\DellUltraSharp1.jpg
+wwwroot\images\f53ee7b1-46d3-42d1-a352-cf26587da07c.jpg
 wwwroot\images\g102_logitech.jpg
 wwwroot\images\g102_logitech1.jpg
 wwwroot\images\galaxy_a55.jpg

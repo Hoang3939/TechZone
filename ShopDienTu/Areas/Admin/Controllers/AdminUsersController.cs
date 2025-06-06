@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ShopDienTu.Models;
+using ShopDienTu.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using ShopDienTu.Data;
-using ShopDienTu.Models;
+using BCrypt.Net;
+using Org.BouncyCastle.Crypto.Generators;
+using Microsoft.AspNetCore.Authorization; // Thêm namespace này
 
 namespace ShopDienTu.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Policy = "AdminOnly")] // Chỉ Admin được truy cập
     public class AdminUsersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,139 +21,100 @@ namespace ShopDienTu.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/AdminUsers
-        public async Task<IActionResult> Index()
+        // GET: Admin/AdminUser
+        public IActionResult Index(string searchString, string role)
         {
-            return View(await _context.Users.ToListAsync());
+            var users = _context.Users.Include(u => u.Rank).AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+                users = users.Where(u => u.UserName.Contains(searchString) || u.FullName.Contains(searchString) || u.Email.Contains(searchString));
+            if (!string.IsNullOrEmpty(role))
+                users = users.Where(u => u.Role == role);
+
+            ViewBag.SearchString = searchString;
+            ViewBag.Role = role;
+            ViewBag.Roles = new[] { "Customer", "Admin" };
+
+            return View(users.ToList());
         }
 
-        // GET: Admin/AdminUsers/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserID == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
-
-        // GET: Admin/AdminUsers/Create
+        // GET: Admin/AdminUser/Create
         public IActionResult Create()
         {
-            return View();
+            ViewBag.Ranks = _context.Ranks.ToList();
+            return View(new User());
         }
 
-        // POST: Admin/AdminUsers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Admin/AdminUser/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserID,UserName,FullName,Email,Password,Phone,Address,Role,CreatedAt")] User user)
+        public async Task<IActionResult> Create(User model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(user);
+                model.CreatedAt = DateTime.Now;
+                model.Password = BCrypt.Net.BCrypt.HashPassword(model.Password); // Mã hóa mật khẩu
+                _context.Users.Add(model);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Thêm người dùng thành công!";
                 return RedirectToAction(nameof(Index));
             }
-            return View(user);
+            ViewBag.Ranks = _context.Ranks.ToList();
+            return View(model);
         }
 
-        // GET: Admin/AdminUsers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // GET: Admin/AdminUser/Edit/5
+        public IActionResult Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users.FindAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            var user = _context.Users.Include(u => u.Rank).FirstOrDefault(u => u.UserID == id);
+            if (user == null) return NotFound();
+            ViewBag.Ranks = _context.Ranks.ToList();
             return View(user);
         }
 
-        // POST: Admin/AdminUsers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Admin/AdminUser/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserID,UserName,FullName,Email,Password,Phone,Address,Role,CreatedAt")] User user)
+        public async Task<IActionResult> Edit(User model)
         {
-            if (id != user.UserID)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                var user = _context.Users.FirstOrDefault(u => u.UserID == model.UserID);
+                if (user == null) return NotFound();
+
+                user.UserName = model.UserName;
+                user.FullName = model.FullName;
+                user.Email = model.Email;
+                user.Phone = model.Phone;
+                user.Address = model.Address;
+                user.Role = model.Role;
+                user.RankID = model.RankID;
+                user.Points = model.Points;
+                if (!string.IsNullOrEmpty(model.Password))
                 {
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
+                    user.Password = BCrypt.Net.BCrypt.HashPassword(model.Password);
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.UserID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật người dùng thành công!";
                 return RedirectToAction(nameof(Index));
             }
-            return View(user);
+            ViewBag.Ranks = _context.Ranks.ToList();
+            return View(model);
         }
 
-        // GET: Admin/AdminUsers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var user = await _context.Users
-                .FirstOrDefaultAsync(m => m.UserID == id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return View(user);
-        }
-
-        // POST: Admin/AdminUsers/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Admin/AdminUser/Delete/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int UserID)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user != null)
-            {
-                _context.Users.Remove(user);
-            }
+            var user = _context.Users.FirstOrDefault(u => u.UserID == UserID);
+            if (user == null) return NotFound();
 
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Xóa người dùng thành công!";
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool UserExists(int id)
-        {
-            return _context.Users.Any(e => e.UserID == id);
         }
     }
 }

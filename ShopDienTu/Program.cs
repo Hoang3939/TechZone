@@ -30,6 +30,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
     });
 
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // Chính sách ch? cho Admin
+    options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer")); // Chính sách ch? cho Customer
+});
+
 // C?u hình DbContext v?i chu?i k?t n?i t? appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

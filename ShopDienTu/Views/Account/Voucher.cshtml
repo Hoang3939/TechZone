@@ -72,6 +72,12 @@
                         <a asp-controller="Account" asp-action="Voucher" class="list-group-item list-group-item-action">
                             <i class="fas fa-tags me-2"></i> Voucher
                         </a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-controller="Admin" asp-action="Index" class="list-group-item list-group-item-action">
+                                <i class="fas fa-cogs me-2"></i> Chuyển đến trang Admin
+                            </a>
+                        }
                     </div>
                 </div>
             </div>

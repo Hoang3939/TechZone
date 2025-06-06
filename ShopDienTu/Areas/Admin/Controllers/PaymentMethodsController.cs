@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShopDienTu.Data;
 using ShopDienTu.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace ShopDienTu.Areas.Admin.Controllers
+namespace ShopDienTu.Controllers
 {
     [Area("Admin")]
+    [Authorize(Policy = "AdminOnly")] // Chỉ Admin được truy cập
     public class PaymentMethodsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,53 +19,49 @@ namespace ShopDienTu.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/PaymentMethods
-        public async Task<IActionResult> Index()
+        // GET: AdminPaymentMethods
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.PaymentMethods.ToListAsync());
-        }
+            var paymentMethods = _context.PaymentMethods.AsNoTracking();
 
-        // GET: Admin/PaymentMethods/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
+            if (!string.IsNullOrEmpty(searchString))
             {
-                return NotFound();
+                paymentMethods = paymentMethods.Where(pm => pm.MethodName.Contains(searchString));
+                ViewBag.SearchString = searchString;
             }
 
-            var paymentMethod = await _context.PaymentMethods
-                .FirstOrDefaultAsync(m => m.PaymentMethodID == id);
-            if (paymentMethod == null)
-            {
-                return NotFound();
-            }
-
-            return View(paymentMethod);
+            return View(await paymentMethods.ToListAsync());
         }
 
-        // GET: Admin/PaymentMethods/Create
+        // GET: AdminPaymentMethods/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Admin/PaymentMethods/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: AdminPaymentMethods/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaymentMethodID,MethodName,IsActive")] PaymentMethod paymentMethod)
+        public async Task<IActionResult> Create([Bind("MethodName,IsActive")] PaymentMethod paymentMethod)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(paymentMethod);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(paymentMethod);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Phương thức thanh toán đã được tạo thành công.";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Lỗi khi tạo phương thức thanh toán: {ex.Message}";
+                }
             }
             return View(paymentMethod);
         }
 
-        // GET: Admin/PaymentMethods/Edit/5
+        // GET: AdminPaymentMethods/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -82,9 +77,7 @@ namespace ShopDienTu.Areas.Admin.Controllers
             return View(paymentMethod);
         }
 
-        // POST: Admin/PaymentMethods/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: AdminPaymentMethods/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("PaymentMethodID,MethodName,IsActive")] PaymentMethod paymentMethod)
@@ -100,6 +93,8 @@ namespace ShopDienTu.Areas.Admin.Controllers
                 {
                     _context.Update(paymentMethod);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Phương thức thanh toán đã được cập nhật thành công.";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -107,18 +102,18 @@ namespace ShopDienTu.Areas.Admin.Controllers
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+                    TempData["ErrorMessage"] = "Lỗi đồng bộ dữ liệu. Vui lòng thử lại.";
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Lỗi khi cập nhật phương thức thanh toán: {ex.Message}";
+                }
             }
             return View(paymentMethod);
         }
 
-        // GET: Admin/PaymentMethods/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // GET: AdminPaymentMethods/Details/5
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -126,7 +121,9 @@ namespace ShopDienTu.Areas.Admin.Controllers
             }
 
             var paymentMethod = await _context.PaymentMethods
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.PaymentMethodID == id);
+
             if (paymentMethod == null)
             {
                 return NotFound();
@@ -135,18 +132,49 @@ namespace ShopDienTu.Areas.Admin.Controllers
             return View(paymentMethod);
         }
 
-        // POST: Admin/PaymentMethods/Delete/5
+        // GET: AdminPaymentMethods/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var paymentMethod = await _context.PaymentMethods
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.PaymentMethodID == id);
+
+            if (paymentMethod == null)
+            {
+                return NotFound();
+            }
+
+            return View(paymentMethod);
+        }
+
+        // POST: AdminPaymentMethods/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var paymentMethod = await _context.PaymentMethods.FindAsync(id);
-            if (paymentMethod != null)
+            try
             {
-                _context.PaymentMethods.Remove(paymentMethod);
+                var paymentMethod = await _context.PaymentMethods.FindAsync(id);
+                if (paymentMethod != null)
+                {
+                    _context.PaymentMethods.Remove(paymentMethod);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Phương thức thanh toán đã được xóa thành công.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Không tìm thấy phương thức thanh toán để xóa.";
+                }
             }
-
-            await _context.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Lỗi khi xóa phương thức thanh toán: {ex.Message}";
+            }
             return RedirectToAction(nameof(Index));
         }
 

@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShopDienTu.Data;
 using ShopDienTu.Models;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ShopDienTu.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Policy = "AdminOnly")] // Chỉ Admin được truy cập
     public class AdminProductsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -20,211 +21,185 @@ namespace ShopDienTu.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Admin/AdminProducts
-        public async Task<IActionResult> Index()
+        // GET: Admin/AdminProduct
+        public IActionResult Index(string searchString, int? subCategoryId, decimal? minPrice, decimal? maxPrice, bool? isActive)
         {
-            var applicationDbContext = _context.Products.Include(p => p.SubCategory);
-            return View(await applicationDbContext.ToListAsync());
+            var products = _context.Products
+                .Include(p => p.SubCategory).ThenInclude(sc => sc.Category)
+                .Include(p => p.ProductImages)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchString))
+                products = products.Where(p => p.ProductName.Contains(searchString));
+            if (subCategoryId.HasValue)
+                products = products.Where(p => p.SubCategoryID == subCategoryId);
+            if (minPrice.HasValue)
+                products = products.Where(p => p.Price >= minPrice);
+            if (maxPrice.HasValue)
+                products = products.Where(p => p.Price <= maxPrice);
+            if (isActive.HasValue)
+                products = products.Where(p => p.IsActive == isActive);
+
+            ViewBag.SubCategories = _context.SubCategories.Include(sc => sc.Category).ToList();
+            ViewBag.SearchString = searchString;
+            ViewBag.SubCategoryId = subCategoryId;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+            ViewBag.IsActive = isActive;
+
+            return View(products.ToList());
         }
 
-        // GET: Admin/AdminProducts/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .Include(p => p.SubCategory)
-                .FirstOrDefaultAsync(m => m.ProductID == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
-        }
-
-        // GET: Admin/AdminProducts/Create
+        // GET: Admin/AdminProduct/Create
         public IActionResult Create()
         {
-            var subCategories = _context.SubCategories.ToList();
-            if (!subCategories.Any())
-            {
-                ModelState.AddModelError("", "Không có danh mục phụ nào trong cơ sở dữ liệu. Vui lòng thêm danh mục phụ trước.");
-            }
-            ViewData["SubCategoryID"] = new SelectList(subCategories, "SubCategoryID", "SubCategoryName");
-            return View();
+            ViewBag.SubCategories = _context.SubCategories.Include(sc => sc.Category).ToList();
+            return View(new Product());
         }
 
-        // POST: Admin/AdminProducts/Create
+        // POST: Admin/AdminProduct/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductName,Description,Price,SubCategoryID,StockQuantity,IsActive")] Product product)
+        public async Task<IActionResult> Create(Product model, IFormFile[] productImages)
         {
-            // Log dữ liệu đầu vào
-            Console.WriteLine($"ProductName: {product.ProductName}, Price: {product.Price}, SubCategoryID: {product.SubCategoryID}, StockQuantity: {product.StockQuantity}, IsActive: {product.IsActive}");
-
-            // Bỏ qua validation cho SubCategory
-            ModelState.Remove("SubCategory");
-
-            // Kiểm tra SubCategoryID
-            if (product.SubCategoryID != 0 && !_context.SubCategories.Any(sc => sc.SubCategoryID == product.SubCategoryID))
-            {
-                ModelState.AddModelError("SubCategoryID", "Danh mục phụ không tồn tại.");
-            }
-
             if (ModelState.IsValid)
             {
-                try
+                model.CreatedAt = DateTime.Now;
+                model.ProductImages = new List<ProductImage>();
+
+                // Define the directory path
+                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+                // Create the directory if it doesn't exist
+                if (!Directory.Exists(directoryPath))
                 {
-                    product.CreatedAt = DateTime.Now;
-                    product.UpdatedAt = DateTime.Now;
-                    _context.Products.Add(product);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Sản phẩm đã được thêm thành công!";
-                    return RedirectToAction(nameof(Index));
+                    Directory.CreateDirectory(directoryPath);
                 }
-                catch (Exception ex)
+
+                for (int i = 0; i < productImages.Length; i++)
                 {
-                    Console.WriteLine("Error saving product: " + ex.Message);
-                    ModelState.AddModelError("", $"Lỗi khi lưu sản phẩm: {ex.Message}");
-                }
-            }
-            else
-            {
-                // Log lỗi validation
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                Console.WriteLine("Validation errors: " + string.Join(", ", errors));
-            }
-
-            ViewBag.SubCategoryID = new SelectList(_context.SubCategories, "SubCategoryID", "SubCategoryName", product.SubCategoryID);
-            return View(product);
-        }
-
-        // GET: Admin/AdminProducts/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-            ViewData["SubCategoryID"] = new SelectList(_context.SubCategories, "SubCategoryID", "SubCategoryName", product.SubCategoryID);
-            return View(product);
-        }
-
-        // POST: Admin/AdminProducts/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductID,ProductName,Description,Price,SubCategoryID,StockQuantity,CreatedAt,UpdatedAt,IsActive")] Product product)
-        {
-            if (id != product.ProductID)
-            {
-                return NotFound();
-            }
-
-            // Bỏ qua validation cho SubCategory
-            ModelState.Remove("SubCategory");
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    product.UpdatedAt = DateTime.Now; // Cập nhật thời gian chỉnh sửa
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Sản phẩm đã được cập nhật thành công!";
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.ProductID))
+                    if (productImages[i] != null)
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
+                        var fileName = Guid.NewGuid() + Path.GetExtension(productImages[i].FileName);
+                        var filePath = Path.Combine(directoryPath, fileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await productImages[i].CopyToAsync(stream);
+                        }
+                        model.ProductImages.Add(new ProductImage { ImagePath = $"{fileName}", IsMainImage = i == 0 });
                     }
                 }
-                catch (Exception ex)
-                {
-                    ModelState.AddModelError("", $"Lỗi khi cập nhật sản phẩm: {ex.Message}");
-                }
-            }
-
-            // Log lỗi validation
-            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-            Console.WriteLine("Validation errors: " + string.Join(", ", errors));
-
-            ViewData["SubCategoryID"] = new SelectList(_context.SubCategories, "SubCategoryID", "SubCategoryName", product.SubCategoryID);
-            return View(product);
-        }
-
-        // GET: Admin/AdminProducts/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _context.Products
-                .Include(p => p.SubCategory)
-                .FirstOrDefaultAsync(m => m.ProductID == id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                // Tìm và xóa các bản ghi trong OrderDetails liên quan đến ProductID
-                var orderDetails = await _context.OrderDetails
-                    .Where(od => od.ProductID == id)
-                    .ToListAsync();
-                if (orderDetails.Any())
-                {
-                    _context.OrderDetails.RemoveRange(orderDetails);
-                }
-
-                // Xóa sản phẩm
-                _context.Products.Remove(product);
+                _context.Products.Add(model);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Thêm sản phẩm thành công!";
+                return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine(ex.InnerException?.Message);
-                ModelState.AddModelError("", "Không thể xóa sản phẩm vì nó đang được sử dụng trong các đơn hàng.");
-                return View("Delete", product);
-            }
-
-            return RedirectToAction(nameof(Index));
+            ViewBag.SubCategories = _context.SubCategories.Include(sc => sc.Category).ToList();
+            return View(model);
         }
 
-        private bool ProductExists(int id)
+        // GET: Admin/AdminProduct/Edit/5
+        public IActionResult Edit(int id)
         {
-            return _context.Products.Any(e => e.ProductID == id);
+            var product = _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.SubCategory)
+                .FirstOrDefault(p => p.ProductID == id);
+            if (product == null) return NotFound();
+            ViewBag.SubCategories = _context.SubCategories.Include(sc => sc.Category).ToList();
+            return View(product);
+        }
+
+        // POST: Admin/AdminProduct/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Product model, IFormFile[] newImages, int? mainImageId, int[] imagesToDelete)
+        {
+            if (ModelState.IsValid)
+            {
+                var product = _context.Products
+                    .Include(p => p.ProductImages)
+                    .FirstOrDefault(p => p.ProductID == model.ProductID);
+                if (product == null) return NotFound();
+
+                product.ProductName = model.ProductName;
+                product.Description = model.Description;
+                product.Price = model.Price;
+                product.StockQuantity = model.StockQuantity;
+                product.SubCategoryID = model.SubCategoryID;
+                product.IsActive = model.IsActive;
+                product.UpdatedAt = DateTime.Now;
+
+                // Define the directory path
+                var directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+                // Create the directory if it doesn't exist
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                if (imagesToDelete != null)
+                {
+                    foreach (var imageId in imagesToDelete)
+                    {
+                        var image = product.ProductImages.FirstOrDefault(pi => pi.ImageID == imageId);
+                        if (image != null)
+                        {
+                            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", image.ImagePath.TrimStart('/'));
+                            if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+                            product.ProductImages.Remove(image);
+                        }
+                    }
+                }
+
+                foreach (var image in newImages)
+                {
+                    if (image != null)
+                    {
+                        var fileName = Guid.NewGuid() + Path.GetExtension(image.FileName);
+                        var filePath = Path.Combine(directoryPath, fileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await image.CopyToAsync(stream);
+                        }
+                        product.ProductImages.Add(new ProductImage { ImagePath = $"{fileName}", IsMainImage = false });
+                    }
+                }
+
+                if (mainImageId.HasValue)
+                {
+                    foreach (var image in product.ProductImages)
+                    {
+                        image.IsMainImage = image.ImageID == mainImageId.Value;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật sản phẩm thành công!";
+                return RedirectToAction(nameof(Index));
+            }
+            ViewBag.SubCategories = _context.SubCategories.Include(sc => sc.Category).ToList();
+            return View(model);
+        }
+
+        // POST: Admin/AdminProduct/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int ProductID)
+        {
+            var product = _context.Products.Include(p => p.ProductImages).FirstOrDefault(p => p.ProductID == ProductID);
+            if (product == null) return NotFound();
+
+            foreach (var image in product.ProductImages)
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", image.ImagePath.TrimStart('/'));
+                if (System.IO.File.Exists(filePath)) System.IO.File.Delete(filePath);
+            }
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Xóa sản phẩm thành công!";
+            return RedirectToAction(nameof(Index));
         }
     }
 }

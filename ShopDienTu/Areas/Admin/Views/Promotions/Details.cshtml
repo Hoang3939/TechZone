@@ -1,51 +1,46 @@
 ﻿@model ShopDienTu.Models.Promotion
-
 @{
-    ViewData["Title"] = "Chi tiết Khuyến mãi";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Chi tiết chương trình khuyến mãi";
+    Layout = "_AdminLayout";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container-fluid">
+    <h1 class="mt-4">Chi tiết chương trình khuyến mãi</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Bảng điều khiển</a></li>
+        <li class="breadcrumb-item"><a href="@Url.Action("Index")">Khuyến mãi</a></li>
+        <li class="breadcrumb-item active">Chi tiết</li>
+    </ol>
 
-<div>
-    <h4>@Model.PromotionName</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PromotionName)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.PromotionName)</dd>
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-info-circle mr-1"></i>
+            Thông tin
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PromotionName)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.PromotionName)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DiscountPercentage)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.DiscountPercentage)%</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.StartDate)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.StartDate)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EndDate)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.EndDate)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsActive)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.IsActive)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ProductID)</dt>
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Product)</dt>
-        <dd class="col-sm-9">
-            @if (Model.ProductID.HasValue && Model.Product != null)
-            {
-                @Html.DisplayFor(model => model.Product.ProductName)
-            }
-            else
-            {
-                <span class="text-muted">Khuyến mãi chung (không áp dụng cho sản phẩm cụ thể)</span>
-            }
-        </dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PromoCode)</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.PromoCode)</dd>
+                <dt class="col-sm-3">@Html.DisplayNameFor(model => model.RankID)</dt>
 
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.PromoCode)</dt>
-        <dd class="col-sm-9">@(Model.PromoCode ?? "Không có")</dd> @* Hiển thị nếu có *@
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DiscountPercentage)</dt>
-        <dd class="col-sm-9">@Model.DiscountPercentage.ToString("0.##")%</dd> @* Định dạng phần trăm *@
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsActive)</dt>
-        <dd class="col-sm-9">@(Model.IsActive ? "Kích hoạt" : "Vô hiệu hóa")</dd> @* Hiển thị trạng thái *@
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.StartDate)</dt>
-        <dd class="col-sm-9">@Model.StartDate.ToString("dd/MM/yyyy HH:mm")</dd> @* Định dạng ngày giờ *@
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.EndDate)</dt>
-        <dd class="col-sm-9">@Model.EndDate.ToString("dd/MM/yyyy HH:mm")</dd> @* Định dạng ngày giờ *@
-
-        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
-        <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
-    </dl>
-</div>
-<div class="mt-3">
-    <a asp-action="Edit" asp-route-id="@Model?.PromotionID" class="btn btn-primary">Chỉnh sửa</a> |
-    <a asp-action="Index" class="btn btn-secondary">Quay lại Danh sách</a>
+            </dl>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left mr-1"></i> Quay lại
+            </a>
+        </div>
+    </div>
 </div>

@@ -1,208 +1,150 @@
 ﻿@model IEnumerable<ShopDienTu.Models.Order>
-
 @{
-    ViewData["Title"] = "Index";
-    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Quản lý đơn hàng";
+    Layout = "_AdminLayout";
 }
 
-<style>
-    /* Tùy chỉnh toàn cục */
-    body {
-        background: #f0f4f8;
-        font-family: 'Inter', 'Arial', sans-serif;
+<div class="container-fluid">
+    <h1 class="mt-4">Quản lý đơn hàng</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Bảng điều khiển</a></li>
+        <li class="breadcrumb-item active">Đơn hàng</li>
+    </ol>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
     }
 
-    /* Container */
-    .container {
-        max-width: 1300px;
-        margin: 40px auto;
-        padding: 20px;
-        background: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        </div>
     }
 
-    /* Tiêu đề */
-    h1 {
-        text-align: center;
-        color: #34495e;
-        font-size: 1.8rem;
-        margin-bottom: 30px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-    }
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-list mr-1"></i>
+            Danh sách đơn hàng
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <form method="get" action="@Url.Action("Index")">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Tìm mã đơn, tên, email..." name="searchString" value="@ViewBag.SearchString">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-6">
+                    <form method="get" action="@Url.Action("Index")">
+                        <div class="input-group">
+                            <select class="form-control" name="statusFilter">
+                                @foreach (var status in ViewBag.StatusList)
+                                {
+                                    <option value="@status" selected="@(ViewBag.StatusFilter == status)">@status</option>
+                                }
+                            </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">Lọc</button>
+                            </div>
+                            <input type="hidden" name="searchString" value="@ViewBag.SearchString" />
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-    /* Tùy chỉnh bảng */
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        background: #ffffff;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    }
-
-        .table th, .table td {
-            padding: 16px;
-            text-align: left;
-            vertical-align: middle;
-            font-size: 0.95rem;
-            color: #2d3748;
-        }
-
-        .table thead {
-            background: #e6f0fa;
-            color: #4a5568;
-        }
-
-        .table th {
-            font-weight: 500;
-            text-transform: capitalize;
-            letter-spacing: 0.5px;
-        }
-
-        .table tbody tr {
-            border-bottom: 1px solid #edf2f7;
-            transition: background 0.2s ease;
-        }
-
-            .table tbody tr:hover {
-                background: #f8fafc;
-            }
-
-    /* Tùy chỉnh nút và liên kết */
-    .btn {
-        display: inline-block;
-        padding: 8px 16px;
-        margin-right: 10px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    .btn-create {
-        background: #81e6d9;
-        color: #1c4532;
-    }
-
-        .btn-create:hover {
-            background: #4fd1c5;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-        }
-
-    .btn-edit {
-        color: #4299e1;
-    }
-
-        .btn-edit:hover {
-            color: #2b6cb0;
-            background: #ebf8ff;
-        }
-
-    .btn-details {
-        color: #ecc94b;
-    }
-
-        .btn-details:hover {
-            color: #d69e2e;
-            background: #fefcbf;
-        }
-
-    .btn-delete {
-        color: #f687b3;
-    }
-
-        .btn-delete:hover {
-            color: #ed64a6;
-            background: #fff5f7;
-        }
-
-    /* Tùy chỉnh cột TotalAmount */
-    .amount-cell {
-        font-weight: 500;
-        color: #2f855a;
-    }
-
-    /* Tùy chỉnh cột OrderStatus */
-    .status-cell {
-        font-weight: 500;
-        padding: 8px 12px;
-        border-radius: 6px;
-        display: inline-block;
-    }
-
-    .status-pending {
-        background: #fefcbf;
-        color: #b7791f;
-    }
-
-    .status-completed {
-        background: #c6f6d5;
-        color: #2f855a;
-    }
-
-    .status-cancelled {
-        background: #fed7e2;
-        color: #9b2c2c;
-    }
-
-    /* Tùy chỉnh cột ShippingAddress */
-    .address-cell {
-        max-width: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-</style>
-
-<div class="container">
-    <h1>Order Management</h1>
-
-    <p>
-        <a asp-action="Create" class="btn btn-create">Create New</a>
-    </p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.TotalAmount)</th>
-                <th>@Html.DisplayNameFor(model => model.OrderStatus)</th>
-                <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
-                <th>@Html.DisplayNameFor(model => model.UpdatedAt)</th>
-                <th>@Html.DisplayNameFor(model => model.ShippingAddress)</th>
-                <th>@Html.DisplayNameFor(model => model.User)</th>
-                <th>@Html.DisplayNameFor(model => model.PaymentMethod)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td class="amount-cell">
-                        @String.Format("{0:C}", item.TotalAmount)
-                    </td>
-                    <td>
-                        <span class="status-cell @(item.OrderStatus == "Pending" ? "status-pending" : item.OrderStatus == "Completed" ? "status-completed" : "status-cancelled")">
-                            @Html.DisplayFor(modelItem => item.OrderStatus)
-                        </span>
-                    </td>
-                    <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
-                    <td>@Html.DisplayFor(modelItem => item.UpdatedAt)</td>
-                    <td class="address-cell" title="@item.ShippingAddress">
-                        @Html.DisplayFor(modelItem => item.ShippingAddress)
-                    </td>
-                    <td>@Html.DisplayFor(modelItem => item.User.Email)</td>
-                    <td>@Html.DisplayFor(modelItem => item.PaymentMethod.MethodName)</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.OrderID" class="btn btn-edit">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.OrderID" class="btn btn-details">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.OrderID" class="btn btn-delete">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="ordersTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn hàng</th>
+                            <th>Khách hàng</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày tạo</th>
+                            <th style="width: 150px;" class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.OrderNumber</td>
+                                <td>@(item.User?.FullName ?? "Khách vãng lai")</td>
+                                <td>@item.TotalAmount?.ToString("N0")</td>
+                                <td>
+                                    @switch (item.OrderStatus)
+                                    {
+                                        case "Chờ xác nhận":
+                                            <span class="badge badge-warning">@item.OrderStatus</span>
+                                            break;
+                                        case "Đang xử lý":
+                                            <span class="badge badge-info">@item.OrderStatus</span>
+                                            break;
+                                        case "Đang giao":
+                                            <span class="badge badge-primary">@item.OrderStatus</span>
+                                            break;
+                                        case "Hoàn thành":
+                                            <span class="badge badge-success">@item.OrderStatus</span>
+                                            break;
+                                        case "Hủy":
+                                            <span class="badge badge-danger">@item.OrderStatus</span>
+                                            break;
+                                        default:
+                                            <span class="badge badge-secondary">@item.OrderStatus</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = item.OrderID })" class="btn btn-warning" title="Chi tiết">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = item.OrderID })" class="btn btn-info" title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = item.OrderID })" class="btn btn-danger" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#ordersTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+                },
+                "order": [[4, 'desc']]
+            });
+        });
+    </script>
+}

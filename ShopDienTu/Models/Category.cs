@@ -17,6 +17,7 @@ namespace ShopDienTu.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         //
         // Navigation properties
-        public virtual ICollection<SubCategory> SubCategories { get; set; }
+        public virtual ICollection<SubCategory> SubCategories { get; set; } = new List<SubCategory>();
     }
 }
+                                                                                                                                                

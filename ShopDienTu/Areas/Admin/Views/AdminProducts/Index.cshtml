@@ -1,179 +1,199 @@
 ﻿@model IEnumerable<ShopDienTu.Models.Product>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý sản phẩm";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 }
 
-<style>
-    /* Tùy chỉnh toàn cục */
-    body {
-        background: #f4f6f9;
-        font-family: 'Arial', sans-serif;
-    }
+<div class="container-fluid">
+    <h1 class="mt-4">Quản lý sản phẩm</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Admin")">Bảng điều khiển</a></li>
+        <li class="breadcrumb-item active">Sản phẩm</li>
+    </ol>
 
-    /* Container */
-    .container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 20px;
-        background: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="fas fa-box mr-1"></i>
+                Danh sách sản phẩm
+            </div>
+            <a href="@Url.Action("Create")" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus"></i> Thêm sản phẩm
+            </a>
+        </div>
+        <div class="card-body">
+            <form method="get" action="@Url.Action("Index")" class="mb-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Tìm kiếm</label>
+                            <input type="text" class="form-control" name="searchString" value="@ViewBag.SearchString" placeholder="Tên sản phẩm...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Danh mục phụ</label>
+                            <select class="form-control" name="subCategoryId">
+                                <option value="">Tất cả</option>
+                                @foreach (var subCategory in ViewBag.SubCategories)
+                                {
+                                    <option value="@subCategory.SubCategoryID" selected="@(ViewBag.SubCategoryId == subCategory.SubCategoryID ? "selected" : "")">
+                                        @subCategory.Category.CategoryName - @subCategory.SubCategoryName
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Giá từ</label>
+                            <input type="number" class="form-control" name="minPrice" value="@ViewBag.MinPrice" placeholder="Giá từ...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Giá đến</label>
+                            <input type="number" class="form-control" name="maxPrice" value="@ViewBag.MaxPrice" placeholder="Giá đến...">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Trạng thái</label>
+                            <select class="form-control" name="isActive">
+                                <option value="">Tất cả</option>
+                                <option value="true" selected="@(ViewBag.IsActive == true ? "selected" : "")">Kích hoạt</option>
+                                <option value="false" selected="@(ViewBag.IsActive == false ? "selected" : "")">Không kích hoạt</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary mt-4">
+                            <i class="fas fa-search mr-1"></i> Tìm
+                        </button>
+                    </div>
+                </div>
+            </form>
 
-    /* Tiêu đề */
-    h1 {
-        text-align: center;
-        color: #2d3748;
-        font-size: 1.8rem;
-        margin-bottom: 20px;
-        font-weight: bold;
-    }
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="productsTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá</th>
+                            <th>Tồn kho</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @{
+                                        var mainImage = product.ProductImages?.FirstOrDefault(pi => pi.IsMainImage)?.ImagePath ?? "/images/no-image.jpg";
+                                    }
+                                    <img src="/images/@mainImage" alt="@product.ProductName" class="img-thumbnail" style="max-width: 50px;" />
+                                </td>
+                                <td>@product.ProductName</td>
+                                <td>
+                                    @if (product.SubCategory != null)
+                                    {
+                                        <div>@product.SubCategory.Category?.CategoryName</div>
+                                        <small class="text-muted">@product.SubCategory.SubCategoryName</small>
+                                    }
+                                </td>
+                                <td>@product.Price.ToString("N0") VNĐ</td>
+                                <td>
+                                    @if (product.StockQuantity <= 0)
+                                    {
+                                        <span class="badge badge-danger">Hết hàng</span>
+                                    }
+                                    else if (product.StockQuantity < 5)
+                                    {
+                                        <span class="badge badge-warning">@product.StockQuantity</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-success">@product.StockQuantity</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (product.IsActive)
+                                    {
+                                        <span class="badge badge-success">Kích hoạt</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">Không kích hoạt</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="@Url.Action("Edit", new { id = product.ProductID })" class="btn btn-sm btn-info" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-danger btn-delete" data-toggle="modal" data-target="#deleteModal" data-id="@product.ProductID" title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-    /* Tùy chỉnh bảng */
-    .table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 8px;
-        overflow: hidden;
-        background: #ffffff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            vertical-align: middle;
-            font-size: 0.95rem;
-        }
-
-        .table thead {
-            background: #4a5568;
-            color: #ffffff;
-        }
-
-        .table th {
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .table tbody tr {
-            border-bottom: 1px solid #e2e8f0;
-            transition: background 0.2s ease;
-        }
-
-            .table tbody tr:hover {
-                background: #f1f5f9;
-            }
-
-    /* Tùy chỉnh nút và liên kết */
-    .btn {
-        display: inline-block;
-        padding: 6px 12px;
-        margin-right: 5px;
-        border-radius: 4px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-    }
-
-    .btn-create {
-        background: #38a169;
-        color: #ffffff;
-    }
-
-        .btn-create:hover {
-            background: #2f855a;
-        }
-
-    .btn-edit {
-        color: #3182ce;
-    }
-
-        .btn-edit:hover {
-            color: #2b6cb0;
-            background: #ebf8ff;
-        }
-
-    .btn-details {
-        color: #319795;
-    }
-
-        .btn-details:hover {
-            color: #2c7a7b;
-            background: #e6fffa;
-        }
-
-    .btn-delete {
-        color: #e53e3e;
-    }
-
-        .btn-delete:hover {
-            color: #c53030;
-            background: #fff5f5;
-        }
-
-
-
-    {
-        padding: 10px;
-    }
-
-    .table th, .table td {
-        font-size: 0.85rem;
-        padding: 8px;
-    }
-
-    .btn {
-        padding: 5px 10px;
-        font-size: 0.8rem;
-    }
-
-    }
-</style>
-
-<div class="container">
-    <h1>Product Management</h1>
-
-    <p>
-        <a asp-action="Create" class="btn btn-create">Create New</a>
-    </p>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>@Html.DisplayNameFor(model => model.ProductName)</th>
-                <th>@Html.DisplayNameFor(model => model.Description)</th>
-                <th>@Html.DisplayNameFor(model => model.Price)</th>
-                <th>@Html.DisplayNameFor(model => model.StockQuantity)</th>
-                <th>@Html.DisplayNameFor(model => model.CreatedAt)</th>
-                <th>@Html.DisplayNameFor(model => model.UpdatedAt)</th>
-                <th>@Html.DisplayNameFor(model => model.IsActive)</th>
-                <th>@Html.DisplayNameFor(model => model.SubCategory)</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>@Html.DisplayFor(modelItem => item.ProductName)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                    <td>@Html.DisplayFor(modelItem => item.Price)</td>
-                    <td>@Html.DisplayFor(modelItem => item.StockQuantity)</td>
-                    <td>@Html.DisplayFor(modelItem => item.CreatedAt)</td>
-                    <td>@Html.DisplayFor(modelItem => item.UpdatedAt)</td>
-                    <td>@Html.DisplayFor(modelItem => item.IsActive)</td>
-                    <td>@Html.DisplayFor(modelItem => item.SubCategory.SubCategoryName)</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.ProductID" class="btn btn-edit">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ProductID" class="btn btn-details">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.ProductID" class="btn btn-delete">Delete</a>
-                    </td>
-                </tr>
-            }
-            </tbodyლ
-
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa sản phẩm này? Thao tác này không thể hoàn tác.</p>
+                </div>
+                <div class="modal-footer">
+                    <form id="deleteForm" method="post" asp-action="Delete">
+                        <input type="hidden" name="ProductID" id="deleteProductID" />
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#productsTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.25/i18n/Vietnamese.json"
+                }
+            });
+
+            $('.btn-delete').click(function () {
+                const productId = $(this).data('id');
+                $('#deleteProductID').val(productId);
+            });
+        });
+    </script>
+}
