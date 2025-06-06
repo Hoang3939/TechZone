@@ -237,13 +237,13 @@ namespace ShopDienTu.Controllers
                 {
                     ModelState.AddModelError("promoCode", "Mã voucher không hợp lệ hoặc đã hết hạn.");
                 }
-                else if (subtotal < 20_000_000m)
+                else if (globalPromo.MinOrderValue.HasValue && subtotal < globalPromo.MinOrderValue.Value)
                 {
-                    ModelState.AddModelError("promoCode", "Đơn hàng phải từ 20.000.000 VNĐ trở lên để sử dụng voucher.");
+                    ModelState.AddModelError("promoCode", $"Đơn hàng phải từ {globalPromo.MinOrderValue.Value:N0} VNĐ trở lên để sử dụng voucher.");
                 }
                 else
                 {
-                    globalVoucherDiscount = 1_000_000m;
+                    globalVoucherDiscount = globalPromo.DiscountAmount ?? 0m;
                 }
             }
 
@@ -406,12 +406,17 @@ namespace ShopDienTu.Controllers
             {
                 return Json(new { success = false, error = "Mã voucher không hợp lệ hoặc đã hết hạn." });
             }
-            if (subtotal < 20_000_000m)
+            if (promo.MinOrderValue.HasValue && subtotal < promo.MinOrderValue.Value)
             {
-                return Json(new { success = false, error = "Đơn hàng phải từ 20.000.000 VNĐ trở lên để sử dụng voucher." });
+                return Json(new { success = false, error = $"Đơn hàng phải từ {promo.MinOrderValue.Value:N0} VNĐ trở lên để sử dụng voucher." });
             }
 
-            return Json(new { success = true, code = promo.PromoCode, discount = 1000000 });
+            if (!promo.DiscountAmount.HasValue || promo.DiscountAmount.Value <= 0)
+            {
+                return Json(new { success = false, error = "Mã voucher này không hợp lệ." });
+            }
+
+            return Json(new { success = true, code = promo.PromoCode, discount = promo.DiscountAmount.Value });
         }
 
         // GET: Order/OrderConfirmation/5
