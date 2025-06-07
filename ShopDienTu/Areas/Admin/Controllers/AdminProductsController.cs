@@ -174,6 +174,11 @@ namespace ShopDienTu.Areas.Admin.Controllers
                         image.IsMainImage = image.ImageID == mainImageId.Value;
                     }
                 }
+                else if (product.ProductImages.Any() && !product.ProductImages.Any(i => i.IsMainImage))
+                {
+                    // If no main image is selected but there are images, set the first one as main
+                    product.ProductImages.First().IsMainImage = true;
+                }
 
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Cập nhật sản phẩm thành công!";

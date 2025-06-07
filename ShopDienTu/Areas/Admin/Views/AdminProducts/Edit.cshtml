@@ -146,19 +146,24 @@
                 const fileCount = this.files.length;
                 const label = $(this).next('.custom-file-label');
                 label.html(fileCount > 1 ? `${fileCount} files selected` : this.value.split('\\').pop());
+
                 const previewContainer = $('#imagePreviewContainer');
                 previewContainer.empty();
+
                 if (this.files && this.files.length > 0) {
                     for (let i = 0; i < this.files.length; i++) {
                         const reader = new FileReader();
+                        const file = this.files[i];
+
                         reader.onload = function(e) {
                             previewContainer.append(
                                 `<div class="preview-item">
-                                    <img src="/images/${e.target.result}" alt="Preview" style="max-width: 100px; max-height: 100px; margin: 5px;" />
+                                    <img src="${e.target.result}" alt="Preview" class="img-thumbnail" style="max-width: 100px; max-height: 100px; margin: 5px;" />
                                 </div>`
                             );
                         }
-                        reader.readAsDataURL(this.files[i]);
+
+                        reader.readAsDataURL(file);
                     }
                 }
             });

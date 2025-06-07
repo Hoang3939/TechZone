@@ -22,10 +22,23 @@ namespace ShopDienTu.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTerm, int? categoryId = null, int? subcategoryId = null, string sortOrder = null, int? page = 1, int? pageSize = 10, decimal? minPrice = null, decimal? maxPrice = null)
+        public async Task<IActionResult> Index(string searchTerm, int? categoryId = null, int? subcategoryId = null, string sortOrder = null, int? page = 1, int? pageSize = 10, decimal? minPrice = null, decimal? maxPrice = null, int? suggestedPage = 1)
         {
             var now = DateTime.Now;
 
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                string currentSearchHistory = Request.Cookies["SearchHistory"] ?? "";
+                List<string> searchTerms = currentSearchHistory.Split('|', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+                searchTerms.RemoveAll(s => s.Equals(searchTerm.Trim(), StringComparison.OrdinalIgnoreCase));
+                searchTerms.Insert(0, searchTerm.Trim());
+
+                if (searchTerms.Count > 5) searchTerms = searchTerms.Take(5).ToList();
+
+                var cookieOptions = new CookieOptions { Expires = DateTime.Now.AddDays(30), HttpOnly = true, IsEssential = true };
+                Response.Cookies.Append("SearchHistory", string.Join("|", searchTerms), cookieOptions);
+            }
             // L?y t?t c? các khuy?n mãi ?ang ho?t ??ng (nh? ban ??u, ?? hi?n th? chung n?u c?n)
             var activePromotions = await _context.Promotions
                 .Where(p => p.IsActive && p.ProductID != null && p.StartDate <= now && p.EndDate >= now)
@@ -160,6 +173,69 @@ namespace ShopDienTu.Controllers
                                 .Take(itemsPerPage)
                                 .Select(x => x.Product) // Ch? l?y ??i t??ng Product ?? truy?n v? View
                                 .ToListAsync();
+
+            // Logic l?c s?n ph?m g?i ý
+            // ================= LOGIC G?I Ý S?N PH?M H?P NH?T (?Ã CH?NH S?A) =================
+            const int maxTotalSuggested = 10;
+            const int suggestedItemsPerPage = 5;
+            int currentSuggestedPage = suggestedPage ?? 1;
+
+            // L?y d? li?u t? cookie
+            string searchHistoryCookie = Request.Cookies["SearchHistory"] ?? "";
+            string viewedProductsCookie = Request.Cookies["ViewedProducts"] ?? "";
+            var recentSearchTerms = searchHistoryCookie.Split('|', StringSplitOptions.RemoveEmptyEntries).ToList();
+            var viewedProductIds = viewedProductsCookie.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                                       .Select(idStr => int.TryParse(idStr, out int id) ? id : (int?)null)
+                                                       .Where(id => id.HasValue).Select(id => id.Value).ToList();
+
+            // L?y danh m?c con t? các s?n ph?m ?ã xem
+            var subCategoryIdsFromHistory = new List<int?>();
+            if (viewedProductIds.Any())
+            {
+                subCategoryIdsFromHistory = await _context.Products
+                    .Where(p => viewedProductIds.Contains(p.ProductID))
+                    .Select(p => p.SubCategoryID)
+                    .Distinct()
+                    .ToListAsync();
+            }
+
+            // Xây d?ng truy v?n h?p nh?t
+            IQueryable<Product> combinedSuggestedQuery;
+            if (recentSearchTerms.Any() || subCategoryIdsFromHistory.Any())
+            {
+                combinedSuggestedQuery = _context.Products
+                    .Where(p => p.IsActive  && (recentSearchTerms.Any(term => p.ProductName.Contains(term)) || subCategoryIdsFromHistory.Contains(p.SubCategoryID)));
+            }
+            else
+            {
+                // Fallback: G?i ý s?n ph?m m?i nh?t n?u không có l?ch s?
+                combinedSuggestedQuery = _context.Products
+                    .Where(p => p.IsActive);
+            }
+
+            // L?y t?i ?a 10 s?n ph?m t? DB
+            var allSuggestedProducts = await combinedSuggestedQuery
+                .Include(p => p.ProductImages)
+                .OrderByDescending(p => p.ProductID) // S?p x?p ?? có k?t qu? nh?t quán
+                .Take(maxTotalSuggested)
+                .ToListAsync();
+
+            // Dùng DistinctBy ?? lo?i b? s?n ph?m trùng l?p (n?u có)
+            allSuggestedProducts = allSuggestedProducts.DistinctBy(p => p.ProductID).ToList();
+
+            // Tính toán phân trang
+            int totalSuggestedPages = (int)Math.Ceiling((double)allSuggestedProducts.Count / suggestedItemsPerPage);
+
+            // L?y 5 s?n ph?m cho trang g?i ý hi?n t?i
+            var pagedSuggestedProducts = allSuggestedProducts
+                .Skip((currentSuggestedPage - 1) * suggestedItemsPerPage)
+                .Take(suggestedItemsPerPage)
+                .ToList();
+
+            // G?i d? li?u g?i ý ??n View
+            ViewBag.SuggestedProducts = pagedSuggestedProducts;
+            ViewBag.CurrentSuggestedPage = currentSuggestedPage;
+            ViewBag.TotalSuggestedPages = totalSuggestedPages;
 
             return View(products);
         }

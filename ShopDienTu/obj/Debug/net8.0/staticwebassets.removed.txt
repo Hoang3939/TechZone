@@ -1,0 +1,5 @@
+C:\Users\AnhKit\Source\Repos\TechZone\ShopDienTu\wwwroot\images\banners\banner1.jpg
+C:\Users\AnhKit\Source\Repos\TechZone\ShopDienTu\wwwroot\images\banners\banner2.jpg
+C:\Users\AnhKit\Source\Repos\TechZone\ShopDienTu\wwwroot\images\banners\banner3.jpg
+C:\Users\AnhKit\Source\Repos\TechZone\ShopDienTu\wwwroot\images\banners\banner4.jpg
+C:\Users\AnhKit\Source\Repos\TechZone\ShopDienTu\wwwroot\images\banners\banner5.png

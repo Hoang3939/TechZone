@@ -123,7 +123,7 @@
 
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item mt-3 nav-item-home">
                     <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link">
                         <i class="nav-icon fas fa-home"></i>
                         <p>
@@ -138,3 +138,27 @@
     </div>
     <!-- /.sidebar -->
 </aside>
+<style>
+    /* Tạo một đường kẻ ngang phía trên để tách biệt */
+    .nav-item-home {
+        border-top: 1px solid #4f5962;
+    }
+
+        /* Định dạng cho liên kết chính */
+        .nav-item-home .nav-link {
+            background-color: #28a745; /* Một màu xanh lá cây nổi bật */
+            color: #ffffff; /* Chữ màu trắng */
+            font-weight: bold;
+        }
+
+            /* Giữ màu cho icon */
+            .nav-item-home .nav-link i {
+                color: #ffffff !important;
+            }
+
+            /* Định dạng khi di chuột qua */
+            .nav-item-home .nav-link:hover {
+                background-color: #218838; /* Màu xanh lá cây đậm hơn */
+                color: #ffffff;
+            }
+</style>

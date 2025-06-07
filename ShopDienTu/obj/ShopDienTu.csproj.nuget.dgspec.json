@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {}
+    "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {}
   },
   "projects": {
-    "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {
+    "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+        "projectUniqueName": "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
         "projectName": "ShopDienTu",
-        "projectPath": "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+        "projectPath": "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
         "packagesPath": "C:\\Users\\AnhKit\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\obj\\",
+        "outputPath": "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

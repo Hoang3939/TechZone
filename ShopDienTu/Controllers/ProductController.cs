@@ -32,12 +32,37 @@ namespace ShopDienTu.Controllers
                 .Include(p => p.ProductImages)
                 .Include(p => p.Reviews)
                     .ThenInclude(r => r.User)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(m => m.ProductID == id);
 
             if (product == null)
             {
                 return NotFound();
             }
+
+            string viewedProductsCookie = Request.Cookies["ViewedProducts"] ?? "";
+            List<int> viewedProductIds = viewedProductsCookie.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(int.Parse)
+                .ToList();
+
+            viewedProductIds.Remove(id.Value);
+
+            viewedProductIds.Insert(0, id.Value);
+
+            if (viewedProductIds.Count > 15)
+            {
+                viewedProductIds = viewedProductIds.Take(15).ToList();
+            }
+
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddDays(30),
+                HttpOnly = true,
+                IsEssential = true
+            };
+
+            Response.Cookies.Append("ViewedProducts", string.Join(",", viewedProductIds), cookieOptions);
+
 
             decimal rankDiscountPercentage = 0m;
             if (User.Identity.IsAuthenticated)
@@ -73,33 +98,6 @@ namespace ShopDienTu.Controllers
             ViewBag.RelatedProducts = relatedProducts;
 
             return View(product);
-        }
-
-        // GET: Product/Search
-        public async Task<IActionResult> Search(string searchTerm)
-        {
-            if (string.IsNullOrEmpty(searchTerm))
-            {
-                return RedirectToAction("Index", "Home");
-            }
-
-            var products = await _context.Products
-                .Include(p => p.SubCategory)
-                .ThenInclude(s => s.Category)
-                .Include(p => p.ProductImages)
-                .Where(p => p.IsActive && (p.ProductName.ToLower().Contains(searchTerm.ToLower()) || (p.Description != null && p.Description.ToLower().Contains(searchTerm.ToLower()))))
-                .ToListAsync();
-
-            ViewBag.SearchTerm = searchTerm;
-            ViewBag.ResultCount = products.Count;
-
-            // Get all categories with subcategories for the sidebar
-            var categories = await _context.Categories
-                .Include(c => c.SubCategories)
-                .ToListAsync();
-            ViewBag.Categories = categories;
-
-            return View("~/Views/Home/Index.cshtml", products);
         }
     }
 }

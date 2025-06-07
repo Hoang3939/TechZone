@@ -3443,9 +3443,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+      "projectUniqueName": "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
       "projectName": "ShopDienTu",
-      "projectPath": "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+      "projectPath": "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
       "packagesPath": "C:\\Users\\AnhKit\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\obj\\",
       "projectStyle": "PackageReference",
