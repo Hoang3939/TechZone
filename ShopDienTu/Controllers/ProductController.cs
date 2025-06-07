@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShopDienTu.Controllers
 {
@@ -98,6 +99,73 @@ namespace ShopDienTu.Controllers
             ViewBag.RelatedProducts = relatedProducts;
 
             return View(product);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddReview(int productId, int rating, string comment)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account", new { returnUrl = Url.Action("Details", "Product", new { id = productId }) });
+            }
+
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+            {
+                return Unauthorized();
+            }
+
+            // Kiểm tra nếu rating hợp lệ
+            if (rating < 1 || rating > 5)
+            {
+                TempData["ErrorMessage"] = "Số sao đánh giá không hợp lệ.";
+                return RedirectToAction("Details", "Product", new { id = productId });
+            }
+
+            // Kiểm tra đã đánh giá chưa
+            var alreadyReviewed = await _context.Reviews.AnyAsync(r => r.UserID == userId && r.ProductID == productId);
+            if (alreadyReviewed)
+            {
+                TempData["ErrorMessage"] = "Bạn đã đánh giá sản phẩm này rồi.";
+                return RedirectToAction("Details", "Product", new { id = productId });
+            }
+
+            var review = new Review
+            {
+                ProductID = productId,
+                UserID = userId,
+                Rating = rating,
+                Comment = comment?.Trim(),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Reviews.Add(review);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Cảm ơn bạn đã đánh giá sản phẩm!";
+            return RedirectToAction("Details", "Product", new { id = productId });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize]
+        public async Task<IActionResult> DeleteReview(int reviewId)
+        {
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdStr, out int userId))
+                return Unauthorized();
+
+            var review = await _context.Reviews.FindAsync(reviewId);
+
+            if (review == null || review.UserID != userId)
+                return NotFound();
+
+            _context.Reviews.Remove(review);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Đánh giá đã được xóa.";
+            return RedirectToAction("Reviews", "Account");
         }
     }
 }

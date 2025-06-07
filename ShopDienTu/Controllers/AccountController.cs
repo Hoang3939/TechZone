@@ -570,18 +570,21 @@ namespace ShopDienTu.Controllers
         }
 
         [Authorize]
-        public IActionResult Reviews()
+        public async Task<IActionResult> Reviews()
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var user = _context.Users.Include(u => u.Rank).FirstOrDefault(u => u.UserID == userId);
-            if(user != null)
-            {
-                ViewBag.FullName = user.FullName;
-                ViewBag.Email = user.Email;
-                ViewBag.Points = user.Points ?? 0;
-                ViewBag.RankName = user.Rank?.RankName ?? "Chưa có hạng";
-            }
-            return View();
+            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdStr, out int userId))
+                return Unauthorized();
+
+            var reviews = await _context.Reviews
+                .Include(r => r.Product)
+                    .ThenInclude(p => p.ProductImages)
+                .Where(r => r.UserID == userId)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+
+            return View(reviews);
         }
     }
 
