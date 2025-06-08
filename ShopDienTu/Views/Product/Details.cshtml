@@ -136,17 +136,23 @@
                     </form>
                     @if (User.Identity.IsAuthenticated)
                     {
+                        // Lấy trạng thái từ ViewBag đã được set trong ProductController
                         var isFavorite = ViewBag.IsFavorite as bool? ?? false;
-                        <form id="wishlistForm" method="post" action="/WishList/Add">
+
+                        // Form bây giờ trỏ đến action "Toggle" trong WishlistController
+                        <form asp-controller="Wishlist" asp-action="Toggle" method="post">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="productId" value="@Model.ProductID" />
-                            <button type="submit" id="wishlistButton" class="btn btn-lg @(isFavorite ? "btn-danger" : "btn-outline-danger")">
-                                <i class="fas fa-heart me-2"></i> Yêu thích
+                            <button type="submit" class="btn btn-lg @(isFavorite ? "btn-danger" : "btn-outline-danger")">
+                                <i class="fas fa-heart me-2"></i>
+                                @(isFavorite ? "Đã yêu thích" : "Yêu thích")
                             </button>
                         </form>
                     }
                     else
                     {
-                        <a href="/Account/Login" class="btn btn-outline-secondary btn-lg">
+                        // Cải thiện link cho khách, đảm bảo họ quay lại đúng trang sau khi đăng nhập
+                        <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Url.Action("Details", "Product", new { id = Model.ProductID })" class="btn btn-lg btn-outline-danger">
                             <i class="fas fa-heart me-2"></i> Yêu thích
                         </a>
                     }
@@ -300,59 +306,73 @@
             </div>
             <div class="card-body">
                 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-                    @* Ép kiểu ViewBag.RelatedProducts để tránh lỗi dynamic dispatch và rõ ràng hơn *@
                     @foreach (var relatedProduct in (IEnumerable<ShopDienTu.Models.Product>)ViewBag.RelatedProducts)
                     {
-                        decimal relatedProductSpecificDiscountPercentage = 0m;
-                        var relatedProductSpecificPromo = relatedProduct.Promotions?.FirstOrDefault(p => p.IsActive && p.StartDate <= now && p.EndDate >= now);
-                        if (relatedProductSpecificPromo != null)
+                        decimal related_productSpecificDiscount = 0m; // Đổi tên
+                        var activePromotions = ViewBag.ActivePromotions as List<Promotion> ?? new List<Promotion>();
+                        var related_promo = activePromotions.FirstOrDefault(p => p.ProductID == relatedProduct.ProductID); // Đổi tên
+
+                        if (related_promo != null)
                         {
-                            relatedProductSpecificDiscountPercentage = relatedProductSpecificPromo.DiscountPercentage;
+                            related_productSpecificDiscount = related_promo.DiscountPercentage; // Sử dụng tên mới
                         }
 
-                        decimal effectiveDiscountPercentageForRelatedProduct = Math.Max(relatedProductSpecificDiscountPercentage, rankDiscountPercentage);
-                        decimal relatedFinalDisplayedPrice = relatedProduct.Price * (1 - effectiveDiscountPercentageForRelatedProduct / 100m);
+                        decimal related_effectiveDiscount; // Đổi tên
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            // Sử dụng lại biến rankDiscountPercentage đã khai báo ở scope ngoài
+                            related_effectiveDiscount = Math.Max(related_productSpecificDiscount, rankDiscountPercentage);
+                        }
+                        else
+                        {
+                            related_effectiveDiscount = related_productSpecificDiscount;
+                        }
+
+                        decimal related_finalPrice = relatedProduct.Price * (1 - related_effectiveDiscount / 100m); // Đổi tên
+
                         <div class="col">
-                            <div class="card product-card h-100">
-                                <div class="product-image">
-                                    @{
-                                        // --- FIX APPLIED HERE ---
-                                        // Ép kiểu ProductImages sang IEnumerable<ProductImage> trước khi dùng LINQ với lambda
-                                        var images = relatedProduct.ProductImages as IEnumerable<ShopDienTu.Models.ProductImage>;
-                                        var relatedImage = images?.FirstOrDefault(i => i.IsMainImage)?.ImagePath;
-                                        if (string.IsNullOrEmpty(relatedImage))
-                                        {
-                                            // Sử dụng lại biến 'images' đã được ép kiểu
-                                            relatedImage = images?.FirstOrDefault()?.ImagePath ?? "/images/no-image.jpg";
+                            @* --- ÁP DỤNG MẪU CARD SẢN PHẨM MỚI --- *@
+                            <div class="card product-card h-100 position-relative">
+                                <a asp-controller="Product" asp-action="Details" asp-route-id="@relatedProduct.ProductID" class="product-image-link">
+                                    <div class="product-image-container">
+                                        @{
+                                            var imagePath = relatedProduct.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath
+                                            ?? relatedProduct.ProductImages?.FirstOrDefault()?.ImagePath;
+                                            var imageUrl = !string.IsNullOrEmpty(imagePath) ? $"/images/{imagePath.TrimStart('/')}" : "/images/placeholder.png";
                                         }
-                                        // --- END FIX ---
-                                    }
-                                    <img src="/images/@relatedImage" alt="@relatedProduct.ProductName" class="card-img-top">
-                                </div>
-                                <div class="card-body">
-                                    <h3 class="product-name">
-                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@relatedProduct.ProductID"
-                                           class="text-decoration-none text-dark">
-                                            @relatedProduct.ProductName
-                                        </a>
-                                    </h3>
-                                    <div class="product-price">
-                                        @* Hiển thị giá gốc gạch ngang nếu có bất kỳ giảm giá nào được áp dụng *@
-                                        @if (effectiveDiscountPercentageForRelatedProduct > 0)
+                                        <img src="@imageUrl" alt="@relatedProduct.ProductName" class="card-img-top img-fluid product-img-custom">
+                                    </div>
+                                </a>
+                                <div class="card-body d-flex flex-column ProductCard_cardInfo">
+                                    <p class="product-label-loan mb-0"><span title="Trả góp 0%">Trả góp 0%</span></p>
+
+                                    <div class="product-price-block">
+                                        @if (related_effectiveDiscount > 0)
                                         {
-                                            <span class="text-muted"><del>@string.Format("{0:N0}", relatedProduct.Price) VNĐ</del></span>
-                                            <span class="text-danger ms-2">@string.Format("{0:N0}", relatedFinalDisplayedPrice) VNĐ</span>
+                                            <p class="price-old-discount mb-0">
+                                                <span class="price-old">@string.Format("{0:N0}", relatedProduct.Price) VNĐ</span>
+                                                <span class="price-discount-percent">-@related_effectiveDiscount.ToString("0")%</span>
+                                            </p>
+                                            <p class="price-current mb-0">@string.Format("{0:N0}", related_finalPrice) VNĐ</p>
                                         }
                                         else
                                         {
-                                            <span class="text-danger">@string.Format("{0:N0}", relatedProduct.Price) VNĐ</span>
+                                            <p class="price-current mb-0">@string.Format("{0:N0}", relatedProduct.Price) VNĐ</p>
                                         }
                                     </div>
-                                    <form asp-controller="Cart" asp-action="AddToCart" method="post">
+
+                                    <h3 class="product-title-text mt-auto">
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@relatedProduct.ProductID" class="text-decoration-none text-dark">
+                                            @relatedProduct.ProductName
+                                        </a>
+                                    </h3>
+
+                                    @* Thêm nút "Thêm vào giỏ" ở đây để thay thế form cũ *@
+                                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="mt-2">
                                         <input type="hidden" name="productId" value="@relatedProduct.ProductID" />
                                         <input type="hidden" name="quantity" value="1" />
-                                        <button type="submit" class="btn btn-primary w-100 add-to-cart">
-                                            <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ
+                                        <button type="submit" class="btn btn-sm btn-outline-primary w-100 add-to-cart" @(relatedProduct.StockQuantity <= 0 ? "disabled" : "")>
+                                            <i class="fas fa-shopping-cart me-1"></i> Thêm vào giỏ
                                         </button>
                                     </form>
                                 </div>

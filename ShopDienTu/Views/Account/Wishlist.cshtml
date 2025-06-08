@@ -75,14 +75,14 @@
                     <h4 class="card-title mb-0">@ViewData["Title"]</h4> @* Hoặc <h4 class="card-title mb-0">Sản phẩm yêu thích</h4> *@
                 </div>
                 <div class="card-body">
-                    @if (TempData["SuccessMessage"] != null) // Thêm hiển thị TempData nếu có
+                    @if (TempData["SuccessMessage"] != null)
                     {
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     }
-                    @if (TempData["ErrorMessage"] != null) // Thêm hiển thị TempData nếu có
+                    @if (TempData["ErrorMessage"] != null)
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
@@ -122,9 +122,8 @@
                                             <p class="card-text text-danger fw-bold mt-auto mb-2">@string.Format("{0:N0}", product.Price) VNĐ</p>
                                         </div>
                                         <div class="card-footer bg-white border-top-0 pt-0">
-                                            @* Nút xem chi tiết không cần thiết nếu cả card đã là link *@
-                                            @* <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID" class="btn btn-sm btn-outline-primary w-100 mb-2">Xem chi tiết</a> *@
-                                            <form asp-controller="WishList" asp-action="DeleteById" method="post" class="d-grid">
+                                            <form asp-controller="Wishlist" asp-action="RemoveFromList" method="post" class="d-grid">
+                                                @Html.AntiForgeryToken()
                                                 <input type="hidden" name="wishlistItemId" value="@item.WishlistItemID" />
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                                     <i class="fas fa-trash-alt me-1"></i> Xóa khỏi yêu thích

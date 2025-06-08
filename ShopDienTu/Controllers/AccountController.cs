@@ -85,14 +85,33 @@ namespace ShopDienTu.Controllers
                             var subject = "Mã OTP Xác Thực Đăng Nhập - ShopDienTu";
                             var message = $@"
                                 <html>
-                                <body style='font-family: Arial, sans-serif;'>
-                                    <h2>ShopDienTu - Xác thực đăng nhập</h2>
-                                    <p>Xin chào {user.FullName},</p>
-                                    <p>Chúng tôi nhận được yêu cầu đăng nhập vào tài khoản của bạn. Vui lòng sử dụng mã OTP dưới đây để xác minh:</p>
-                                    <h3 style='text-align: center;'>{otp}</h3>
-                                    <p>Mã này có hiệu lực trong 15 phút. Nếu bạn không yêu cầu đăng nhập, vui lòng liên hệ hỗ trợ ngay.</p>
-                                    <p>Trân trọng,<br>Đội ngũ ShopDienTu</p>
-                                </body>
+                                    <head>
+                                        <style>
+                                            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                                            .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                                            .header {{ background-color: #0f07be; color: white; padding: 10px; text-align: center; }}
+                                            .content {{ padding: 20px; border: 1px solid #ddd; }}
+                                            .otp {{ font-size: 24px; font-weight: bold; text-align: center; margin: 20px 0; letter-spacing: 5px; }}
+                                            .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #777; }}
+                                        </style>
+                                    </head>
+                                    <body>
+                                        <div class='container'>
+                                            <div class='header'>
+                                                <h2>ShopDienTu - Xác thực 2 lớp</h2>
+                                            </div>
+                                            <div class='content'>
+                                                <p>Xin chào,</p>
+                                                <p>Chúng tôi nhận được yêu cầu đăng nhập tài khoản của bạn. Vui lòng sử dụng mã OTP dưới đây để xác minh tài khoản:</p>
+                                                <div class='otp'>{otp}</div>
+                                                <p>Mã này có hiệu lực trong 15 phút. Nếu bạn không yêu cầu đăng nhập, vui lòng bỏ qua email này.</p>
+                                                <p>Trân trọng,<br>Đội ngũ ShopDienTu</p>
+                                            </div>
+                                            <div class='footer'>
+                                                <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+                                            </div>
+                                        </div>
+                                    </body>
                                 </html>";
 
                             await _emailService.SendEmailAsync(user.Email, subject, message);

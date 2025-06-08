@@ -1,4 +1,5 @@
 wwwroot\css\boot.css
+wwwroot\css\site.css
 wwwroot\css\style.css
 wwwroot\dist\css\adminlte.css
 wwwroot\dist\css\adminlte.css.map
@@ -2067,4 +2068,3 @@ wwwroot\plugins\uplot\uPlot.esm.js
 wwwroot\plugins\uplot\uPlot.iife.js
 wwwroot\plugins\uplot\uPlot.iife.min.js
 wwwroot\plugins\uplot\uPlot.min.css
-wwwroot\css\site.css

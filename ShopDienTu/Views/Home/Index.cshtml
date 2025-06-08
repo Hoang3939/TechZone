@@ -7,13 +7,25 @@
     // Lấy phần trăm giảm giá theo rank từ ViewBag
     var rankDiscountPercentage = ViewBag.RankDiscountPercentage as decimal? ?? 0m;
 
-    int currentPage = ViewBag.CurrentPage ?? 1;
-    int totalPages = ViewBag.TotalPages ?? 1;
+    // Các biển phân trang và filter
     string searchTerm = ViewBag.SearchTerm;
     int? selectedCategoryId = ViewBag.SelectedCategoryId;
     int? selectedSubcategoryId = ViewBag.SelectedSubcategoryId;
+    decimal? minPrice = ViewBag.MinPrice;
+    decimal? maxPrice = ViewBag.MaxPrice;
     string currentSort = ViewBag.CurrentSort;
-    int pageSize = ViewBag.PageSize ?? 9;
+
+    // Biến cho sản phẩm chính
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int pageSize = ViewBag.PageSize ?? 10;
+
+    // Biến cho sản phẩm mới nhất
+    var newestProducts = ViewBag.NewestProducts as List<Product> ?? new List<Product>();
+    var totalNewestPages = ViewBag.TotalNewestPages ?? 1;
+    var currentNewestPage = ViewBag.CurrentNewestPage ?? 1;
+
+    // Biến cho sản phẩm gợi ý
     var suggestedProducts = ViewBag.SuggestedProducts as List<Product> ?? new List<Product>();
     var totalSuggestedPages = ViewBag.TotalSuggestedPages ?? 1;
     var currentSuggestedPage = ViewBag.CurrentSuggestedPage ?? 1;
@@ -51,6 +63,99 @@
         </div>
     </div>
     
+    <!-- ===== SẢN PHẨM MỚI NHẤT ====== -->
+    @if (newestProducts.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-white">
+                        <h2 class="section-title mb-0 fs-4">Sản phẩm mới nhất</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-4">
+                            @foreach (var product in newestProducts)
+                            {
+                                // Logic tính giá tương tự các section khác
+                                decimal productSpecificDiscountPercentage = 0m;
+                                var productSpecificPromo = activePromotions.FirstOrDefault(p => p.ProductID == product.ProductID);
+                                if (productSpecificPromo != null) { productSpecificDiscountPercentage = productSpecificPromo.DiscountPercentage; }
+                                decimal effectiveDiscountPercentage = User.Identity.IsAuthenticated ? Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage) : productSpecificDiscountPercentage;
+                                decimal finalDisplayedPrice = product.Price * (1 - effectiveDiscountPercentage / 100m);
+                                decimal discountAmount = product.Price - finalDisplayedPrice;
+
+                                <div class="col">
+                                    <div class="card product-card h-100 position-relative">
+                                        <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID" class="product-image-link">
+                                            <div class="product-image-container">
+                                                @{
+                                                    var imagePathFromDb = product.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath ?? product.ProductImages?.FirstOrDefault()?.ImagePath;
+                                                    var imageUrl = !string.IsNullOrEmpty(imagePathFromDb) ? "/images/" + imagePathFromDb.TrimStart('/') : "/images/placeholder.png";
+                                                }
+                                                <img src="@imageUrl" alt="@product.ProductName" class="card-img-top img-fluid product-img-custom">
+                                            </div>
+                                        </a>
+                                        <div class="card-body d-flex flex-column ProductCard_cardInfo">
+                                            <p class="product-label-loan mb-0"><span title="Trả góp 0%">Trả góp 0%</span></p>
+                                            <div class="product-price-block">
+                                                @if (effectiveDiscountPercentage > 0)
+                                                {
+                                                    <p class="price-old-discount mb-0">
+                                                        <span class="price-old">@string.Format("{0:N0}", product.Price) VNĐ</span>
+                                                        <span class="price-discount-percent">-@effectiveDiscountPercentage.ToString("0")%</span>
+                                                    </p>
+                                                    <p class="price-current mb-0">@string.Format("{0:N0}", finalDisplayedPrice) VNĐ</p>
+                                                    <p class="price-reduction-amount mb-0">Giảm @string.Format("{0:N0}", discountAmount) VNĐ</p>
+                                                }
+                                                else
+                                                {
+                                                    <p class="price-current mb-0">@string.Format("{0:N0}", product.Price) VNĐ</p>
+                                                }
+                                            </div>
+                                            <p class="product-countdown-timer mb-0" data-end-time="@(productSpecificPromo?.EndDate.ToString("o") ?? "")">Đang tải thời gian...</p>
+                                            <h3 class="product-title-text mt-auto">
+                                                <a asp-controller="Product" asp-action="Details" asp-route-id="@product.ProductID" class="text-decoration-none text-dark">
+                                                    @product.ProductName
+                                                </a>
+                                            </h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (totalNewestPages > 1)
+                    {
+                        <div class="card-footer bg-white">
+                            <nav aria-label="Page navigation for newest products">
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item @(currentNewestPage == 1 ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage - 1 })" aria-label="Previous">
+                                            <span aria-hidden="true">«</span>
+                                        </a>
+                                    </li>
+                                    @for (int i = 1; i <= totalNewestPages; i++)
+                                    {
+                                        <li class="page-item @(i == currentNewestPage ? "active" : "")">
+                                            <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage, pageSize, suggestedPage = currentSuggestedPage, newestPage = i })">@i</a>
+                                        </li>
+                                    }
+                                    <li class="page-item @(currentNewestPage == totalNewestPages ? "disabled" : "")">
+                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage + 1 })" aria-label="Next">
+                                            <span aria-hidden="true">»</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- ===== GỢI Ý SẢN PHẨM ====== -->
     @if (suggestedProducts.Any())
     {
         <div class="row mb-4">
@@ -63,15 +168,11 @@
                         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-4">
                             @foreach (var product in suggestedProducts)
                             {
+                                // Logic tính giá tương tự các section khác
                                 decimal productSpecificDiscountPercentage = 0m;
                                 var productSpecificPromo = activePromotions.FirstOrDefault(p => p.ProductID == product.ProductID);
-
                                 if (productSpecificPromo != null) { productSpecificDiscountPercentage = productSpecificPromo.DiscountPercentage; }
-
-                                decimal effectiveDiscountPercentage;
-                                if (User.Identity.IsAuthenticated) { effectiveDiscountPercentage = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage); }
-                                else { effectiveDiscountPercentage = productSpecificDiscountPercentage; }
-
+                                decimal effectiveDiscountPercentage = User.Identity.IsAuthenticated ? Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage) : productSpecificDiscountPercentage;
                                 decimal finalDisplayedPrice = product.Price * (1 - effectiveDiscountPercentage / 100m);
                                 decimal discountAmount = product.Price - finalDisplayedPrice;
 
@@ -81,11 +182,7 @@
                                             <div class="product-image-container">
                                                 @{
                                                     var imagePathFromDb = product.ProductImages?.FirstOrDefault(i => i.IsMainImage)?.ImagePath ?? product.ProductImages?.FirstOrDefault()?.ImagePath;
-                                                    var imageUrl = "/images/placeholder.png";
-                                                    if (!string.IsNullOrEmpty(imagePathFromDb))
-                                                    {
-                                                        imageUrl = "/images/" + imagePathFromDb.TrimStart('/');
-                                                    }
+                                                    var imageUrl = !string.IsNullOrEmpty(imagePathFromDb) ? "/images/" + imagePathFromDb.TrimStart('/') : "/images/placeholder.png";
                                                 }
                                                 <img src="@imageUrl" alt="@product.ProductName" class="card-img-top img-fluid product-img-custom">
                                             </div>
@@ -126,18 +223,18 @@
                             <nav aria-label="Page navigation for suggestions">
                                 <ul class="pagination justify-content-center mb-0">
                                     <li class="page-item @(currentSuggestedPage == 1 ? "disabled" : "")">
-                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm = searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, sortOrder = currentSort, page = currentPage, pageSize = pageSize, suggestedPage = currentSuggestedPage - 1 })" aria-label="Previous">
+                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage, pageSize, suggestedPage = currentSuggestedPage - 1, newestPage = currentNewestPage })" aria-label="Previous">
                                             <span aria-hidden="true">«</span>
                                         </a>
                                     </li>
                                     @for (int i = 1; i <= totalSuggestedPages; i++)
                                     {
                                         <li class="page-item @(i == currentSuggestedPage ? "active" : "")">
-                                            <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm = searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, sortOrder = currentSort, page = currentPage, pageSize = pageSize, suggestedPage = i })">@i</a>
+                                            <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage, pageSize, suggestedPage = i, newestPage = currentNewestPage })">@i</a>
                                         </li>
                                     }
                                     <li class="page-item @(currentSuggestedPage == totalSuggestedPages ? "disabled" : "")">
-                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm = searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, sortOrder = currentSort, page = currentPage, pageSize = pageSize, suggestedPage = currentSuggestedPage + 1 })" aria-label="Next">
+                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage, pageSize, suggestedPage = currentSuggestedPage + 1, newestPage = currentNewestPage })" aria-label="Next">
                                             <span aria-hidden="true">»</span>
                                         </a>
                                     </li>
@@ -160,10 +257,10 @@
                         <h2 class="section-title mb-0 fs-4">Sản phẩm</h2>
                         <div class="filter-options">
                             <select id="sort-filter" class="form-select form-select-sm" onchange="location = this.value;">
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId })")>Mặc định</option>
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_asc" })")>Giá: Thấp đến cao</option>
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "price_desc" })")>Giá: Cao đến thấp</option>
-                                <option value="@Url.Action("Index", "Home", new { categoryId = ViewBag.SelectedCategoryId, subcategoryId = ViewBag.SelectedSubcategoryId, sortOrder = "newest" })")>Mới nhất</option>
+                                <option value="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = (string)null, page = 1, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage })" selected="@(currentSort == null)">Mặc định</option>
+                                <option value="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = "price_asc", page = 1, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage })" selected="@(currentSort == "price_asc")">Giá: Thấp đến cao</option>
+                                <option value="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = "price_desc", page = 1, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage })" selected="@(currentSort == "price_desc")">Giá: Cao đến thấp</option>
+                                <option value="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = "newest", page = 1, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage })" selected="@(currentSort == "newest")">Mới nhất</option>
                             </select>
                         </div>
                     </div>
@@ -276,18 +373,18 @@
                         <nav aria-label="Page navigation">
                             <ul class="pagination justify-content-center mb-0">
                                 <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm = searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, sortOrder = currentSort, page = currentPage - 1, pageSize = pageSize })" aria-label="Previous">
+                                    <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage - 1, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage })" aria-label="Previous">
                                         <span aria-hidden="true">«</span>
                                     </a>
                                 </li>
                                 @for (int i = 1; i <= totalPages; i++)
                                 {
                                     <li class="page-item @(i == currentPage ? "active" : "")">
-                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm = searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, sortOrder = currentSort, page = i, pageSize = pageSize })">@i</a>
+                                        <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = i, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage })">@i</a>
                                     </li>
                                 }
                                 <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                                    <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm = searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, sortOrder = currentSort, page = currentPage + 1, pageSize = pageSize })" aria-label="Next">
+                                    <a class="page-link" href="@Url.Action("Index", "Home", new { searchTerm, categoryId = selectedCategoryId, subcategoryId = selectedSubcategoryId, minPrice, maxPrice, sortOrder = currentSort, page = currentPage + 1, pageSize, suggestedPage = currentSuggestedPage, newestPage = currentNewestPage })" aria-label="Next">
                                         <span aria-hidden="true">»</span>
                                     </a>
                                 </li>

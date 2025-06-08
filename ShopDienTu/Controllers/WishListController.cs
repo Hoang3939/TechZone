@@ -1,70 +1,91 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿// File: Controllers/WishlistController.cs
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopDienTu.Data;
 using ShopDienTu.Models;
-using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace ShopDienTu.Controllers
 {
     [Authorize]
-    public class WishListController : Controller
+    public class WishlistController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public WishListController(ApplicationDbContext context)
+        public WishlistController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // POST: /WishList/Add
+        // Action này sẽ xử lý cả việc Thêm và Xóa từ trang chi tiết sản phẩm
         [HttpPost]
-        public async Task<IActionResult> Add(int productId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Toggle(int productId)
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!int.TryParse(userIdStr, out int userId))
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
             {
-                return Unauthorized(); // Không lấy được userID
+                return Challenge();
             }
 
-            var exists = await _context.WishLists
-                .AnyAsync(w => w.UserID == userId && w.ProductID == productId);
-
-            if (!exists)
+            var productExists = await _context.Products.AnyAsync(p => p.ProductID == productId);
+            if (!productExists)
             {
-                var newItem = new WishList
+                TempData["ErrorMessage"] = "Sản phẩm không hợp lệ.";
+                // Nếu sản phẩm không tồn tại, có thể chuyển về trang chủ hoặc trang trước đó
+                string referer = Request.Headers["Referer"].ToString();
+                if (!string.IsNullOrEmpty(referer))
                 {
-                    UserID = userId,
-                    ProductID = productId,
-                    AddedAt = DateTime.UtcNow
-                };
-
-                _context.WishLists.Add(newItem);
-                await _context.SaveChangesAsync();
+                    return Redirect(referer);
+                }
+                return RedirectToAction("Index", "Home");
             }
 
-            return RedirectToAction("Wishlist", "Account"); // Chuyển sang trang danh sách yêu thích
+            var wishlistItem = await _context.WishLists
+                .FirstOrDefaultAsync(w => w.UserID == userId && w.ProductID == productId);
+
+            if (wishlistItem == null)
+            {
+                // Nếu chưa có -> Thêm vào
+                _context.WishLists.Add(new WishList { UserID = userId, ProductID = productId, AddedAt = System.DateTime.Now });
+                TempData["SuccessMessage"] = "Đã thêm sản phẩm vào danh sách yêu thích!";
+            }
+            else
+            {
+                // Nếu đã có -> Xóa đi
+                _context.WishLists.Remove(wishlistItem);
+                TempData["SuccessMessage"] = "Đã xóa sản phẩm khỏi danh sách yêu thích.";
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Luôn quay lại trang chi tiết sản phẩm
+            return RedirectToAction("Details", "Product", new { id = productId });
         }
 
-        // POST: /WishList/DeleteById
+        // Action này chỉ dùng cho trang Wishlist.cshtml
         [HttpPost]
-        public async Task<IActionResult> DeleteById(int wishlistItemId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFromList(int wishlistItemId)
         {
-            var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!int.TryParse(userIdStr, out int userId))
+            if (!int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
             {
-                return Unauthorized();
+                return Challenge();
             }
 
-            var item = await _context.WishLists.FindAsync(wishlistItemId);
+            var item = await _context.WishLists.FirstOrDefaultAsync(w => w.WishlistItemID == wishlistItemId && w.UserID == userId);
 
-            if (item != null && item.UserID == userId)
+            if (item != null)
             {
                 _context.WishLists.Remove(item);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Đã xóa sản phẩm khỏi danh sách yêu thích.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy sản phẩm để xóa.";
             }
 
             return RedirectToAction("Wishlist", "Account");

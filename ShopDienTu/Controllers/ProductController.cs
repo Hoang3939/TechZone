@@ -98,6 +98,18 @@ namespace ShopDienTu.Controllers
 
             ViewBag.RelatedProducts = relatedProducts;
 
+            if (User.Identity.IsAuthenticated)
+            {
+                if (int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int userId))
+                {
+                    ViewBag.IsFavorite = await _context.WishLists.AnyAsync(w => w.UserID == userId && w.ProductID == id);
+                }
+            }
+            else
+            {
+                ViewBag.IsFavorite = false;
+            }
+
             return View(product);
         }
 

@@ -105,10 +105,10 @@
                                         <div class="card-body">
                                             <h5 class="card-title">@product?.ProductName</h5>
 
-                                            <div class="text-warning mb-1">
+                                            <div class="rating mb-2">
                                                 @for (int i = 1; i <= 5; i++)
                                                 {
-                                                    <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-secondary")"></i>
+                                                    <i class="@(i <= review.Rating ? "fas" : "far") fa-star text-warning"></i>
                                                 }
                                             </div>
 

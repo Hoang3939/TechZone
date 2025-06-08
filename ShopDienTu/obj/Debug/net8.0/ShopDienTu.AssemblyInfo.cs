@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ShopDienTu")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b6dd1116ff29b1ee63ad624e19b17278a815add")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+967b26d44a386a56eff656fbba75db4095d05d23")]
 [assembly: System.Reflection.AssemblyProductAttribute("ShopDienTu")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ShopDienTu")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

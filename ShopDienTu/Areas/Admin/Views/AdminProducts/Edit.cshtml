@@ -71,7 +71,7 @@
                                 <option value="">-- Chọn danh mục phụ --</option>
                                 @foreach (var subCategory in ViewBag.SubCategories)
                                 {
-                                    <option value="@subCategory.SubCategoryID" selected="@(Model.SubCategoryID == subCategory.SubCategoryID ? "selected" : "")">
+                                    <option value="@subCategory.SubCategoryID">
                                         @subCategory.Category.CategoryName - @subCategory.SubCategoryName
                                     </option>
                                 }
