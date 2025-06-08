@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.X509;
 using ShopDienTu.Data;
 using ShopDienTu.Models;
+using ShopDienTu.Utils;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,162 +23,96 @@ namespace ShopDienTu.Controllers
         }
 
         // GET: AdminOrders
-        public async Task<IActionResult> Index(string searchString, string statusFilter)
+        public async Task<IActionResult> Index(string searchString, string statusFilter, int pageNumber = 1)
         {
-            var orders = _context.Orders
+            ViewBag.StatusList = OrderStatusManager.AdminStatusList;
+            ViewBag.CurrentSearch = searchString;
+            ViewBag.CurrentStatus = statusFilter;
+
+            // Bắt đầu câu truy vấn, chưa sắp xếp
+            var query = _context.Orders
                 .Include(o => o.User)
-                .Include(o => o.PaymentMethod)
                 .AsNoTracking();
 
+            // Áp dụng các bộ lọc (Where) trước
             if (!string.IsNullOrEmpty(searchString))
             {
-                orders = orders.Where(o => o.OrderNumber.Contains(searchString) ||
-                                          (o.User != null && (o.User.FullName.Contains(searchString) || o.User.Email.Contains(searchString))));
-                ViewBag.SearchString = searchString;
+                query = query.Where(o => o.OrderNumber.Contains(searchString) ||
+                                          (o.User != null && o.User.FullName.Contains(searchString)));
             }
 
             if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "All")
             {
-                orders = orders.Where(o => o.OrderStatus == statusFilter);
-                ViewBag.StatusFilter = statusFilter;
+                query = query.Where(o => o.OrderStatus == statusFilter);
             }
 
-            ViewBag.StatusList = new[] { "All", "Chờ xác nhận", "Đang xử lý", "Đang giao", "Hoàn thành", "Hủy" };
-            return View(await orders.ToListAsync());
+            // Sắp xếp (OrderBy) ngay trước khi phân trang
+            var orderedQuery = query.OrderByDescending(o => o.CreatedAt);
+
+            int pageSize = 10;
+            // Truyền câu truy vấn ĐÃ ĐƯỢC SẮP XẾP vào PaginatedList
+            var paginatedOrders = await PaginatedList<Order>.CreateAsync(orderedQuery, pageNumber, pageSize);
+
+            return View(paginatedOrders);
         }
 
         // GET: AdminOrders/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var order = await _context.Orders
                 .Include(o => o.User)
                 .Include(o => o.PaymentMethod)
                 .Include(o => o.OrderDetails).ThenInclude(od => od.Product)
-                .Include(o => o.OrderStatuses)
+                .Include(o => o.OrderStatuses.OrderByDescending(s => s.CreatedAt))
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.OrderID == id);
 
-            if (order == null)
-            {
-                return NotFound();
-            }
+            if (order == null) return NotFound();
 
-            return View(order);
-        }
-
-        // GET: Admin/Orders/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var order = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.PaymentMethod)
-                .FirstOrDefaultAsync(m => m.OrderID == id);
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.PaymentMethods = await _context.PaymentMethods
-                .Where(pm => pm.IsActive)
-                .Select(pm => new { pm.PaymentMethodID, pm.MethodName })
-                .ToListAsync();
-            ViewBag.StatusList = new[] { "Chờ xác nhận", "Đang xử lý", "Đang giao", "Hoàn thành", "Hủy" };
+            ViewBag.StatusList = OrderStatusManager.AdminStatusList;
             return View(order);
         }
 
         // POST: Admin/Orders/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderID,OrderStatus,PaymentMethodID,ShippingAddress,Notes")] Order order)
+        public async Task<IActionResult> UpdateStatus(int orderId, string newStatus, string statusDescription)
         {
-            if (id != order.OrderID)
+            if (string.IsNullOrEmpty(newStatus))
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Vui lòng chọn trạng thái mới.";
+                return RedirectToAction(nameof(Details), new { id = orderId });
             }
 
-            if (!ModelState.IsValid)
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null) return NotFound();
+
+            if (order.OrderStatus != newStatus)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                TempData["ErrorMessage"] = "Lỗi xác thực: " + string.Join("; ", errors);
+                order.OrderStatus = newStatus;
+                order.UpdatedAt = DateTime.Now;
+
+                _context.OrderStatuses.Add(new OrderStatus
+                {
+                    OrderID = order.OrderID,
+                    Status = newStatus,
+                    Description = string.IsNullOrEmpty(statusDescription)
+                                ? "Trạng thái được cập nhật bởi quản trị viên."
+                                : statusDescription,
+                    CreatedAt = DateTime.Now
+                });
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật trạng thái đơn hàng thành công!";
             }
             else
             {
-                try
-                {
-                    var existingOrder = await _context.Orders.FindAsync(id);
-                    if (existingOrder == null)
-                    {
-                        return NotFound();
-                    }
-
-                    // Xử lý PaymentMethodID: Nếu null, giữ nguyên giá trị cũ
-                    if (!order.PaymentMethodID.HasValue)
-                    {
-                        order.PaymentMethodID = existingOrder.PaymentMethodID;
-                    }
-                    else if (!await _context.PaymentMethods.AnyAsync(pm => pm.PaymentMethodID == order.PaymentMethodID))
-                    {
-                        ModelState.AddModelError("PaymentMethodID", "Phương thức thanh toán không hợp lệ.");
-                    }
-
-                    if (ModelState.IsValid)
-                    {
-                        existingOrder.OrderStatus = order.OrderStatus;
-                        existingOrder.ShippingAddress = order.ShippingAddress;
-                        existingOrder.Notes = order.Notes;
-                        existingOrder.PaymentMethodID = order.PaymentMethodID;
-                        existingOrder.UpdatedAt = DateTime.Now;
-
-                        var originalOrder = await _context.Orders.AsNoTracking().FirstOrDefaultAsync(o => o.OrderID == id);
-                        if (originalOrder?.OrderStatus != order.OrderStatus)
-                        {
-                            var orderStatus = new OrderStatus
-                            {
-                                OrderID = order.OrderID,
-                                Status = order.OrderStatus,
-                                Description = $"Cập nhật trạng thái bởi admin lúc {DateTime.Now:dd/MM/yyyy HH:mm}",
-                                CreatedAt = DateTime.Now
-                            };
-                            _context.OrderStatuses.Add(orderStatus);
-                        }
-
-                        _context.Update(existingOrder);
-                        await _context.SaveChangesAsync();
-                        TempData["SuccessMessage"] = "Đơn hàng đã được cập nhật thành công.";
-                        return RedirectToAction(nameof(Index));
-                    }
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.OrderID))
-                    {
-                        return NotFound();
-                    }
-                    TempData["ErrorMessage"] = "Lỗi đồng bộ dữ liệu. Vui lòng thử lại.";
-                }
-                catch (Exception ex)
-                {
-                    TempData["ErrorMessage"] = $"Lỗi khi cập nhật đơn hàng: {ex.Message}";
-                }
+                TempData["InfoMessage"] = "Trạng thái đơn hàng không thay đổi.";
             }
 
-            ViewBag.PaymentMethods = await _context.PaymentMethods
-                .Where(pm => pm.IsActive)
-                .Select(pm => new { pm.PaymentMethodID, pm.MethodName })
-                .ToListAsync();
-            ViewBag.StatusList = new[] { "Chờ xác nhận", "Đang xử lý", "Đang giao", "Hoàn thành", "Hủy" };
-            return View(order);
+            return RedirectToAction(nameof(Details), new { id = orderId });
         }
 
 
@@ -188,59 +123,75 @@ namespace ShopDienTu.Controllers
 
 
         // GET: AdminOrders/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> Cancel(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var order = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.PaymentMethod)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.OrderID == id);
 
-            if (order == null)
+            // Admin chỉ có thể hủy các đơn hàng chưa được giao
+            var cancellableByAdmin = new List<string> {
+                 OrderStatusManager.PendingConfirmation,
+                 OrderStatusManager.AwaitingPayment,
+                 OrderStatusManager.Confirmed,
+                 OrderStatusManager.Processing
+            };
+
+            if (order == null || !cancellableByAdmin.Contains(order.OrderStatus))
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Không thể hủy đơn hàng ở trạng thái này.";
+                return RedirectToAction(nameof(Details), new { id });
             }
 
             return View(order);
         }
 
         // POST: AdminOrders/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost, ActionName("Cancel")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> CancelConfirmed(int orderId, string cancelReason)
         {
-            try
-            {
-                var order = await _context.Orders
-                    .Include(o => o.OrderDetails)
-                    .Include(o => o.OrderStatuses)
-                    .FirstOrDefaultAsync(o => o.OrderID == id);
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails) // Cần include để khôi phục kho
+                .FirstOrDefaultAsync(o => o.OrderID == orderId);
 
-                if (order != null)
-                {
-                    _context.OrderDetails.RemoveRange(order.OrderDetails);
-                    _context.OrderStatuses.RemoveRange(order.OrderStatuses);
-                    _context.Orders.Remove(order);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Đơn hàng đã được xóa thành công.";
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Không tìm thấy đơn hàng để xóa.";
-                }
-            }
-            catch (Exception ex)
+            if (order == null) return NotFound();
+
+            if (order.OrderStatus != OrderStatusManager.Cancelled)
             {
-                TempData["ErrorMessage"] = $"Lỗi khi xóa đơn hàng: {ex.Message}";
+                foreach (var item in order.OrderDetails)
+                {
+                    var product = await _context.Products.FindAsync(item.ProductID);
+                    if (product != null)
+                    {
+                        product.StockQuantity += item.Quantity;
+                    }
+                }
+
+                order.OrderStatus = OrderStatusManager.Cancelled;
+                order.UpdatedAt = DateTime.Now;
+
+                _context.OrderStatuses.Add(new OrderStatus
+                {
+                    OrderID = order.OrderID,
+                    Status = OrderStatusManager.Cancelled,
+                    Description = string.IsNullOrEmpty(cancelReason)
+                                ? "Đơn hàng bị hủy bởi quản trị viên."
+                                : $"Lý do hủy: {cancelReason}",
+                    CreatedAt = DateTime.Now
+                });
+
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Đơn hàng #{order.OrderNumber} đã được hủy thành công và kho hàng đã được cập nhật.";
             }
+            else
+            {
+                TempData["InfoMessage"] = "Đơn hàng này đã ở trạng thái hủy từ trước.";
+            }
+
             return RedirectToAction(nameof(Index));
         }
-
-
     }
 }

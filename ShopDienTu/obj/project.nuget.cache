@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "wfLjjj29yUE=",
+  "dgSpecHash": "6ZBJCf5ZAdQ=",
   "success": true,
-  "projectFilePath": "C:\\Users\\AnhKit\\Source\\Repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
+  "projectFilePath": "C:\\Users\\AnhKit\\source\\repos\\TechZone\\ShopDienTu\\ShopDienTu.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\AnhKit\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\AnhKit\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
@@ -42,6 +42,7 @@
     "C:\\Users\\AnhKit\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
     "C:\\Users\\AnhKit\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\AnhKit\\.nuget\\packages\\portable.bouncycastle\\1.9.0\\portable.bouncycastle.1.9.0.nupkg.sha512",
+    "C:\\Users\\AnhKit\\.nuget\\packages\\qrcoder\\1.6.0\\qrcoder.1.6.0.nupkg.sha512",
     "C:\\Users\\AnhKit\\.nuget\\packages\\runtime.native.system.data.sqlclient.sni\\4.7.0\\runtime.native.system.data.sqlclient.sni.4.7.0.nupkg.sha512",
     "C:\\Users\\AnhKit\\.nuget\\packages\\runtime.win-arm64.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-arm64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",
     "C:\\Users\\AnhKit\\.nuget\\packages\\runtime.win-x64.runtime.native.system.data.sqlclient.sni\\4.4.0\\runtime.win-x64.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512",

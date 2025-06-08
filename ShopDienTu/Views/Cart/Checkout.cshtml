@@ -3,6 +3,7 @@
     ViewData["Title"] = "Thanh toán";
     var currentUser = ViewBag.CurrentUser as User;
     var defaultAddress = ViewBag.DefaultUserAddress as UserAddress;
+    var bankInfo = ViewBag.BankInfo as ShopDienTu.Settings.BankInfoSettings;
 }
 
 <div class="container">
@@ -115,6 +116,19 @@
                                                 @paymentMethod.MethodName
                                             </label>
                                         </div>
+
+                                        @if (paymentMethod.PaymentMethodID == 2)
+                                        {
+                                            <div id="bankInfoDisplay" class="ms-4 p-3 border rounded bg-light d-none">
+                                                <p class="mb-1">Vui lòng chuyển khoản đến thông tin tài khoản dưới đây:</p>
+                                                <ul class="list-unstyled mb-0">
+                                                    <li><strong>Ngân hàng:</strong> @bankInfo?.BankName</li>
+                                                    <li><strong>Chủ tài khoản:</strong> @bankInfo?.AccountName</li>
+                                                    <li><strong>Số tài khoản:</strong> <span class="fw-bold text-danger">@bankInfo?.AccountNumber</span></li>
+                                                </ul>
+                                                <p class="mt-2 mb-0 small text-muted">Nội dung chuyển khoản: Tên + SĐT. Mã QR thanh toán sẽ được cung cấp sau khi bạn hoàn tất đặt hàng.</p>
+                                            </div>
+                                        }
                                     }
                                 }
                                 else
@@ -367,6 +381,25 @@
                     form.submit();
                 });
             }
+
+            const paymentRadios = document.querySelectorAll('.payment-method-radio');
+            const bankInfoDisplay = document.getElementById('bankInfoDisplay');
+
+            function toggleBankInfo() {
+                const selectedPayment = document.querySelector('input[name="paymentMethodId"]:checked');
+                if (selectedPayment && selectedPayment.value === '2' && bankInfoDisplay) {
+                    bankInfoDisplay.classList.remove('d-none');
+                } else if (bankInfoDisplay) {
+                    bankInfoDisplay.classList.add('d-none');
+                }
+            }
+
+            paymentRadios.forEach(radio => {
+                radio.addEventListener('change', toggleBankInfo);
+            });
+
+            // Chạy lần đầu khi tải trang
+            toggleBankInfo();
         });
     </script>
 }

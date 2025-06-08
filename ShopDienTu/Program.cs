@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using ShopDienTu.Data;
 using ShopDienTu.Services;
+using ShopDienTu.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,12 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // Chính sách ch? cho Admin
     options.AddPolicy("CustomerOnly", policy => policy.RequireRole("Customer")); // Chính sách ch? cho Customer
 });
+
+// ??ng ký c?u hình BankInfo
+builder.Services.Configure<BankInfoSettings>(builder.Configuration.GetSection("BankInfo"));
+
+// ??ng ký QR Code Service
+builder.Services.AddScoped<IQrCodeService, QrCodeService>();
 
 // C?u hình DbContext v?i chu?i k?t n?i t? appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

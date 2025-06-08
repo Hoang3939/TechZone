@@ -87,14 +87,27 @@
                         </div>
                     }
 
-                    @if (Model.OrderStatus == "Chờ xác nhận")
-                    {
-                        <div class="mt-3">
+                    @{
+                        var cancellableStatuses = new List<string> { "Chờ xác nhận", "Chờ thanh toán" };
+                        var canCancel = cancellableStatuses.Contains(Model.OrderStatus, StringComparer.OrdinalIgnoreCase);
+                    }
+
+                    <div class="mt-3">
+                        @if (canCancel)
+                        {
                             <a asp-controller="Order" asp-action="CancelOrder" asp-route-id="@Model.OrderID" class="btn btn-outline-danger">
                                 <i class="fas fa-times-circle me-2"></i>Hủy đơn hàng
                             </a>
-                        </div>
-                    }
+                        }
+                        else if (Model.OrderStatus != "Đã hủy")
+                        {
+                            <button type="button" class="btn btn-outline-danger" disabled
+                                    data-bs-toggle="tooltip" data-bs-placement="top"
+                                    title="Bạn không thể hủy đơn hàng khi đơn hàng '@Model.OrderStatus'.">
+                                <i class="fas fa-times-circle me-2"></i>Hủy đơn hàng
+                            </button>
+                        }
+                    </div>
 
                     <!-- Sản phẩm trong đơn hàng -->
                     <h5 class="mb-3 mt-4">Sản phẩm đã đặt</h5>

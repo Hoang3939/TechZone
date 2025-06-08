@@ -20,7 +20,7 @@ namespace ShopDienTu.Models
 
         [StringLength(20)]
         [Display(Name = "Mã đơn hàng")]
-        public string OrderNumber { get; set; }
+        public string? OrderNumber { get; set; }
 
         public int? UserID { get; set; }
 
@@ -53,10 +53,10 @@ namespace ShopDienTu.Models
 
         // Navigation properties
         [ForeignKey("UserID")]
-        public virtual User User { get; set; }
+        public virtual User? User { get; set; }
 
         [ForeignKey("PaymentMethodID")]
-        public virtual PaymentMethod PaymentMethod { get; set; }
+        public virtual PaymentMethod? PaymentMethod { get; set; }
 
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
         public virtual ICollection<OrderStatus> OrderStatuses { get; set; }

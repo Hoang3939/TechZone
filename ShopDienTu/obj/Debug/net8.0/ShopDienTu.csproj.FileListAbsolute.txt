@@ -40,6 +40,7 @@ C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\Microsoft.SqlS
 C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\Microsoft.Win32.SystemEvents.dll
 C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\BouncyCastle.Crypto.dll
+C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\QRCoder.dll
 C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\System.ClientModel.dll
 C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\System.CodeDom.dll
 C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\System.Configuration.ConfigurationManager.dll

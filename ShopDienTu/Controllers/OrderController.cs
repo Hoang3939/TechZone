@@ -1,17 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Security.Claims;
-using ShopDienTu.Data;
-using ShopDienTu;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using ShopDienTu;
+using ShopDienTu.Data;
 using ShopDienTu.Models;
 using ShopDienTu.Services;
+using ShopDienTu.Settings;
+using ShopDienTu.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace ShopDienTu.Controllers
 {
@@ -21,12 +24,16 @@ namespace ShopDienTu.Controllers
         private readonly ILogger<OrderController> _logger;
         private readonly IShoppingCartService _shoppingCartService;
         private const string GuestInfoSessionKey = "GuestOrderInfo";
+        private readonly IQrCodeService _qrCodeService;
+        private readonly BankInfoSettings _bankInfo;
 
-        public OrderController(ApplicationDbContext context, ILogger<OrderController> logger, IShoppingCartService shoppingCartService)
+        public OrderController(ApplicationDbContext context, ILogger<OrderController> logger, IShoppingCartService shoppingCartService, IQrCodeService qrCodeService,  IOptions<BankInfoSettings> bankInfoOptions)
         {
             _context = context;
             _logger = logger;
             _shoppingCartService = shoppingCartService;
+            _qrCodeService = qrCodeService;
+            _bankInfo = bankInfoOptions.Value;
         }
 
         // GET: Order/TrackOrder
@@ -264,7 +271,7 @@ namespace ShopDienTu.Controllers
                 PaymentMethodID = paymentMethodId,
                 Notes = notes,
                 CreatedAt = now,
-                OrderStatus = "Chờ xác nhận",
+                OrderStatus = (paymentMethodId == 2) ? OrderStatusManager.AwaitingPayment : OrderStatusManager.PendingConfirmation,
                 UserID = currentUser?.UserID,
                 TotalAmount = subtotal - globalVoucherDiscount,
                 Discount = globalVoucherDiscount > 0 ? globalVoucherDiscount : (decimal?)null
@@ -301,8 +308,10 @@ namespace ShopDienTu.Controllers
                 _context.OrderStatuses.Add(new OrderStatus
                 {
                     OrderID = order.OrderID,
-                    Status = "Đang xử lý",
-                    Description = "Đơn hàng đã được tạo, đang chờ xác nhận!",
+                    Status = (paymentMethodId == 2) ? "Chờ thanh toán" : "Chờ xác nhận",
+                    Description = (paymentMethodId == 2)
+                                    ? "Đơn hàng đã được tạo. Vui lòng thanh toán để được xử lý."
+                                    : "Đơn hàng đã được tạo, đang chờ xác nhận từ cửa hàng.",
                     CreatedAt = now
                 });
 
@@ -357,6 +366,7 @@ namespace ShopDienTu.Controllers
                 .Where(pm => pm.IsActive)
                 .ToListAsync();
 
+            ViewBag.BankInfo = _bankInfo;
             if (User.Identity.IsAuthenticated)
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -456,6 +466,16 @@ namespace ShopDienTu.Controllers
                     ViewBag.GuestInfo = guestInfo;
                 }
             }
+
+            if (order.PaymentMethodID == 2 && order.TotalAmount.HasValue)
+            {
+                ViewBag.BankInfo = _bankInfo;
+                ViewBag.QrCodeImage = _qrCodeService.GenerateVietQrCodeAsBase64(
+                    order.TotalAmount.Value,
+                    $"Thanh toan don hang {order.OrderNumber}"
+                );
+            }
+
             return View(order);
         }
 
@@ -494,9 +514,10 @@ namespace ShopDienTu.Controllers
                     }
                 }
 
-                if (order.OrderStatus != "Chờ xác nhận")
+                var cancellableStatuses = new List<string> {OrderStatusManager.PendingConfirmation, OrderStatusManager.AwaitingPayment};
+                if (!cancellableStatuses.Contains(order.OrderStatus, StringComparer.OrdinalIgnoreCase))
                 {
-                    TempData["ErrorMessage"] = "Không thể hủy đơn hàng ở trạng thái hiện tại.";
+                    TempData["ErrorMessage"] = $"Không thể hủy đơn hàng ở trạng thái '{order.OrderStatus}'.";
                     return RedirectToAction("OrderDetails", new { id = order.OrderID });
                 }
 
@@ -539,9 +560,10 @@ namespace ShopDienTu.Controllers
                     }
                 }
 
-                if (order.OrderStatus != "Chờ xác nhận")
+                var cancellableStatuses = new List<string> { OrderStatusManager.PendingConfirmation, OrderStatusManager.AwaitingPayment };
+                if (!cancellableStatuses.Contains(order.OrderStatus, StringComparer.OrdinalIgnoreCase))
                 {
-                    TempData["ErrorMessage"] = "Không thể hủy đơn hàng ở trạng thái hiện tại.";
+                    TempData["ErrorMessage"] = $"Không thể hủy đơn hàng ở trạng thái '{order.OrderStatus}'.";
                     return RedirectToAction("OrderDetails", new { id = order.OrderID });
                 }
 
