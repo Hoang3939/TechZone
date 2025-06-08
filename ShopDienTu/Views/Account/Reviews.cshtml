@@ -51,6 +51,9 @@
                         <a asp-controller="Account" asp-action="Voucher" class="list-group-item list-group-item-action">
                             <i class="fas fa-tags me-2"></i> Voucher
                         </a>
+                        <a asp-controller="Account" asp-action="TwoFactorSettings" class="btn btn-outline-primary mt-3">
+                            <i class="fas fa-shield-alt me-2"></i> Cài đặt xác thực hai lớp
+                        </a>
                         @if (User.IsInRole("Admin"))
                         {
                             <a asp-controller="Admin" asp-action="Index" class="list-group-item list-group-item-action">

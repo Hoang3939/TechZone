@@ -48,6 +48,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Hi?n th? chu?i k?t n?i trong log ?? debug
 Console.WriteLine($"Connection string: {connectionString}");
 
+// Configure Email Service using ShopDienTu.Services
+builder.Services.AddSingleton<ShopDienTu.Services.IEmailService, ShopDienTu.Services.EmailService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

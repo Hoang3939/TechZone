@@ -197,3 +197,4 @@ C:\Users\Admin\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\refint\ShopDien
 C:\Users\Admin\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\ShopDienTu.pdb
 C:\Users\Admin\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\ShopDienTu.genruntimeconfig.cache
 C:\Users\Admin\Source\Repos\TechZone\ShopDienTu\obj\Debug\net8.0\ref\ShopDienTu.dll
+C:\Users\AnhKit\source\repos\TechZone\ShopDienTu\bin\Debug\net8.0\Markdig.dll

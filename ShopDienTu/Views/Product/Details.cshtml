@@ -15,6 +15,14 @@
     decimal effectiveDiscountPercentageForMainProduct = Math.Max(productSpecificDiscountPercentage, rankDiscountPercentage);
 
     decimal finalDisplayedPriceForMainProduct = Model.Price * (1 - effectiveDiscountPercentageForMainProduct / 100m);
+
+    decimal averageRating = 0;
+    int reviewsCount = 0;
+    if (Model.Reviews != null && Model.Reviews.Any())
+    {
+        reviewsCount = Model.Reviews.Count;
+        averageRating = (decimal)Model.Reviews.Average(r => r.Rating);
+    }
 }
 
 <div class="container">
@@ -160,7 +168,7 @@
                 <li class="nav-item" role="presentation">
                     <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews"
                             type="button" role="tab" aria-controls="reviews" aria-selected="false">
-                        Đánh giá (@Model.Reviews?.Count ?? 0)
+                        Đánh giá (@reviewsCount)
                     </button>
                 </li>
             </ul>
@@ -180,6 +188,38 @@
                     }
                 </div>
                 <div class="tab-pane fade" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+                    @if (reviewsCount > 0)
+                    {
+                        <div class="reviews-overview mb-4 p-3 bg-light rounded">
+                            <h4 class="mb-3">Tổng quan đánh giá</h4>
+                            <div class="d-flex align-items-center">
+                                <div class="average-rating-score fs-2 fw-bold me-3">
+                                    @averageRating.ToString("0.0")<span class="fs-5 text-muted">/5</span>
+                                </div>
+                                <div class="average-rating-stars me-3">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= averageRating) // Sao đầy
+                                        {
+                                            <i class="fas fa-star text-warning"></i>
+                                        }
+                                        else if (i - 0.5m <= averageRating) // Nửa sao
+                                        {
+                                            <i class="fas fa-star-half-alt text-warning"></i>
+                                        }
+                                        else // Sao rỗng
+                                        {
+                                            <i class="far fa-star text-warning"></i>
+                                        }
+                                    }
+                                </div>
+                                <div class="total-reviews text-muted">
+                                    (@reviewsCount đánh giá)
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                     @if (Model.Reviews != null && Model.Reviews.Any())
                     {
                         <div class="reviews-list">
@@ -192,9 +232,10 @@
                                             <div class="text-muted small">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
                                         </div>
                                         <div class="rating">
+                                            @* --- THAY ĐỔI HIỂN THỊ SAO CỦA ĐÁNH GIÁ CŨ --- *@
                                             @for (int i = 1; i <= 5; i++)
                                             {
-                                                <i class="fas fa-star @(i <= review.Rating ? "text-warning" : "text-muted")"></i>
+                                                <i class="@(i <= review.Rating ? "fas" : "far") fa-star text-warning"></i>
                                             }
                                         </div>
                                     </div>
@@ -220,10 +261,11 @@
                                     <div class="rating-input">
                                         @for (int i = 5; i >= 1; i--)
                                         {
-                                            <input type="radio" id="star@i" name="rating" value="@i" />
-                                            <label for="star@i" title="@i sao"><i class="far fa-star"></i></label>
+                                            <input type="radio" id="star-@i" name="rating" value="@i" required />
+                                            <label for="star-@i" title="@i sao"><i class="fas fa-star"></i></label>
                                         }
                                     </div>
+                                    <span class="text-danger" data-valmsg-for="rating" data-valmsg-replace="true"></span>
                                 </div>
 
                                 <div class="mb-3">

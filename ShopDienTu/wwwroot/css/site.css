@@ -528,32 +528,48 @@ body.sidebar-visible::after {
     }
 
 /* Rating Stars */
+/* Ki?u cho khu v?c t?ng quan */
+.reviews-overview .average-rating-stars i,
+.review-item .rating i {
+    font-size: 1.1rem;
+}
+
+.reviews-overview .average-rating-score {
+    line-height: 1;
+}
+
+
+/* Ki?u cho form thêm ?ánh giá (quan tr?ng nh?t) */
 .rating-input {
+    border: none;
+    display: inline-block;
+    /* ??o ng??c th? t? các label ?? chúng hi?n th? t? 1 ??n 5 */
     display: flex;
     flex-direction: row-reverse;
     justify-content: flex-end;
 }
 
-    .rating-input input {
+    /* ?n các radio button m?c ??nh */
+    .rating-input > input {
         display: none;
     }
 
-    .rating-input label {
+    /* Ki?u c?a các ngôi sao (label) */
+    .rating-input > label {
         cursor: pointer;
-        font-size: 24px;
-        padding: 0 5px;
+        font-size: 1.8rem; /* T?ng kích th??c sao cho d? click */
+        color: #e4e5e9; /* Màu m?c ??nh c?a sao (xám nh?t - trông nh? r?ng) */
+        transition: color 0.2s ease-in-out;
     }
 
-        .rating-input label i {
-            color: #ccc;
+        /* Khi hover vào m?t sao, nó và các sao tr??c nó (bên trái) s? ??i màu */
+        .rating-input > label:hover,
+        .rating-input > label:hover ~ label {
+            color: #ffc107; /* Màu vàng c?a Bootstrap */
         }
 
-        .rating-input label:hover i,
-        .rating-input label:hover ~ label i {
-            color: #ffc107;
-        }
-
-    .rating-input input:checked ~ label i {
+    /* Khi m?t radio ???c ch?n, sao t??ng ?ng và các sao tr??c nó s? gi? l?i màu vàng */
+    .rating-input > input:checked ~ label {
         color: #ffc107;
     }
 
@@ -700,3 +716,200 @@ body {
     z-index: 1;
     content: "";
 }
+
+/* CSS FOR CHATBOT */
+.chat-popup {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 400px;
+    height: 500px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: none;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    z-index: 1000;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+    .chat-popup.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .chat-popup.hide {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+.chat-header {
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    color: #fff;
+    padding: 15px;
+    border-radius: 15px 15px 0 0;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: move;
+}
+
+.header-buttons {
+    display: flex;
+    align-items: center;
+}
+
+.refresh-chat, .close-chat {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 10px;
+    transition: color 0.3s;
+}
+
+    .refresh-chat:hover, .close-chat:hover {
+        color: #ffcccc;
+    }
+
+    .refresh-chat svg {
+        vertical-align: middle;
+    }
+
+.chat-content {
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f9f9f9;
+    line-height: 1.6;
+}
+
+.chat-message {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+
+    .chat-message.user {
+        justify-content: flex-end;
+    }
+
+    .chat-message.bot {
+        justify-content: flex-start;
+    }
+
+    .chat-message .bubble {
+        max-width: 70%;
+        padding: 10px 15px;
+        border-radius: 15px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-message.user .bubble {
+        background: #007bff;
+        color: #fff;
+        border-bottom-right-radius: 0;
+    }
+
+    .chat-message.bot .bubble {
+        background: #e0e0e0;
+        color: #333;
+        border-bottom-left-radius: 0;
+    }
+
+    .chat-message .bubble strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+
+    .chat-message .bubble img {
+        max-width: 100%;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+.chat-input {
+    display: flex;
+    padding: 15px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+}
+
+    .chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        font-size: 14px;
+        outline: none;
+    }
+
+        .chat-input input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+    .chat-input button {
+        margin-left: 10px;
+        padding: 10px 20px;
+        background: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+        .chat-input button:hover {
+            background: #0056b3;
+        }
+
+.chat-icon {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1000;
+    opacity: 1;
+    transform: scale(1);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+    .chat-icon:hover {
+        transform: scale(1.1);
+    }
+
+    .chat-icon.hidden {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    .chat-icon.visible {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .chat-icon svg {
+        fill: none;
+        stroke: #fff;
+        width: 24px;
+        height: 24px;
+    }

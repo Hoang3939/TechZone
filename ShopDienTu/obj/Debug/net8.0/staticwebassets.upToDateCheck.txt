@@ -1,5 +1,4 @@
 wwwroot\css\boot.css
-wwwroot\css\site.css
 wwwroot\css\style.css
 wwwroot\dist\css\adminlte.css
 wwwroot\dist\css\adminlte.css.map
@@ -80,6 +79,7 @@ wwwroot\images\asus_rog.jpg
 wwwroot\images\asus_rog1.jpg
 wwwroot\images\banners\banner4.png
 wwwroot\images\banners\banner5.jpg
+wwwroot\images\banners\banner6.jpg
 wwwroot\images\banners\banner6.png
 wwwroot\images\c3abc00b-2590-4f1b-bbc4-1ea0f98358ad.jpg
 wwwroot\images\c5aab2ed-86b4-47d3-a9ed-3eec36313097.jpg
@@ -2067,3 +2067,4 @@ wwwroot\plugins\uplot\uPlot.esm.js
 wwwroot\plugins\uplot\uPlot.iife.js
 wwwroot\plugins\uplot\uPlot.iife.min.js
 wwwroot\plugins\uplot\uPlot.min.css
+wwwroot\css\site.css

@@ -209,5 +209,141 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
+    <!-- Thêm jQuery UI để hỗ trợ draggable -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+    <!-- Chat Widget -->
+    <div class="chat-popup" id="chatPopup">
+        <div class="chat-header">
+            <span>Chat với ShopDienTu</span>
+            <div class="header-buttons">
+                <button class="refresh-chat" title="Làm mới Chat">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2">
+                        <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3L23 4M1 20l4.65-1.65A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+                <button class="close-chat" title="Đóng">×</button>
+            </div>
+        </div>
+        <div class="chat-content" id="chatContent">
+            <!-- Nội dung chat sẽ được thêm động bằng JavaScript -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Nhập câu hỏi của bạn..." />
+            <button onclick="sendChat()">Gửi</button>
+        </div>
+    </div>
+
+    <!-- Biểu tượng chat -->
+    <div class="chat-icon" id="chatIcon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l2.2-6.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+        </svg>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || []; // Lấy lịch sử từ localStorage
+            let hasGreeted = localStorage.getItem('hasGreeted') === 'true'; // Kiểm tra đã chào chưa
+
+            $('#chatIcon').click(function () {
+                $('#chatPopup').css('display', 'block').removeClass('hide').addClass('show');
+                $('#chatIcon').removeClass('visible').addClass('hidden');
+                $('#chatInput').focus();
+
+                // Đảm bảo chào khi mở lần đầu và chỉ chào một lần
+                if (!hasGreeted && chatHistory.length === 0) {
+                    $('#chatContent').append('<div class="chat-message bot"><div class="bubble"><strong>ShopDienTu:</strong> Chào bạn! Mình là trợ lý của ShopDienTu, rất vui được hỗ trợ bạn! Bạn cần giúp gì hôm nay?</div></div>');
+                    $('#chatContent').scrollTop($('#chatContent')[0].scrollHeight);
+                    localStorage.setItem('hasGreeted', 'true'); // Đánh dấu đã chào
+                    hasGreeted = true;
+                }
+                loadChatHistory();
+            });
+
+            $('.close-chat').click(function () {
+                $('#chatPopup').removeClass('show').addClass('hide').one('transitionend', function () {
+                    $(this).css('display', 'none');
+                });
+                $('#chatIcon').removeClass('hidden').addClass('visible');
+            });
+
+            $('.refresh-chat').click(function () {
+                $('#chatContent').empty();
+                chatHistory = []; // Xóa lịch sử
+                localStorage.setItem('chatHistory', JSON.stringify(chatHistory)); // Cập nhật localStorage
+                localStorage.removeItem('hasGreeted'); // Xóa trạng thái đã chào
+                hasGreeted = false;
+                $('#chatContent').append('<div class="chat-message bot"><div class="bubble"><strong>ShopDienTu:</strong> Chào bạn! Mình là trợ lý của ShopDienTu, rất vui được hỗ trợ bạn! Bạn cần giúp gì hôm nay?</div></div>');
+                $('#chatContent').scrollTop($('#chatContent')[0].scrollHeight);
+            });
+
+            $('#chatPopup').draggable({
+                handle: '.chat-header',
+                containment: 'window',
+                scroll: false
+            });
+
+            $('#chatInput').keypress(function (e) {
+                if (e.which === 13) {
+                    sendChat();
+                }
+            });
+        });
+
+        function sendChat() {
+            var userInput = $('#chatInput').val().trim();
+            if (!userInput) return;
+
+            var message = '<div class="chat-message user"><div class="bubble"><strong>Bạn:</strong> ' + userInput + '</div></div>';
+            $('#chatContent').append(message);
+            $('#chatContent').scrollTop($('#chatContent')[0].scrollHeight);
+
+            var loadingMessage = $('<div class="chat-message bot"><div class="bubble"><strong>ShopDienTu:</strong> Đang trả lời...</div></div>');
+            $('#chatContent').append(loadingMessage);
+            $('#chatContent').scrollTop($('#chatContent')[0].scrollHeight);
+
+            $.ajax({
+                url: '/Chat/Chat',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ userinput: userInput }),
+                success: function (response) {
+                    loadingMessage.remove();
+                    if (response.success) {
+                        $('#chatContent').append('<div class="chat-message bot"><div class="bubble">' + response.html + '</div></div>');
+                    } else {
+                        $('#chatContent').append('<div class="chat-message bot"><div class="bubble"><strong>ShopDienTu:</strong> ' + response.message + '</div></div>');
+                    }
+                    $('#chatContent').scrollTop($('#chatContent')[0].scrollHeight);
+                    $('#chatInput').val('');
+
+                    // Lưu lịch sử vào chatHistory và localStorage
+                    let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+                    chatHistory.push({ user: userInput, bot: response.html || response.message });
+                    localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+                },
+                error: function () {
+                    loadingMessage.remove();
+                    $('#chatContent').append('<div class="chat-message bot"><div class="bubble"><strong>ShopDienTu:</strong> Lỗi kết nối, vui lòng thử lại!</div></div>');
+                    $('#chatContent').scrollTop($('#chatContent')[0].scrollHeight);
+                    $('#chatInput').val('');
+                }
+            });
+        }
+
+        function loadChatHistory() {
+            let chatHistory = JSON.parse(localStorage.getItem('chatHistory')) || [];
+            $('#chatContent').empty();
+            if (chatHistory.length > 0) {
+                chatHistory.forEach(function (item) {
+                    $('#chatContent').append('<div class="chat-message user"><div class="bubble"><strong>Bạn:</strong> ' + item.user + '</div></div>');
+                    $('#chatContent').append('<div class="chat-message bot"><div class="bubble">' + item.bot + '</div></div>');
+                });
+                $('#chatContent').scrollTop($('#chatContent')[0].scrollHeight);
+            }
+        }
+    </script>
 </body>
 </html>

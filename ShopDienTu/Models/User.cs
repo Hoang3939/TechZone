@@ -64,5 +64,7 @@ namespace ShopDienTu.Models
         public Rank Rank { get; set; }
         //public string? ResetToken { get; set; } // Token dùng để đặt lại mật khẩu
         //public DateTime? ResetTokenExpiry { get; set; } // Thời gian hết hạn của token
+
+        public bool IsTwoFactorEnabled { get; set; }
     }
 }
